@@ -1,0 +1,36 @@
+---
+checkpoints:
+  sd15:
+    path: 'models/checkpoints/SD15'
+  sdxl:
+    path: 'models/checkpoints/SDXL'
+
+loras:
+  sd15:
+    path: 'models/loras/SD15'
+  sdxl:
+    path: 'models/loras/SDXL'
+
+vae:
+  sd15:
+    path: 'models/vae/SD15'
+  sdxl:
+    path: 'models/vae/SDXL'
+
+storage:
+  persist_to_backend: true
+  output_images: 'outputs/images'
+  output_json: 'outputs/json'
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  job_queue:
+    num_workers: 1
+    result_ttl: 3600
+  model_cache:
+    max_models: 2
+  cors:
+    enabled: true
+    allow_origins: ["*"]
