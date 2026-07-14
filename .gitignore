@@ -39,7 +39,7 @@ parameters.yaml
 *.local
 
 # Models (large files)
-models
+model_repo
 *.safetensors
 *.ckpt
 *.pt
