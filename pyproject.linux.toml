@@ -1,0 +1,91 @@
+[project]
+name = "sd-api-backend"
+version = "1.0.0"
+description = "REST API for Stable Diffusion image generation (SD1.5 and SDXL)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "bitsandbytes>=0.49.2",
+  "diffusers==0.39",
+  "fastapi>=0.115.0",
+  "peft>=0.19.1",
+  "pillow>=12.0.0",
+  "pydantic>=2.10.0",
+  "python-multipart>=0.0.20",
+  "pyyaml>=6.0",
+  "safetensors>=0.4.0",
+  "transformers==5.13",
+  "uvicorn[standard]>=0.32.0",
+]
+
+[project.optional-dependencies]
+cpu = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
+"rocm7.2" = [
+  "torch>=2.13.0",
+  "torchvision>=0.23.0",
+  "triton-rocm",
+  "torchaudio",
+]
+cu126 = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
+cu130 = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "rocm7.2" },
+    { extra = "cu126" },
+    { extra = "cu130" },
+    { extra = "cpu" },
+  ],
+]
+environments = ["sys_platform == 'linux'"]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
+  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
+  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+]
+triton-rocm = [
+  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+]
+torchvision = [
+  { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
+  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
+  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+]
+torchaudio = [
+  { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
+  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
+  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-rocm7.2"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["api"]
