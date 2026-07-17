@@ -47,11 +47,11 @@ class AppConfig:
 
     @property
     def vae_sd15_path(self) -> str:
-        return self.parameters.vae.sd15.path
+        return self.parameters.vaes.sd15.path
 
     @property
     def vae_sdxl_path(self) -> str:
-        return self.parameters.vae.sdxl.path
+        return self.parameters.vaes.sdxl.path
 
     @property
     def output_images_path(self) -> str:
@@ -85,10 +85,10 @@ class AppConfig:
     def cors_allow_origins(self) -> list:
         return getattr(self.parameters.api.cors, "allow_origins", ["*"])
 
-    def as_dict(self) -> dict :
+    def as_dict(self) -> dict:
         return {
             "config_file": self.config_file,
-            "config_parameters": self.parameters.to_dict()
+            "config_parameters": self.parameters.to_dict(),
         }
 
     def get_model_paths(self, model_type: str) -> Dict[str, str]:
@@ -113,13 +113,13 @@ class AppConfig:
             return {
                 "checkpoints": self.checkpoints_sd15_path,
                 "loras": self.loras_sd15_path,
-                "vae": self.vae_sd15_path,
+                "vaes": self.vae_sd15_path,
             }
         else:  # sdxl
             return {
                 "checkpoints": self.checkpoints_sdxl_path,
                 "loras": self.loras_sdxl_path,
-                "vae": self.vae_sdxl_path,
+                "vaes": self.vae_sdxl_path,
             }
 
     def setup_paths(self) -> None:

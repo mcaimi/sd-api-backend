@@ -11,7 +11,7 @@ loras:
   sdxl:
     path: 'models/loras/SDXL'
 
-vae:
+vaes:
   sd15:
     path: 'models/vae/SD15'
   sdxl:

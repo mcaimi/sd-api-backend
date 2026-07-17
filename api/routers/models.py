@@ -5,7 +5,6 @@ Models Router
 Endpoints for listing and querying model metadata.
 """
 
-from typing import List
 from fastapi import APIRouter, HTTPException
 
 from api.models.system import ModelListResponse, ModelMetadataResponse
