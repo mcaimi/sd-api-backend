@@ -47,6 +47,7 @@ model_repo
 
 # Outputs
 outputs/
+examples/
 *.png
 *.jpg
 *.jpeg

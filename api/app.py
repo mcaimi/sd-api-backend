@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from api.routers import sd15, sdxl, models, jobs, system, info
+from api.routers import sd15, sdxl, models, jobs, system, info, merge
 from api.services.job_queue import get_job_queue
 from libs.shared.config import get_app_config
 
@@ -75,6 +75,7 @@ def create_app() -> FastAPI:
     app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
     app.include_router(system.router, prefix="/api/v1/system", tags=["System"])
     app.include_router(info.router, prefix="/api/v1/info", tags=["Informational"])
+    app.include_router(merge.router, prefix="/api/v1/merge", tags=["Merge"])
 
     logger.info("FastAPI application created")
 
