@@ -32,7 +32,10 @@ async def generate_sdxl(request: GenerationRequest):
     loras_dict = None
     if request.loras:
         loras_dict = [
-            {"name": lora.name, "strength": lora.strength}
+            {
+                "name": Path(config.loras_sdxl_path) / lora.name,
+                "strength": lora.strength,
+            }
             for lora in request.loras
         ]
 
@@ -58,9 +61,7 @@ async def generate_sdxl(request: GenerationRequest):
     )
 
     return JobResponse(
-        job_id=job_id,
-        status="queued",
-        message="Generation job submitted successfully"
+        job_id=job_id, status="queued", message="Generation job submitted successfully"
     )
 
 
@@ -74,7 +75,10 @@ async def inpaint_sdxl(request: InpaintRequest):
     loras_dict = None
     if request.loras:
         loras_dict = [
-            {"name": lora.name, "strength": lora.strength}
+            {
+                "name": Path(config.loras_sdxl_path) / lora.name,
+                "strength": lora.strength,
+            }
             for lora in request.loras
         ]
 
@@ -100,9 +104,7 @@ async def inpaint_sdxl(request: InpaintRequest):
     )
 
     return JobResponse(
-        job_id=job_id,
-        status="queued",
-        message="Inpainting job submitted successfully"
+        job_id=job_id, status="queued", message="Inpainting job submitted successfully"
     )
 
 
@@ -115,10 +117,7 @@ async def batch_generate_sdxl(request: BatchGenerationRequest):
         response = await generate_sdxl(gen_request)
         job_ids.append(response.job_id)
 
-    return {
-        "job_ids": job_ids,
-        "message": f"Submitted {len(job_ids)} generation jobs"
-    }
+    return {"job_ids": job_ids, "message": f"Submitted {len(job_ids)} generation jobs"}
 
 
 @router.post("/generate/compare")
@@ -143,5 +142,5 @@ async def compare_models_sdxl(request: CompareModelsRequest):
 
     return {
         "comparisons": job_ids,
-        "message": f"Submitted {len(job_ids)} comparison jobs"
+        "message": f"Submitted {len(job_ids)} comparison jobs",
     }
