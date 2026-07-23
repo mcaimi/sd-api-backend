@@ -10,7 +10,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Tuple, Dict, Any, Union
 import logging
-import random
 
 import numpy as np
 import torch
@@ -70,7 +69,9 @@ def load_custom_unet(checkpoint: Union[str, Path]) -> UNet2DConditionModel:
     )
 
 
-def gen_noise(width: int, height: int, channels: int = 3) -> Tuple[np.ndarray, Dict[str, Any]]:
+def gen_noise(
+    width: int, height: int, channels: int = 3
+) -> Tuple[np.ndarray, Dict[str, Any]]:
     """Generate sample noise image."""
     noise_image = np.random.rand(height, width, channels)
     noise_properties = {
@@ -161,7 +162,7 @@ class BasePipelineGenerator(ABC):
         negative_prompt: str,
         scheduler_type: str,
         seed: int,
-        **kwargs
+        **kwargs,
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """Run inference on the given pipeline."""
         # Set scheduler
@@ -175,10 +176,7 @@ class BasePipelineGenerator(ABC):
 
         # Run prediction
         prediction = pipeline(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            generator=gen,
-            **kwargs
+            prompt=prompt, negative_prompt=negative_prompt, generator=gen, **kwargs
         )
 
         # Format metadata
@@ -245,7 +243,9 @@ class BasePipelineGenerator(ABC):
         """
         if self.inpaint_pipeline is None:
             logger.error("Cannot inpaint: no inpainting pipeline loaded")
-            raise PipelineError("No inpainting model loaded. Please load an inpainting pipeline first.")
+            raise PipelineError(
+                "No inpainting model loaded. Please load an inpainting pipeline first."
+            )
 
         # Ensure proper image formats
         pil_image = convert_to_pil(image)
@@ -304,8 +304,18 @@ class BasePipelineGenerator(ABC):
 
             for pipeline in [self.pipeline, self.inpaint_pipeline]:
                 if pipeline is not None:
-                    pipeline.load_lora_weights(weights_file, adapter_name=adapter_name)
-                    pipeline.fuse_lora(lora_scale=strength, adapter_name=adapter_name)
+                    if adapter_name in pipeline.get_active_adapters():
+                        logger.info(
+                            "LoRA Loader: %s: adapter already loaded in the pipeline",
+                            adapter_name,
+                        )
+                    else:
+                        pipeline.load_lora_weights(
+                            weights_file, adapter_name=adapter_name
+                        )
+                        pipeline.fuse_lora(
+                            lora_scale=strength, adapter_name=adapter_name
+                        )
 
         if self.pipeline is None and self.inpaint_pipeline is None:
             raise RuntimeError("No pipeline loaded to add LoRAs to")
@@ -326,4 +336,3 @@ class BasePipelineGenerator(ABC):
             self.inpaint_pipeline.vae = custom_vae
         else:
             raise RuntimeError("No pipeline loaded to set custom VAE")
-

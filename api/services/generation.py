@@ -7,10 +7,8 @@ Async wrapper around SD pipeline generators for image generation and inpainting.
 
 import asyncio
 import logging
-from os import makedirs
-from typing import Optional, Dict
+from typing import Optional
 from pathlib import Path
-from PIL import Image
 import json
 
 from api.services.model_cache import get_cache_manager
@@ -22,10 +20,11 @@ from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
-# persist generation data to backend 
+
+# persist generation data to backend
 async def persist_to_backend(image_array, metadata) -> bool:
     """Persist image and metadata to disk.
-    
+
     Returns:
         bool: True if both files saved successfully, False otherwise.
     """
@@ -33,7 +32,7 @@ async def persist_to_backend(image_array, metadata) -> bool:
     img_dir = Path(config.output_images_path)
     json_path = Path(config.output_json_path)
     outfile_name = str(uuid4())
-    
+
     try:
         # Validate inputs
         if not image_array:
@@ -42,30 +41,31 @@ async def persist_to_backend(image_array, metadata) -> bool:
         if not isinstance(metadata, dict):
             logger.warning("Metadata is not a dictionary")
             return False
-        
+
         # Save image
         image_path = img_dir / f"{outfile_name}.png"
         output_image = base64_to_pil(image_array)
         output_image.save(image_path)
         logger.info(f"Image saved to {image_path}")
-        
+
         # Save metadata
         json_filepath = json_path / f"{outfile_name}.json"
         with open(json_filepath, "w") as f:
             json.dump(metadata, f)
         logger.info(f"Metadata saved to {json_filepath}")
-        
+
         return True
-        
+
     except Exception as e:
         logger.error(f"Failed to persist to backend: {e}", exc_info=True)
         # Optional cleanup: delete partially created image
         try:
-            if 'image_path' in locals() and image_path.exists():
+            if "image_path" in locals() and image_path.exists():
                 image_path.unlink()
         except Exception as cleanup_err:
             logger.warning(f"Cleanup failed: {cleanup_err}")
         return False
+
 
 async def generate_image_async(
     model_type: str,
@@ -103,9 +103,7 @@ async def generate_image_async(
     """
     # Get cached pipeline
     cache_manager = get_cache_manager()
-    pipeline_gen = await cache_manager.get_pipeline(
-        model_type, model_path, "txt2img"
-    )
+    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "txt2img")
 
     # Apply LoRAs if specified
     lora_metadata = {}
@@ -156,7 +154,7 @@ async def generate_image_async(
                 "generation": metadata,
                 "loras": lora_metadata,
                 "vae": custom_vae,
-            }
+            },
         )
 
     return {
@@ -202,9 +200,7 @@ async def inpaint_image_async(
     """
     # Get cached pipeline
     cache_manager = get_cache_manager()
-    pipeline_gen = await cache_manager.get_pipeline(
-        model_type, model_path, "inpaint"
-    )
+    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "inpaint")
 
     # Apply LoRAs if specified
     lora_metadata = {}
@@ -259,7 +255,7 @@ async def inpaint_image_async(
                 "generation": metadata,
                 "loras": lora_metadata,
                 "vae": custom_vae,
-            }
+            },
         )
 
     return {
