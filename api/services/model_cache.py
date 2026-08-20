@@ -112,6 +112,17 @@ class ModelCacheManager:
         # Run in executor to avoid blocking
         return await loop.run_in_executor(None, _load)
 
+    async def evict(self, model_type: str, model_path: str, pipeline_type: str = "txt2img") -> bool:
+        """Remove a specific pipeline from the cache. Returns True if evicted, False if not found."""
+        cache_key = self._make_cache_key(model_type, model_path, pipeline_type)
+        async with self._lock:
+            if cache_key not in self._cache:
+                return False
+            del self._cache[cache_key]
+            self._access_order.remove(cache_key)
+            logger.info(f"Evicted {cache_key} from cache")
+            return True
+
     async def clear_cache(self):
         """Clear all cached models."""
         async with self._lock:

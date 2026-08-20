@@ -115,7 +115,13 @@ async def generate_image_async(
                 "merge_strength": lora_config["strength"],
                 "metadata": {},
             }
-        pipeline_gen.addLorasToPipeline(lora_metadata)
+        try:
+            pipeline_gen.addLorasToPipeline(lora_metadata)
+        except Exception as e:
+            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
+            await cache_manager.evict(model_type, model_path, "txt2img")
+            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "txt2img")
+            pipeline_gen.addLorasToPipeline(lora_metadata)
 
     # Apply custom VAE if specified
     if custom_vae:
@@ -212,7 +218,13 @@ async def inpaint_image_async(
                 "merge_strength": lora_config["strength"],
                 "metadata": {},
             }
-        pipeline_gen.addLorasToPipeline(lora_metadata)
+        try:
+            pipeline_gen.addLorasToPipeline(lora_metadata)
+        except Exception as e:
+            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
+            await cache_manager.evict(model_type, model_path, "inpaint")
+            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "inpaint")
+            pipeline_gen.addLorasToPipeline(lora_metadata)
 
     # Apply custom VAE if specified
     if custom_vae:
