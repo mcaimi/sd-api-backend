@@ -23,8 +23,8 @@ class MergeRequest(BaseModel):
 
     @field_validator('model_type')
     def validate_model_type(cls, v):
-        if v not in ['sd15', 'sdxl']:
-            raise ValueError(f"model_type must be 'sd15' or 'sdxl', got: {v}")
+        if v not in ['sd15', 'sdxl', 'illustrious']:
+            raise ValueError(f"model_type must be 'sd15', 'sdxl', or 'illustrious', got: {v}")
         return v
 
     @field_validator('method')
@@ -48,8 +48,8 @@ class BatchMergeRequest(BaseModel):
 
     @field_validator('model_type')
     def validate_model_type(cls, v):
-        if v not in ['sd15', 'sdxl']:
-            raise ValueError(f"model_type must be 'sd15' or 'sdxl', got: {v}")
+        if v not in ['sd15', 'sdxl', 'illustrious']:
+            raise ValueError(f"model_type must be 'sd15', 'sdxl', or 'illustrious', got: {v}")
         return v
 
     @field_validator('method')
@@ -85,8 +85,8 @@ class MergeRecipeRequest(BaseModel):
 
     @field_validator('model_type')
     def validate_model_type(cls, v):
-        if v not in ['sd15', 'sdxl']:
-            raise ValueError(f"model_type must be 'sd15' or 'sdxl', got: {v}")
+        if v not in ['sd15', 'sdxl', 'illustrious']:
+            raise ValueError(f"model_type must be 'sd15', 'sdxl', or 'illustrious', got: {v}")
         return v
 
 

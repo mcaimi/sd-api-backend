@@ -4,18 +4,24 @@ checkpoints:
     path: 'models/checkpoints/SD15'
   sdxl:
     path: 'models/checkpoints/SDXL'
+  illustrious:
+    path: 'models/checkpoints/Illustrious'
 
 loras:
   sd15:
     path: 'models/loras/SD15'
   sdxl:
     path: 'models/loras/SDXL'
+  illustrious:
+    path: 'models/loras/Illustrious'
 
 vaes:
   sd15:
     path: 'models/vae/SD15'
   sdxl:
     path: 'models/vae/SDXL'
+  illustrious:
+    path: 'models/vae/Illustrious'
 
 storage:
   persist_to_backend: true

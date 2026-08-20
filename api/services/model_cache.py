@@ -12,6 +12,7 @@ from pathlib import Path
 
 from libs.stablediffusion.sd15 import SD15PipelineGenerator
 from libs.stablediffusion.sdxl import SDXLPipelineGenerator
+from libs.stablediffusion.illustrious import IllustriousPipelineGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +104,12 @@ class ModelCacheManager:
                     pipeline_gen.loadSDXLPipeline()
                 else:  # inpaint
                     pipeline_gen.loadSDXLInpaintPipeline()
+            elif model_type == "illustrious":
+                pipeline_gen = IllustriousPipelineGenerator(model_checkpoint=model_path)
+                if pipeline_type == "txt2img":
+                    pipeline_gen.loadIllustriousPipeline()
+                else:  # inpaint
+                    pipeline_gen.loadIllustriousInpaintPipeline()
             else:
                 raise ValueError(f"Unknown model type: {model_type}")
 

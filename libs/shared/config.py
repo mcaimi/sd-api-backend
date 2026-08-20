@@ -38,6 +38,10 @@ class AppConfig:
         return self.parameters.checkpoints.sdxl.path
 
     @property
+    def checkpoints_illustrious_path(self) -> str:
+        return self.parameters.checkpoints.illustrious.path
+
+    @property
     def loras_sd15_path(self) -> str:
         return self.parameters.loras.sd15.path
 
@@ -46,12 +50,20 @@ class AppConfig:
         return self.parameters.loras.sdxl.path
 
     @property
+    def loras_illustrious_path(self) -> str:
+        return self.parameters.loras.illustrious.path
+
+    @property
     def vae_sd15_path(self) -> str:
         return self.parameters.vaes.sd15.path
 
     @property
     def vae_sdxl_path(self) -> str:
         return self.parameters.vaes.sdxl.path
+
+    @property
+    def vae_illustrious_path(self) -> str:
+        return self.parameters.vaes.illustrious.path
 
     @property
     def output_images_path(self) -> str:
@@ -104,9 +116,9 @@ class AppConfig:
         Raises:
             ConfigurationError: If model_type is not 'sd15' or 'sdxl'
         """
-        if model_type not in ("sd15", "sdxl"):
+        if model_type not in ("sd15", "sdxl", "illustrious"):
             raise ConfigurationError(
-                f"Invalid model_type: {model_type}. Must be 'sd15' or 'sdxl'"
+                f"Invalid model_type: {model_type}. Must be 'sd15', 'sdxl', or 'illustrious'"
             )
 
         if model_type == "sd15":
@@ -115,11 +127,17 @@ class AppConfig:
                 "loras": self.loras_sd15_path,
                 "vaes": self.vae_sd15_path,
             }
-        else:  # sdxl
+        elif model_type == "sdxl":
             return {
                 "checkpoints": self.checkpoints_sdxl_path,
                 "loras": self.loras_sdxl_path,
                 "vaes": self.vae_sdxl_path,
+            }
+        else:  # illustrious
+            return {
+                "checkpoints": self.checkpoints_illustrious_path,
+                "loras": self.loras_illustrious_path,
+                "vaes": self.vae_illustrious_path,
             }
 
     def setup_paths(self) -> None:
@@ -127,10 +145,13 @@ class AppConfig:
         paths = [
             self.checkpoints_sd15_path,
             self.checkpoints_sdxl_path,
+            self.checkpoints_illustrious_path,
             self.loras_sd15_path,
             self.loras_sdxl_path,
+            self.loras_illustrious_path,
             self.vae_sd15_path,
             self.vae_sdxl_path,
+            self.vae_illustrious_path,
             self.output_images_path,
             self.output_json_path,
         ]

@@ -26,9 +26,9 @@ async def list_models(model_type: str, resource_type: str):
     Returns:
         List of models with names and paths
     """
-    if model_type not in ["sd15", "sdxl"]:
+    if model_type not in ["sd15", "sdxl", "illustrious"]:
         raise HTTPException(
-            status_code=400, detail="Invalid model_type. Must be 'sd15' or 'sdxl'"
+            status_code=400, detail="Invalid model_type. Must be 'sd15', 'sdxl', or 'illustrious'"
         )
 
     if resource_type not in ["checkpoints", "loras", "vaes"]:
@@ -69,8 +69,8 @@ async def get_model_metadata(model_type: str, resource_type: str, model_name: st
     Returns:
         Model metadata from safetensors header
     """
-    if model_type not in ["sd15", "sdxl"]:
-        raise HTTPException(status_code=400, detail="Invalid model_type")
+    if model_type not in ["sd15", "sdxl", "illustrious"]:
+        raise HTTPException(status_code=400, detail="Invalid model_type. Must be 'sd15', 'sdxl', or 'illustrious'")
 
     if resource_type not in ["checkpoints", "loras", "vaes"]:
         raise HTTPException(status_code=400, detail="Invalid resource_type")
