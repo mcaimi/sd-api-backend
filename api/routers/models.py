@@ -6,6 +6,7 @@ Endpoints for listing and querying model metadata.
 """
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 from api.models.system import ModelListResponse, ModelMetadataResponse
 from libs.shared.config import get_app_config
@@ -92,3 +93,34 @@ async def get_model_metadata(model_type: str, resource_type: str, model_name: st
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read metadata: {e}")
+
+
+@router.get("/{model_type}/{resource_type}/{model_name}/download")
+async def download_model(model_type: str, resource_type: str, model_name: str):
+    """
+    Download a model file (e.g. a merged checkpoint).
+
+    Args:
+        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        resource_type: "checkpoints", "loras", or "vaes"
+        model_name: Model filename
+    """
+    if model_type not in ["sd15", "sdxl", "illustrious", "flux"]:
+        raise HTTPException(status_code=400, detail="Invalid model_type. Must be 'sd15', 'sdxl', 'illustrious', or 'flux'")
+
+    if resource_type not in ["checkpoints", "loras", "vaes"]:
+        raise HTTPException(status_code=400, detail="Invalid resource_type")
+
+    config = get_app_config()
+    paths = config.get_model_paths(model_type)
+    path = paths[resource_type]
+
+    models = enumerate_models(path)
+    model_path = models.get(model_name)
+
+    if not model_path:
+        raise HTTPException(status_code=404, detail="Model not found")
+
+    return FileResponse(
+        model_path, media_type="application/octet-stream", filename=model_name
+    )

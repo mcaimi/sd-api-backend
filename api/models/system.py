@@ -21,6 +21,8 @@ class SystemInfo(BaseModel):
     dtype: str
     cache_stats: Dict[str, Any]
     queue_stats: Dict[str, Any]
+    gpu_stats: Dict[str, Any]
+    host_stats: Dict[str, Any]
 
 
 class ModelListResponse(BaseModel):
