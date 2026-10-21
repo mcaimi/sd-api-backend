@@ -6,13 +6,17 @@ Creates and configures the FastAPI application with all routers and middleware.
 """
 
 import logging
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
-from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge
+from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs
 from api.services.job_queue import get_job_queue
 from libs.shared.config import get_app_config
+
+WEBUI_DIR = Path(__file__).resolve().parent.parent / "webui"
 
 # Configure logging
 logging.basicConfig(
@@ -78,6 +82,11 @@ def create_app() -> FastAPI:
     app.include_router(system.router, prefix="/api/v1/system", tags=["System"])
     app.include_router(info.router, prefix="/api/v1/info", tags=["Informational"])
     app.include_router(merge.router, prefix="/api/v1/merge", tags=["Merge"])
+    app.include_router(outputs.router, prefix="/api/v1/outputs", tags=["Outputs"])
+
+    # Management web UI (static, no build step)
+    if WEBUI_DIR.is_dir():
+        app.mount("/ui", StaticFiles(directory=WEBUI_DIR, html=True), name="ui")
 
     logger.info("FastAPI application created")
 
