@@ -36,13 +36,14 @@ def check_or_create_path(target_path: Union[str, Path]) -> None:
         path.mkdir(parents=True, exist_ok=True)
 
 
-@lru_cache(maxsize=6)
+@lru_cache(maxsize=16)
 def enumerate_models(path: Union[str, Path] = DEFAULT_MODELS_PATH) -> Dict[str, Path]:
     """
     Enumerate all safetensors model files in a directory (cached).
 
     This function is cached to avoid repeated filesystem scans.
-    Cache size of 6 supports sd15/sdxl × checkpoints/loras/vae.
+    Cache size of 16 covers sd15/sdxl/illustrious/flux × checkpoints/loras/vae
+    with headroom.
 
     Args:
         path: Directory to search for models

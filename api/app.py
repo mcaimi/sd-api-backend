@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from api.routers import sd15, sdxl, illustrious, models, jobs, system, info, merge
+from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge
 from api.services.job_queue import get_job_queue
 from libs.shared.config import get_app_config
 
@@ -51,7 +51,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="Stable Diffusion API",
-        description="REST API for SD1.5, SDXL, and Illustrious XL image generation, inpainting, and model merging",
+        description="REST API for SD1.5, SDXL, Illustrious XL, and Flux image generation, inpainting, and model merging",
         version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -72,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(sd15.router, prefix="/api/v1/sd15", tags=["SD1.5"])
     app.include_router(sdxl.router, prefix="/api/v1/sdxl", tags=["SDXL"])
     app.include_router(illustrious.router, prefix="/api/v1/illustrious", tags=["Illustrious"])
+    app.include_router(flux.router, prefix="/api/v1/flux", tags=["Flux"])
     app.include_router(models.router, prefix="/api/v1/models", tags=["Models"])
     app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
     app.include_router(system.router, prefix="/api/v1/system", tags=["System"])
