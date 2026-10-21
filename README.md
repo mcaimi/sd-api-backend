@@ -1,22 +1,23 @@
 # SD API Backend
 
-A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5 and SDXL pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
+A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5, SDXL, Illustrious XL, and Flux pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
 
 This is a rewrite effort of the [SD-WebApp](https://codeberg.org/mcaimi/sd-webapp) project, and has been brewing for a bit now.
 The idea is to decouple the UI from the actual inference backend. This repo will host the backend code.
 
 ## Implemented Features
 
-- **Text-to-Image Generation** - Submit async jobs for SD 1.5 and SDXL models, receive results via job status polling
-- **Inpainting** - Image inpainting using specialized pipelines with base image and mask (base64) inputs
+- **Text-to-Image Generation** - Submit async jobs for SD 1.5, SDXL, Illustrious XL, and Flux models, receive results via job status polling
+- **Inpainting** - Image inpainting using specialized pipelines with base image and mask (base64) inputs, including Flux's strength-based re-noising inpaint
 - **Batch Generation** - Submit multiple generation jobs in a single request
 - **Model Comparison** - Generate images from multiple checkpoints side-by-side for comparison
-- **Multi-Model Merging** - Merge two or more models using configurable methods (add, average, slerp), with weight coefficients and multi-step recipe execution
+- **Multi-Model Merging** - Merge two or more models using configurable methods (add, average, slerp), with weight coefficients and multi-step recipe execution (SD 1.5/SDXL/Illustrious XL only — see [TODO.md](TODO.md) for planned Flux merge support)
 - **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`
 - **Model Caching** - LRU cache (max 2 pipelines) for expensive diffusion model loading, auto-eviction via access order
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
-- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) > CPU with dtype auto-selection (float16 for GPU, float32 for CPU)
+- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
+- **Flux Memory Offload** - Flux pipelines use `enable_model_cpu_offload()` instead of a full device move to fit its larger (~12B parameter transformer + T5-XXL encoder) footprint on consumer hardware
 - **Configurable Output** - Optional disk persistence of generated images and metadata to `outputs/images/` and `outputs/json/` as PNG and JSON
 - **System Endpoints** - Health checks, system info (GPU, cache stats, queue stats), and configuration exposure
 - **CORS Middleware** - Configurable CORS support, enabled by default with wildcard origins
@@ -37,12 +38,20 @@ All endpoints are prefixed with `/api/v1`.
 | POST | `/sdxl/inpaint` | Submit SDXL inpainting job |
 | POST | `/sdxl/generate/batch` | Submit multiple SDXL generation jobs |
 | POST | `/sdxl/generate/compare` | Generate from multiple SDXL models for comparison |
+| POST | `/illustrious/generate` | Submit Illustrious XL text-to-image generation job |
+| POST | `/illustrious/inpaint` | Submit Illustrious XL inpainting job |
+| POST | `/illustrious/generate/batch` | Submit multiple Illustrious XL generation jobs |
+| POST | `/illustrious/generate/compare` | Generate from multiple Illustrious XL models for comparison |
+| POST | `/flux/generate` | Submit Flux text-to-image generation job |
+| POST | `/flux/inpaint` | Submit Flux inpainting job (strength-based re-noising) |
+| POST | `/flux/generate/batch` | Submit multiple Flux generation jobs |
+| POST | `/flux/generate/compare` | Generate from multiple Flux models for comparison |
 
 ### Model Management
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/models/{model_type}/{resource_type}` | List available models (`model_type`: sd15/sdxl, `resource_type`: checkpoints/loras/vaes) |
+| GET | `/models/{model_type}/{resource_type}` | List available models (`model_type`: sd15/sdxl/illustrious/flux, `resource_type`: checkpoints/loras/vaes) |
 | GET | `/models/{model_type}/{resource_type}/{model_name}/metadata` | Get safetensors metadata for a specific model |
 
 ### Model Merging
@@ -52,6 +61,8 @@ All endpoints are prefixed with `/api/v1`.
 | POST | `/merge/merge` | Merge two models into one new checkpoint with configurable method (add, average, slerp), alpha weight, and metadata preservation |
 | POST | `/merge/batch` | Merge one base model against multiple target models simultaneously, saving each output into a specified subdirectory |
 | POST | `/merge/recipe` | Execute a multi-step merge recipe where each step takes the current result and merges it with a new target model using its own method/alpha |
+
+> Merging currently supports `sd15`, `sdxl`, and `illustrious` only. Flux's transformer-based state dict isn't compatible with the current key-by-key UNet tensor merge — see [TODO.md](TODO.md).
 
 ### Job Management
 
@@ -93,15 +104,22 @@ Additional Swagger UI docs at `/docs` and ReDoc at `/redoc` (auto-generated by F
 │ + addLorasToPipeline()          │
 │ + loadCustomVAE()               │
 │ + getResolutions()              │
+│ + SCHEDULERS (overridable)      │
 └──────────┬──────────────────────┘
            │ inherits
-    ┌───────┴───────┐
-    │               │
-┌────────┐   ┌────────┐
-│ SD15   │   │ SDXL   │
-│Pipeline│   │Pipeline│
-│ Generator│  │ Generator│
-└────────┘   └────────┘
+    ┌───────┬───────┬───────┐
+    │       │        │       │
+┌────────┐┌────────┐┌─────────────┐┌────────┐
+│ SD15   ││ SDXL   ││ Illustrious ││ Flux   │
+│Pipeline││Pipeline││ Pipeline    ││Pipeline│
+│Generator││Generator││ Generator  ││Generator│
+└────────┘└────────┘└─────────────┘└────────┘
+                                      overrides:
+                                      _init_device (bf16),
+                                      pipeToConfiguredDevice
+                                      (enable_model_cpu_offload),
+                                      forward/forward_inpaint
+                                      (true_cfg_scale, strength)
 ```
 
 ### Service Layer
@@ -316,6 +334,20 @@ curl -X POST http://localhost:8000/api/v1/sd15/generate \
     }
   }'
 
+# Submit a Flux generation job
+curl -X POST http://localhost:8000/api/v1/flux/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "positive_prompt": "a photo of an astronaut riding a horse on mars",
+    "model_checkpoint": "flux1-dev.safetensors",
+    "width": 1024,
+    "height": 1024,
+    "steps": 20,
+    "cfg_scale": 3.5,
+    "scheduler": "FlowMatch Euler",
+    "seed": 42
+  }'
+
 # Check job status
 curl http://localhost:8000/api/v1/jobs/{job_id}
 
@@ -384,16 +416,33 @@ checkpoints:
     path: 'models/checkpoints/SD15'
   sdxl:
     path: 'models/checkpoints/SDXL'
+  illustrious:
+    path: 'models/checkpoints/Illustrious'
+  flux:
+    path: 'models/checkpoints/Flux'
 loras:
   sd15:
     path: 'models/loras/SD15'
   sdxl:
     path: 'models/loras/SDXL'
+  illustrious:
+    path: 'models/loras/Illustrious'
+  flux:
+    path: 'models/loras/Flux'
 vaes:
   sd15:
     path: 'models/vae/SD15'
   sdxl:
     path: 'models/vae/SDXL'
+  illustrious:
+    path: 'models/vae/Illustrious'
+  flux:
+    path: 'models/vae/Flux'
+# Flux checkpoints are transformer-only single-file checkpoints; the shared
+# text encoders (CLIP-L + T5-XXL), tokenizers, VAE, and scheduler are loaded
+# once from a local diffusers-format directory and reused across checkpoints.
+flux:
+  components_path: 'models/flux_components'
 storage:
   persist_to_backend: true
   output_images: 'outputs/images'
@@ -411,6 +460,19 @@ api:
     enabled: true
     allow_origins: ["*"]
 ```
+
+### Flux Setup
+
+Flux checkpoints only ship the transformer; the shared text encoders, tokenizers, VAE, and scheduler must be populated once under `flux.components_path` in standard diffusers subfolder layout (`text_encoder/`, `tokenizer/`, `text_encoder_2/`, `tokenizer_2/`, `vae/`, `scheduler/`):
+
+```bash
+# FLUX.1-schnell is ungated and license-friction-free for testing;
+# FLUX.1-dev requires accepting its gated license on Hugging Face first.
+huggingface-cli download black-forest-labs/FLUX.1-dev \
+  --exclude "transformer/*" --local-dir models/flux_components
+```
+
+Then place a single-file Flux transformer checkpoint (e.g. `flux1-dev.safetensors`) under `checkpoints.flux.path`.
 
 ### Running
 

@@ -6,6 +6,8 @@ checkpoints:
     path: 'models/checkpoints/SDXL'
   illustrious:
     path: 'models/checkpoints/Illustrious'
+  flux:
+    path: 'models/checkpoints/Flux'
 
 loras:
   sd15:
@@ -14,6 +16,8 @@ loras:
     path: 'models/loras/SDXL'
   illustrious:
     path: 'models/loras/Illustrious'
+  flux:
+    path: 'models/loras/Flux'
 
 vaes:
   sd15:
@@ -22,6 +26,14 @@ vaes:
     path: 'models/vae/SDXL'
   illustrious:
     path: 'models/vae/Illustrious'
+  flux:
+    path: 'models/vae/Flux'
+
+# Flux checkpoints only ship the transformer as a single safetensors file.
+# The shared text encoders/tokenizers/VAE/scheduler come from a local
+# diffusers-format directory, loaded once and reused across all Flux checkpoints.
+flux:
+  components_path: 'models/flux_components'
 
 storage:
   persist_to_backend: true
