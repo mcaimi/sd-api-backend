@@ -13,6 +13,8 @@ from pathlib import Path
 from libs.stablediffusion.sd15 import SD15PipelineGenerator
 from libs.stablediffusion.sdxl import SDXLPipelineGenerator
 from libs.stablediffusion.illustrious import IllustriousPipelineGenerator
+from libs.stablediffusion.flux import FluxPipelineGenerator
+from libs.shared.config import get_app_config
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +112,15 @@ class ModelCacheManager:
                     pipeline_gen.loadIllustriousPipeline()
                 else:  # inpaint
                     pipeline_gen.loadIllustriousInpaintPipeline()
+            elif model_type == "flux":
+                pipeline_gen = FluxPipelineGenerator(
+                    model_checkpoint=model_path,
+                    components_dir=get_app_config().flux_components_path,
+                )
+                if pipeline_type == "txt2img":
+                    pipeline_gen.loadPipeline()
+                else:  # inpaint
+                    pipeline_gen.loadInpaintPipeline()
             else:
                 raise ValueError(f"Unknown model type: {model_type}")
 

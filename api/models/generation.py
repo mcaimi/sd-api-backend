@@ -8,7 +8,7 @@ Request and response models for text-to-image and inpainting endpoints.
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 
-from libs.globals.vars import schedulers
+from libs.globals.vars import schedulers, flux_schedulers
 
 
 class LoraConfig(BaseModel):
@@ -80,6 +80,60 @@ class CompareModelsRequest(BaseModel):
     def validate_scheduler(cls, v):
         if v not in schedulers:
             raise ValueError(f"Invalid scheduler: {v}")
+        return v
+
+
+class FluxGenerationRequest(GenerationRequest):
+    """Request for Flux image generation.
+
+    Flux uses flow-matching schedulers (incompatible with the SD/SDXL
+    scheduler set) and a distilled guidance scale, so scheduler validation
+    and the cfg_scale default are overridden; everything else is shared.
+    """
+    scheduler: str = Field("FlowMatch Euler", description="Noise scheduler")
+    cfg_scale: float = Field(3.5, ge=1.0, le=30.0, description="Flux guidance scale (distilled)")
+    true_cfg_scale: float = Field(
+        1.0, ge=1.0, le=10.0,
+        description="True CFG scale; >1.0 enables negative_prompt",
+    )
+
+    @field_validator('scheduler')
+    def validate_scheduler(cls, v):
+        if v not in flux_schedulers:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
+        return v
+
+
+class FluxInpaintRequest(InpaintRequest):
+    """Request for Flux inpainting."""
+    scheduler: str = Field("FlowMatch Euler")
+    cfg_scale: float = Field(7.0, ge=1.0, le=30.0)
+    strength: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="Inpaint re-noising strength; None uses the pipeline default (0.6)",
+    )
+    true_cfg_scale: float = Field(1.0, ge=1.0, le=10.0)
+
+    @field_validator('scheduler')
+    def validate_scheduler(cls, v):
+        if v not in flux_schedulers:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
+        return v
+
+
+class FluxBatchGenerationRequest(BaseModel):
+    """Request for batch Flux generation."""
+    requests: List[FluxGenerationRequest] = Field(..., max_length=10, description="List of generation requests")
+
+
+class FluxCompareModelsRequest(CompareModelsRequest):
+    """Request for Flux model comparison."""
+    scheduler: str = Field("FlowMatch Euler")
+
+    @field_validator('scheduler')
+    def validate_scheduler(cls, v):
+        if v not in flux_schedulers:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
         return v
 
 

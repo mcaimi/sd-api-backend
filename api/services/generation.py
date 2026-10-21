@@ -80,12 +80,13 @@ async def generate_image_async(
     scheduler: str,
     loras: Optional[list] = None,
     custom_vae: Optional[str] = None,
+    true_cfg_scale: float = 1.0,
 ) -> dict:
     """
     Async wrapper for image generation.
 
     Args:
-        model_type: "sd15" or "sdxl"
+        model_type: "sd15", "sdxl", "illustrious", or "flux"
         model_path: Path to model checkpoint
         positive_prompt: Positive prompt text
         negative_prompt: Negative prompt text
@@ -97,6 +98,8 @@ async def generate_image_async(
         scheduler: Scheduler type
         loras: List of LoRA configs
         custom_vae: Optional custom VAE path
+        true_cfg_scale: Flux-only; >1.0 enables negative_prompt, ignored by
+            other architectures
 
     Returns:
         Dictionary with image_base64 and metadata
@@ -135,6 +138,7 @@ async def generate_image_async(
     loop = asyncio.get_event_loop()
 
     def _generate():
+        extra_kwargs = {"true_cfg_scale": true_cfg_scale} if model_type == "flux" else {}
         image_array, metadata = pipeline_gen.forward(
             positive_prompt=positive_prompt,
             negative_prompt=negative_prompt,
@@ -144,6 +148,7 @@ async def generate_image_async(
             height=height,
             cfg=cfg,
             seed=seed,
+            **extra_kwargs,
         )
         return image_array, metadata
 
@@ -183,12 +188,14 @@ async def inpaint_image_async(
     scheduler: str,
     loras: Optional[list] = None,
     custom_vae: Optional[str] = None,
+    strength: Optional[float] = None,
+    true_cfg_scale: float = 1.0,
 ) -> dict:
     """
     Async wrapper for inpainting.
 
     Args:
-        model_type: "sd15" or "sdxl"
+        model_type: "sd15", "sdxl", "illustrious", or "flux"
         model_path: Path to model checkpoint
         positive_prompt: Positive prompt text
         negative_prompt: Negative prompt text
@@ -200,6 +207,10 @@ async def inpaint_image_async(
         scheduler: Scheduler type
         loras: List of LoRA configs
         custom_vae: Optional custom VAE path
+        strength: Flux-only inpaint re-noising strength, ignored by other
+            architectures
+        true_cfg_scale: Flux-only; >1.0 enables negative_prompt, ignored by
+            other architectures
 
     Returns:
         Dictionary with image_base64 and metadata
@@ -242,6 +253,9 @@ async def inpaint_image_async(
     loop = asyncio.get_event_loop()
 
     def _inpaint():
+        extra_kwargs = {"true_cfg_scale": true_cfg_scale}
+        if strength is not None:
+            extra_kwargs["strength"] = strength
         image_array, metadata = pipeline_gen.forward_inpaint(
             positive_prompt=positive_prompt,
             negative_prompt=negative_prompt,
@@ -251,6 +265,7 @@ async def inpaint_image_async(
             steps=steps,
             cfg=cfg,
             seed=seed,
+            **extra_kwargs,
         )
         return image_array, metadata
 
