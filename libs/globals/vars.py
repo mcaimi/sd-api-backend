@@ -17,6 +17,8 @@ from diffusers.schedulers import (
     KDPM2DiscreteScheduler,
     HeunDiscreteScheduler,
     LMSDiscreteScheduler,
+    FlowMatchEulerDiscreteScheduler,
+    FlowMatchHeunDiscreteScheduler,
 )
 
 
@@ -40,6 +42,14 @@ schedulers: Dict[str, Type] = {
     "Euler": EulerDiscreteScheduler,
     "Heun": HeunDiscreteScheduler,
     "LMS": LMSDiscreteScheduler,
+}
+
+
+# Flow-matching schedulers for Flux (incompatible with the discrete-noise
+# schedulers above)
+flux_schedulers: Dict[str, Type] = {
+    "FlowMatch Euler": FlowMatchEulerDiscreteScheduler,
+    "FlowMatch Heun": FlowMatchHeunDiscreteScheduler,
 }
 
 

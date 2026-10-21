@@ -129,6 +129,9 @@ class BasePipelineGenerator(ABC):
     DEFAULT_WIDTH = 512
     DEFAULT_HEIGHT = 512
     MODEL_TYPE = "base"
+    # Scheduler registry used by _run_inference(); override for architectures
+    # (e.g. Flux) whose noise schedule isn't compatible with the default set.
+    SCHEDULERS: Dict[str, Any] = schedulers
 
     def __init__(self, model_checkpoint: str):
         self.model_checkpoint: str = model_checkpoint
@@ -167,7 +170,7 @@ class BasePipelineGenerator(ABC):
         """Run inference on the given pipeline."""
         # Set scheduler
         logger.debug("Using scheduler: %s", scheduler_type)
-        pipeline.scheduler = schedulers.get(scheduler_type).from_config(
+        pipeline.scheduler = self.SCHEDULERS.get(scheduler_type).from_config(
             pipeline.scheduler.config
         )
 
@@ -235,6 +238,7 @@ class BasePipelineGenerator(ABC):
         steps: int,
         cfg: float,
         seed: int,
+        **extra_kwargs,
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """Inpaint an image region.
 
@@ -261,6 +265,7 @@ class BasePipelineGenerator(ABC):
             mask_image=pil_mask,
             num_inference_steps=steps,
             guidance_scale=cfg,
+            **extra_kwargs,
         )
 
         metadata["inpainting"] = True

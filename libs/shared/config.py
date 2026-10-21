@@ -42,6 +42,10 @@ class AppConfig:
         return self.parameters.checkpoints.illustrious.path
 
     @property
+    def checkpoints_flux_path(self) -> str:
+        return self.parameters.checkpoints.flux.path
+
+    @property
     def loras_sd15_path(self) -> str:
         return self.parameters.loras.sd15.path
 
@@ -54,6 +58,10 @@ class AppConfig:
         return self.parameters.loras.illustrious.path
 
     @property
+    def loras_flux_path(self) -> str:
+        return self.parameters.loras.flux.path
+
+    @property
     def vae_sd15_path(self) -> str:
         return self.parameters.vaes.sd15.path
 
@@ -64,6 +72,16 @@ class AppConfig:
     @property
     def vae_illustrious_path(self) -> str:
         return self.parameters.vaes.illustrious.path
+
+    @property
+    def vae_flux_path(self) -> str:
+        return self.parameters.vaes.flux.path
+
+    @property
+    def flux_components_path(self) -> str:
+        """Shared diffusers-format directory holding Flux's text encoders,
+        tokenizers, VAE, and scheduler (not model-checkpoint-specific)."""
+        return self.parameters.flux.components_path
 
     @property
     def output_images_path(self) -> str:
@@ -108,17 +126,17 @@ class AppConfig:
         Get all paths for a specific model type.
 
         Args:
-            model_type: Either 'sd15' or 'sdxl'
+            model_type: One of 'sd15', 'sdxl', 'illustrious', or 'flux'
 
         Returns:
             Dictionary with 'checkpoints', 'loras', and 'vae' paths
 
         Raises:
-            ConfigurationError: If model_type is not 'sd15' or 'sdxl'
+            ConfigurationError: If model_type is not a supported architecture
         """
-        if model_type not in ("sd15", "sdxl", "illustrious"):
+        if model_type not in ("sd15", "sdxl", "illustrious", "flux"):
             raise ConfigurationError(
-                f"Invalid model_type: {model_type}. Must be 'sd15', 'sdxl', or 'illustrious'"
+                f"Invalid model_type: {model_type}. Must be 'sd15', 'sdxl', 'illustrious', or 'flux'"
             )
 
         if model_type == "sd15":
@@ -133,11 +151,17 @@ class AppConfig:
                 "loras": self.loras_sdxl_path,
                 "vaes": self.vae_sdxl_path,
             }
-        else:  # illustrious
+        elif model_type == "illustrious":
             return {
                 "checkpoints": self.checkpoints_illustrious_path,
                 "loras": self.loras_illustrious_path,
                 "vaes": self.vae_illustrious_path,
+            }
+        else:  # flux
+            return {
+                "checkpoints": self.checkpoints_flux_path,
+                "loras": self.loras_flux_path,
+                "vaes": self.vae_flux_path,
             }
 
     def setup_paths(self) -> None:
@@ -146,12 +170,16 @@ class AppConfig:
             self.checkpoints_sd15_path,
             self.checkpoints_sdxl_path,
             self.checkpoints_illustrious_path,
+            self.checkpoints_flux_path,
             self.loras_sd15_path,
             self.loras_sdxl_path,
             self.loras_illustrious_path,
+            self.loras_flux_path,
             self.vae_sd15_path,
             self.vae_sdxl_path,
             self.vae_illustrious_path,
+            self.vae_flux_path,
+            self.flux_components_path,
             self.output_images_path,
             self.output_json_path,
         ]
