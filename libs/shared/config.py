@@ -8,7 +8,7 @@ Provides a single point of configuration loading and caching for the API.
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from yaml import safe_load, YAMLError
 
@@ -114,6 +114,15 @@ class AppConfig:
     @property
     def cors_allow_origins(self) -> list:
         return getattr(self.parameters.api.cors, "allow_origins", ["*"])
+
+    @property
+    def device(self) -> Optional[Parameters]:
+        """
+        The optional 'device' configuration subtree (compute backend, dtype,
+        ROCm overrides), or None when parameters.yaml has no device section.
+        """
+        device = getattr(self.parameters, "device", None)
+        return device if isinstance(device, Parameters) else None
 
     def as_dict(self) -> dict:
         return {

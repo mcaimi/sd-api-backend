@@ -16,8 +16,6 @@ from pathlib import Path
 from typing import Dict, Tuple, Union
 
 import torch
-import torch.cuda as cuda
-import torch.backends.mps as apple_mps
 
 from libs.globals.vars import DEFAULT_MODELS_PATH, SFT_HEADER_LEN
 
@@ -125,38 +123,20 @@ def get_gpu() -> Tuple[str, torch.dtype]:
     """
     Detect and return the best available compute device (cached).
 
-    This function is cached to avoid repeated GPU detection calls.
-    Results are static for the session lifetime.
+    Delegates to libs.shared.device (config-aware resolution supporting the
+    'device' section in parameters.yaml). Results are static for the session
+    lifetime.
 
     Returns:
-        Tuple of (device_name, recommended_dtype)
-        Device will be one of: "mps", "cuda", or "cpu"
+        Tuple of (backend_label, recommended_dtype)
+        Backend label will be one of: "mps", "cuda", "rocm", or "cpu"
+        ("rocm" is reported for AMD GPUs under PyTorch ROCm builds; the
+        torch-level device string remains "cuda[:N]" in all such cases).
     """
-    accelerator = "cpu"
-    dtype = torch.float16
+    from libs.shared.device import get_device_settings
 
-    if apple_mps.is_available():
-        logger.info("Apple Metal Performance Shaders Available!")
-        accelerator = "mps"
-    elif cuda.is_available():
-        device_name = cuda.get_device_name()
-        device_capabilities = cuda.get_device_capability()
-        device_available_mem, device_total_mem = [
-            x / 1024**3 for x in cuda.mem_get_info()
-        ]
-        logger.info(
-            "GPU available: %s - %s - %.1f/%.1f GB VRAM",
-            device_name,
-            device_capabilities,
-            device_available_mem,
-            device_total_mem,
-        )
-        accelerator = "cuda"
-    else:
-        logger.warning("No GPU found. Using CPU (this will be slow).")
-        dtype = torch.float32
-
-    return accelerator, dtype
+    settings = get_device_settings()
+    return settings.backend, settings.dtype
 
 
 def random_string(length: int = 6) -> str:
