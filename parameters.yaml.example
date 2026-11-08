@@ -35,6 +35,25 @@ vaes:
 flux:
   components_path: 'models/flux_components'
 
+# Compute device selection (optional section; defaults shown).
+#   backend: auto-detects in order mps -> cuda/rocm -> cpu. PyTorch ROCm builds
+#     expose AMD GPUs through the CUDA API, so an AMD card reports "rocm"
+#     (NVIDIA reports "cuda"). Force with: auto | cuda | rocm | mps | cpu
+#   index: GPU ordinal for multi-GPU hosts.
+#   dtype: auto | float16 | bfloat16 | float32. "auto" picks float32 on CPU and
+#     float16 on accelerators; ROCm stays on float16 because bfloat16 is not
+#     reliably supported on older RDNA GPUs (set it explicitly on RDNA2+).
+#   gfx_override: sets HSA_OVERRIDE_GFX_VERSION before HIP initialization.
+#     Required for AMD cards missing from the ROCm support matrix - e.g. the
+#     RX 5500 XT is gfx1034, so gfx_override: "10.3.0" presents it as gfx1030.
+#   env: extra environment variables applied before PyTorch initializes HIP/CUDA.
+device:
+  backend: auto
+  index: 0
+  dtype: auto
+  # gfx_override: "10.3.0"   # e.g. RX 5500 XT (gfx1034) on ROCm
+  # env: {}
+
 storage:
   persist_to_backend: true
   output_images: 'outputs/images'
