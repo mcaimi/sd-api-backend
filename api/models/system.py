@@ -6,19 +6,23 @@ Request and response models for system information and health check.
 """
 
 from pydantic import BaseModel
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 class HealthResponse(BaseModel):
     """Health check response."""
+
     status: str
     service: str
 
 
 class SystemInfo(BaseModel):
     """System information response."""
+
     device: str
     dtype: str
+    vendor: Optional[str] = None
+    gpu_name: Optional[str] = None
     cache_stats: Dict[str, Any]
     queue_stats: Dict[str, Any]
     gpu_stats: Dict[str, Any]
@@ -27,6 +31,7 @@ class SystemInfo(BaseModel):
 
 class ModelListResponse(BaseModel):
     """Response containing list of available models."""
+
     model_type: str
     resource_type: str
     models: List[Dict[str, str]]
@@ -34,6 +39,7 @@ class ModelListResponse(BaseModel):
 
 class ModelMetadataResponse(BaseModel):
     """Response containing model metadata."""
+
     name: str
     path: str
     metadata: Dict[str, Any]
