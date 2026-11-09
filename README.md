@@ -16,7 +16,8 @@ The idea is to decouple the UI from the actual inference backend. This repo will
 - **Model Caching** - LRU cache (max 2 pipelines) for expensive diffusion model loading, auto-eviction via access order
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
-- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
+- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
+- **AMD ROCm Support** - Config-driven backend selection (`device.backend: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 5500 XT), plus `rocm-smi` telemetry
 - **Flux Memory Offload** - Flux pipelines use `enable_model_cpu_offload()` instead of a full device move to fit its larger (~12B parameter transformer + T5-XXL encoder) footprint on consumer hardware
 - **Configurable Output** - Optional disk persistence of generated images and metadata to `outputs/images/` and `outputs/json/` as PNG and JSON
 - **System Endpoints** - Health checks, system info (GPU, cache stats, queue stats), and configuration exposure
@@ -29,7 +30,7 @@ All endpoints are prefixed with `/api/v1`.
 ### Generation
 
 | Method | Route | Description |
-|--------|-------|-------------|
+| -------- | ------- | ------------- |
 | POST | `/sd15/generate` | Submit SD 1.5 text-to-image generation job |
 | POST | `/sd15/inpaint` | Submit SD 1.5 inpainting job |
 | POST | `/sd15/generate/batch` | Submit multiple SD 1.5 generation jobs |
@@ -57,7 +58,7 @@ All endpoints are prefixed with `/api/v1`.
 ### Model Merging
 
 | Method | Route | Description |
-|--------|-------|-------------|
+| -------- | ------- | ------------- |
 | POST | `/merge/merge` | Merge two models into one new checkpoint with configurable method (add, average, slerp), alpha weight, and metadata preservation |
 | POST | `/merge/batch` | Merge one base model against multiple target models simultaneously, saving each output into a specified subdirectory |
 | POST | `/merge/recipe` | Execute a multi-step merge recipe where each step takes the current result and merges it with a new target model using its own method/alpha |
@@ -67,7 +68,7 @@ All endpoints are prefixed with `/api/v1`.
 ### Job Management
 
 | Method | Route | Description |
-|--------|-------|-------------|
+| -------- | ------- | ------------- |
 | GET | `/jobs` | List all jobs with current status |
 | GET | `/jobs/{job_id}` | Get detailed status and result for a specific job |
 | DELETE | `/jobs/{job_id}` | Cancel a pending or running job |
@@ -75,7 +76,7 @@ All endpoints are prefixed with `/api/v1`.
 ### System & Info
 
 | Method | Route | Description |
-|--------|-------|-------------|
+| -------- | ------- | ------------- |
 | GET | `/system/health` | Health check endpoint |
 | GET | `/system/info` | System info (GPU, data type, cache stats, queue stats) |
 | GET | `/info/schedulers` | List available noise schedulers |
@@ -473,6 +474,68 @@ huggingface-cli download black-forest-labs/FLUX.1-dev \
 ```
 
 Then place a single-file Flux transformer checkpoint (e.g. `flux1-dev.safetensors`) under `checkpoints.flux.path`.
+
+### AMD ROCm Support (older cards, e.g. RX 6600)
+
+The server runs on AMD GPUs through PyTorch's ROCm builds. Since PyTorch
+implements HIP behind the CUDA API, transformers/torch report these devices as
+"CUDA" — the server disambiguates them and labels the backend `rocm` in
+`GET /api/v1/system/info` (`torch.version.hip` is set on ROCm builds).
+
+1. **Install the ROCm torch build** — swap in the Linux variant of the project
+   file, which carries the `rocm7.2` extra pointing at the official PyTorch
+   ROCm wheel index:
+
+   ```bash
+   cp pyproject.linux.toml pyproject.toml
+   uv sync --extra rocm7.2
+   ```
+
+2. **Select the backend in `parameters.yaml`** (optional section; defaults are
+   auto-detect in order MPS > CUDA/ROCm > CPU):
+
+   ```yaml
+   device:
+     backend: rocm          # force the AMD backend (auto also works once detectable)
+     index: 0               # GPU ordinal on multi-GPU hosts
+     dtype: auto            # auto | float16 | bfloat16 | float32
+     # gfx_override: "10.3.0"
+     # env: {}
+   ```
+
+3. **Cards missing from the ROCm support matrix** — many older GPUs are not
+   officially supported but work when the HSA runtime is told to treat them as
+   a supported variant. The RX 6600 (Navi 23, `gfx1032`) is the canonical
+   example: set `gfx_override: "10.3.0"` and the runtime presents it as
+   `gfx1030` (supported RDNA2 flagship family, e.g. Radeon PRO W6800). This
+   must happen before HIP initialization, which the server handles itself —
+   no manual environment setup needed. Common overrides:
+
+   | Card | Actual IP | `gfx_override` |
+   | ------ | ----------- | ---------------- |
+   | RX 6700 XT / 6750 XT (Navi 22) | gfx1031 | `10.3.0` |
+   | RX 6600 / 6600 XT / 6650 XT (Navi 23) | gfx1032 | `10.3.0` |
+   | RX 6500 XT / 6400 (Navi 24) | gfx1034 | `10.3.0` |
+
+   > Polaris/Vega cards (RX 4xx/5xx, gfx803) are not covered: ROCm dropped
+   > them after 5.1.7 and no override revives them on current ROCm releases.
+   > RDNA1 cards (RX 5700/5600 = Navi 10, `gfx1010`; RX 5500 XT/5500 =
+   > Navi 14, `gfx1012`) are in the same position — no supported same-family
+   > target exists in modern ROCm, so `10.3.0` does not apply to them either.
+
+   Notes and expectations:
+   - `dtype: auto` keeps **float16** on ROCm; bfloat16 is not reliably
+     supported on older RDNA silicon. Set `dtype: bfloat16` explicitly on
+     RDNA2+ cards if you want Flux's default bf16 path.
+   - Telemetry: VRAM stats work out of the box (via the torch CUDA API);
+     compute utilization uses a best-effort `rocm-smi` call and reports an
+     honest "not available" when the CLI is missing.
+   - It might be necessary to downgrade all ROCm packages to pre 6.X versions
+     to fully support an older card. A container image is clearly preferred for
+     this use case and one may come in the future.
+   - A 4 GB variant card is SD 1.5 territory only; also, keep `api.model_cache.max_models: 1`.
+   - SDXL/Illustrious need at least 8GB of VRAM. For Flux, stick to modern,
+     supported ROCm cards
 
 ### Running
 
