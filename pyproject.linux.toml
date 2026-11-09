@@ -53,7 +53,7 @@ torchvision = [
 ]
 torchaudio = [
   { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
-  { index = "pytorch-cu120", marker = "sys_platform == 'linux'", extra = "cu132" },
+  { index = "pytorch-cu132", marker = "sys_platform == 'linux'", extra = "cu132" },
   { index = "pytorch-cu134", marker = "sys_platform == 'linux'", extra = "cu134" },
   { index = "pytorch-rocm10.0", marker = "sys_platform == 'linux'", extra = "rocm10.0" },
 ]

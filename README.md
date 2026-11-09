@@ -579,3 +579,28 @@ uv run uvicorn api.app:app --host 0.0.0.0 --port 8000
 # Run the test suite
 uv run pytest
 ```
+
+### Container
+
+The `Containerfile` builds a Debian-based image; dependencies are synced with `uv` and the server runs as an unprivileged user (OpenShift arbitrary-UID compatible, writable paths are group `0`). It listens on `0.0.0.0` by default.
+
+```bash
+podman build -t sd-api-backend -f Containerfile .
+
+podman run -p 8000:8000 \
+  -v ./models:/opt/app-root/data/models:Z \
+  -v ./outputs:/opt/app-root/data/outputs:Z \
+  sd-api-backend
+```
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `SD_API_HOST` | `0.0.0.0` | Listening address |
+| `SD_API_PORT` | `8000` | Listening port |
+| `SD_API_MODELS_DIR` | `/opt/app-root/data/models` | Root for checkpoints, LoRAs, VAEs, and Flux components |
+| `SD_API_OUTPUTS_DIR` | `/opt/app-root/data/outputs` | Root for persisted images and JSON metadata |
+| `SD_API_PERSIST_OUTPUTS` | `true` | Persist generated outputs to disk |
+| `SD_API_DEVICE_BACKEND` | `auto` | `auto` / `cuda` / `rocm` / `cpu` |
+| `CONFIG_FILE` | `/opt/app-root/config/parameters.yaml` | Generated from the variables above at startup unless the file already exists (mount your own `parameters.yaml` here to take full control) |
+
+The same variables are also build arguments (`--build-arg SD_API_PORT=...`). The default build uses `pyproject.toml` (PyPI torch, CUDA-enabled on Linux); a different project file and extras can be selected with `--build-arg PYPROJECT=pyproject.linux.toml --build-arg UV_SYNC_ARGS="--extra cu134"`.
