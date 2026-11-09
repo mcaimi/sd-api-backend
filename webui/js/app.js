@@ -1,67 +1,67 @@
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
+// Copies property descriptors rather than spreading, so getters stay live.
+function tabComponent(tab, def) {
+  return Object.defineProperties({
+    init() {
+      const sync = (current) => (current === tab ? this.activate() : this.deactivate());
+      this.$watch("$store.nav.current", sync);
+      sync(this.$store.nav.current);
+    },
+  }, Object.getOwnPropertyDescriptors(def));
 }
 
-function showModal(title, bodyHtml) {
-  const root = document.getElementById("modal-root");
-  root.innerHTML = `
-    <div class="app-modal-backdrop">
-      <div class="pf-v5-c-modal-box app-modal-box" role="dialog" aria-modal="true">
-        <header class="pf-v5-c-modal-box__header">
-          <h1 class="pf-v5-c-modal-box__title">${escapeHtml(title)}</h1>
-        </header>
-        <div class="pf-v5-c-modal-box__body">${bodyHtml}</div>
-        <footer class="pf-v5-c-modal-box__footer">
-          <button class="pf-v5-c-button pf-m-primary" id="modal-close-btn">Close</button>
-        </footer>
-      </div>
-    </div>
-  `;
-  const close = () => { root.innerHTML = ""; };
-  root.querySelector("#modal-close-btn").addEventListener("click", close);
-  root.querySelector(".app-modal-backdrop").addEventListener("click", (e) => {
-    if (e.target.classList.contains("app-modal-backdrop")) close();
+// Backend timestamps are naive ISO strings in server-local time; show them as-is, minus the noise.
+function formatTimestamp(iso) {
+  return iso.replace("T", " ").replace(/\.\d+$/, "");
+}
+
+function notify(message, variant = "danger") {
+  const icon = variant === "danger" ? "triangle-exclamation" : "circle-info";
+  document.getElementById("toaster").create(message, { variant, icon });
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+document.addEventListener("alpine:init", () => {
+  const TABS = ["jobs", "outputs", "models", "docs", "telemetry"];
+  const fromHash = () => {
+    const tab = window.location.hash.replace("#", "");
+    return TABS.includes(tab) ? tab : "jobs";
+  };
+
+  Alpine.store("nav", { current: fromHash() });
+  window.addEventListener("hashchange", () => {
+    Alpine.store("nav").current = fromHash();
   });
-}
 
-const Docs = { activate() {}, deactivate() {} };
+  Alpine.store("modal", {
+    open: false,
+    title: "",
+    body: "",
+    show(title, body) {
+      this.title = title;
+      this.body = body;
+      this.open = true;
+    },
+  });
 
-const App = (() => {
-  const tabs = ["jobs", "outputs", "models", "docs", "telemetry"];
-  const controllers = { jobs: Jobs, outputs: Outputs, models: Models, docs: Docs, telemetry: Telemetry };
-
-  function activate(tab) {
-    if (!tabs.includes(tab)) tab = "jobs";
-
-    tabs.forEach((t) => {
-      document.getElementById(`tab-${t}`).classList.toggle("active", t === tab);
-      const link = document.querySelector(`.app-nav-link[data-tab="${t}"]`);
-      link.classList.toggle("pf-m-primary", t === tab);
-      link.classList.toggle("pf-m-tertiary", t !== tab);
-    });
-
-    controllers[tab].activate();
-    tabs.filter((t) => t !== tab).forEach((t) => controllers[t].deactivate());
-  }
-
-  function init() {
-    document.querySelectorAll(".app-nav-link").forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.location.hash = link.dataset.tab;
-      });
-    });
-
-    window.addEventListener("hashchange", () => {
-      activate(window.location.hash.replace("#", ""));
-    });
-
-    activate(window.location.hash.replace("#", "") || "jobs");
-  }
-
-  return { init };
-})();
-
-document.addEventListener("DOMContentLoaded", App.init);
+  // Promise-based replacement for window.confirm().
+  Alpine.store("confirm", {
+    open: false,
+    title: "",
+    message: "",
+    action: "",
+    resolve: null,
+    ask(title, message, action) {
+      this.title = title;
+      this.message = message;
+      this.action = action;
+      this.open = true;
+      return new Promise((resolve) => { this.resolve = resolve; });
+    },
+    answer(value) {
+      this.open = false;
+      this.resolve?.(value);
+      this.resolve = null;
+    },
+  });
+});

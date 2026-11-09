@@ -1,44 +1,393 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="wa-theme-default wa-palette-default wa-brand-indigo">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SD API Backend</title>
-  <link rel="stylesheet" href="vendor/patternfly/patternfly.min.css">
+  <script>
+    // Follow the OS colour scheme.
+    (() => {
+      const query = matchMedia("(prefers-color-scheme: dark)");
+      const apply = () => document.documentElement.classList.toggle("wa-dark", query.matches);
+      apply();
+      query.addEventListener("change", apply);
+    })();
+  </script>
+  <link rel="stylesheet" href="vendor/webawesome/styles/themes/default.css">
+  <link rel="stylesheet" href="vendor/webawesome/styles/color/variants/brand.css">
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <header class="pf-v5-c-masthead">
-    <div class="pf-v5-c-masthead__main">
-      <span class="pf-v5-c-masthead__brand">SD API Backend</span>
+  <header class="app-header">
+    <div class="app-brand">
+      <span class="app-brand-mark"><wa-icon name="wand-magic-sparkles"></wa-icon></span>
+      SD API Backend
     </div>
   </header>
 
-  <nav class="app-nav" aria-label="Primary">
-    <a class="pf-v5-c-button pf-m-tertiary app-nav-link" data-tab="jobs" href="#jobs">Jobs</a>
-    <a class="pf-v5-c-button pf-m-tertiary app-nav-link" data-tab="outputs" href="#outputs">Outputs</a>
-    <a class="pf-v5-c-button pf-m-tertiary app-nav-link" data-tab="models" href="#models">Models</a>
-    <a class="pf-v5-c-button pf-m-tertiary app-nav-link" data-tab="docs" href="#docs">API Docs</a>
-    <a class="pf-v5-c-button pf-m-tertiary app-nav-link" data-tab="telemetry" href="#telemetry">Telemetry</a>
-  </nav>
+  <wa-tab-group class="app-tabs" x-data :active="$store.nav.current"
+                @wa-tab-show="$event.target === $el && (window.location.hash = $event.detail.name)">
+    <wa-tab panel="jobs"><wa-icon name="list-check"></wa-icon> Jobs</wa-tab>
+    <wa-tab panel="outputs"><wa-icon name="images"></wa-icon> Outputs</wa-tab>
+    <wa-tab panel="models"><wa-icon name="cube"></wa-icon> Models</wa-tab>
+    <wa-tab panel="docs"><wa-icon name="book"></wa-icon> API Docs</wa-tab>
+    <wa-tab panel="telemetry"><wa-icon name="gauge-high"></wa-icon> Telemetry</wa-tab>
 
-  <main class="pf-v5-c-page__main-section">
-    <section id="tab-jobs" class="app-tab"></section>
-    <section id="tab-outputs" class="app-tab"></section>
-    <section id="tab-models" class="app-tab"></section>
-    <section id="tab-docs" class="app-tab app-tab-docs">
-      <iframe class="app-docs-frame" src="/docs" title="API Documentation"></iframe>
-    </section>
-    <section id="tab-telemetry" class="app-tab"></section>
-  </main>
+    <!-- Jobs -->
+    <wa-tab-panel name="jobs">
+      <section class="panel" x-data="jobs">
+        <h2 class="panel-title">Jobs</h2>
+        <wa-callout variant="danger" x-show="error" x-cloak>
+          <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+          <span x-text="`Failed to load jobs: ${error}`"></span>
+        </wa-callout>
 
-  <div id="modal-root"></div>
+        <div class="job-columns" aria-hidden="true">
+          <span>Job ID</span><span>Type</span><span>Status</span><span>Progress</span><span>Created</span><span></span>
+        </div>
+        <div class="job-list">
+          <template x-if="loading">
+            <div class="stack-s">
+              <wa-skeleton effect="sheen" class="skeleton-row"></wa-skeleton>
+              <wa-skeleton effect="sheen" class="skeleton-row"></wa-skeleton>
+              <wa-skeleton effect="sheen" class="skeleton-row"></wa-skeleton>
+            </div>
+          </template>
+          <template x-for="job in jobs" :key="job.job_id">
+            <wa-details class="job" appearance="outlined" icon-placement="start">
+              <div slot="summary" class="job-summary">
+                <code class="job-id" x-text="job.job_id.slice(0, 8)"></code>
+                <span x-text="job.job_type"></span>
+                <span><wa-badge pill :variant="statusVariant(job.status)" :attention="job.status === 'running' ? 'pulse' : 'none'" x-text="job.status"></wa-badge></span>
+                <span class="job-progress">
+                  <wa-progress-bar :value="Math.round(job.progress * 100)" :label="`Progress of job ${job.job_id}`"></wa-progress-bar>
+                  <span class="job-progress-value" x-text="`${Math.round(job.progress * 100)}%`"></span>
+                </span>
+                <span class="muted" x-text="formatTimestamp(job.created_at)"></span>
+                <span class="job-actions">
+                  <wa-button size="s" variant="danger" appearance="outlined" x-show="canCancel(job)" @click.stop="cancel(job.job_id)">
+                    <wa-icon slot="start" name="ban"></wa-icon> Cancel
+                  </wa-button>
+                </span>
+              </div>
+              <div class="job-result">
+                <template x-if="job.result">
+                  <div class="job-result-body">
+                    <template x-if="job.result.image_base64">
+                      <img class="job-preview" :src="`data:image/png;base64,${job.result.image_base64}`" alt="Job result">
+                    </template>
+                    <pre class="code" x-text="resultJson(job)"></pre>
+                  </div>
+                </template>
+                <template x-if="!job.result && job.error">
+                  <pre class="code code-danger" x-text="job.error"></pre>
+                </template>
+                <template x-if="!job.result && !job.error">
+                  <p class="muted">No result.</p>
+                </template>
+              </div>
+            </wa-details>
+          </template>
+          <div class="empty-state" x-show="!loading && !error && jobs.length === 0" x-cloak>
+            <wa-icon name="inbox"></wa-icon>
+            <p>No jobs yet.</p>
+          </div>
+        </div>
+      </section>
+    </wa-tab-panel>
+
+    <!-- Outputs -->
+    <wa-tab-panel name="outputs">
+      <section class="panel" x-data="outputs">
+        <div class="panel-header">
+          <h2 class="panel-title">Outputs</h2>
+          <wa-pagination with-summary format="compact" :total="total" :page-size="pageSize" :page="page"
+                         x-show="total > 0" @wa-page-change="goTo($event.target.page)"></wa-pagination>
+        </div>
+        <wa-callout variant="danger" x-show="error" x-cloak>
+          <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+          <span x-text="`Failed to load outputs: ${error}`"></span>
+        </wa-callout>
+
+        <div class="gallery">
+          <template x-for="n in (loading ? 8 : 0)" :key="`skeleton-${n}`">
+            <wa-skeleton effect="sheen" class="tile tile-skeleton"></wa-skeleton>
+          </template>
+          <template x-for="(item, index) in items" :key="item.id">
+            <figure class="tile" :class="{ 'is-removing': removing[item.id] }" :style="`--i: ${index}`">
+              <img @load="$el.classList.add('is-loaded')" :src="imageUrl(item.id)" :alt="`Output ${item.id}`"
+                   loading="lazy" @click="openViewer(item)">
+              <figcaption class="tile-overlay">
+                <span class="tile-date" x-text="formatTimestamp(item.created_at)"></span>
+                <span class="tile-actions">
+                  <wa-button size="s" appearance="plain" title="Details" @click="openViewer(item)">
+                    <wa-icon name="magnifying-glass-plus" label="Details"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" title="Download image" :href="item.image_url" download>
+                    <wa-icon name="download" label="Download image"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" title="Download JSON" :href="item.json_url" download>
+                    <wa-icon name="file-code" label="Download JSON"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" variant="danger" title="Delete" @click="deleteItem(item)">
+                    <wa-icon name="trash" label="Delete"></wa-icon>
+                  </wa-button>
+                </span>
+              </figcaption>
+            </figure>
+          </template>
+        </div>
+        <div class="empty-state" x-show="!loading && !error && items.length === 0" x-cloak>
+          <wa-icon name="images"></wa-icon>
+          <p>No outputs persisted yet.</p>
+        </div>
+
+        <wa-dialog class="viewer" light-dismiss :open="viewer.open"
+                   :label="viewer.item ? formatTimestamp(viewer.item.created_at) : 'Output'"
+                   @wa-hide="$event.target === $el && (viewer.open = false)">
+          <template x-if="viewer.item">
+            <div class="viewer-body">
+              <img class="viewer-image" :src="imageUrl(viewer.item.id)" :alt="`Output ${viewer.item.id}`">
+              <div class="viewer-meta">
+                <template x-if="!viewer.meta && !viewer.error">
+                  <div class="stack-s">
+                    <wa-skeleton effect="sheen"></wa-skeleton>
+                    <wa-skeleton effect="sheen"></wa-skeleton>
+                    <wa-skeleton effect="sheen" style="width: 60%"></wa-skeleton>
+                  </div>
+                </template>
+                <template x-if="viewer.error">
+                  <wa-callout variant="danger">
+                    <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+                    <span x-text="viewer.error"></span>
+                  </wa-callout>
+                </template>
+                <template x-if="viewer.meta">
+                  <div class="stack-m">
+                    <template x-for="[label, text] in viewerFields.prompts" :key="label">
+                      <div>
+                        <div class="meta-label" x-text="label"></div>
+                        <p class="meta-prompt" x-text="text"></p>
+                      </div>
+                    </template>
+                    <dl class="meta-grid" x-show="viewerFields.settings.length">
+                      <template x-for="[label, value] in viewerFields.settings" :key="label">
+                        <div><dt x-text="label"></dt><dd x-text="value"></dd></div>
+                      </template>
+                    </dl>
+                    <div x-show="viewerFields.loras.length">
+                      <div class="meta-label">LoRAs</div>
+                      <div class="tag-list">
+                        <template x-for="lora in viewerFields.loras" :key="lora">
+                          <wa-badge appearance="outlined" variant="neutral" x-text="lora"></wa-badge>
+                        </template>
+                      </div>
+                    </div>
+                    <div x-show="viewerFields.vae">
+                      <div class="meta-label">VAE</div>
+                      <code x-text="viewerFields.vae"></code>
+                    </div>
+                    <wa-details summary="Raw metadata" appearance="plain">
+                      <pre class="code" x-text="viewerJson"></pre>
+                    </wa-details>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          <div slot="footer" class="dialog-footer" x-show="viewer.item">
+            <wa-button variant="danger" appearance="plain" @click="deleteItem(viewer.item)">
+              <wa-icon slot="start" name="trash"></wa-icon> Delete
+            </wa-button>
+            <span class="spacer"></span>
+            <wa-button appearance="outlined" :href="viewer.item?.json_url" download>
+              <wa-icon slot="start" name="file-code"></wa-icon> JSON
+            </wa-button>
+            <wa-button variant="brand" :href="viewer.item?.image_url" download>
+              <wa-icon slot="start" name="download"></wa-icon> Image
+            </wa-button>
+          </div>
+        </wa-dialog>
+      </section>
+    </wa-tab-panel>
+
+    <!-- Models -->
+    <wa-tab-panel name="models">
+      <section class="panel" x-data="models">
+        <h2 class="panel-title">Models</h2>
+        <div class="filters">
+          <wa-radio-group label="Model type" orientation="horizontal" size="s" :value="modelType"
+                          @change="select('modelType', $event.target.value)">
+            <template x-for="t in modelTypes" :key="t">
+              <wa-radio appearance="button" :value="t" x-text="t"></wa-radio>
+            </template>
+          </wa-radio-group>
+          <wa-radio-group label="Resource" orientation="horizontal" size="s" :value="resourceType"
+                          @change="select('resourceType', $event.target.value)">
+            <template x-for="t in resourceTypes" :key="t">
+              <wa-radio appearance="button" :value="t" x-text="t"></wa-radio>
+            </template>
+          </wa-radio-group>
+        </div>
+        <wa-callout variant="danger" x-show="error" x-cloak>
+          <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+          <span x-text="`Failed to load models: ${error}`"></span>
+        </wa-callout>
+
+        <div class="list" :class="{ 'is-loading': loading }" x-show="!error && models.length">
+          <template x-for="m in models" :key="m.name">
+            <div class="list-row">
+              <wa-icon name="cube" class="list-row-icon"></wa-icon>
+              <code class="list-row-name" x-text="m.name"></code>
+              <span class="list-row-actions">
+                <wa-button size="s" appearance="plain" title="Metadata" @click="showMetadata(m.name)">
+                  <wa-icon name="circle-info" label="Metadata"></wa-icon>
+                </wa-button>
+                <wa-button size="s" appearance="plain" title="Download" :href="downloadUrl(m.name)" download>
+                  <wa-icon name="download" label="Download"></wa-icon>
+                </wa-button>
+              </span>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="!loading && !error && models.length === 0" x-cloak>
+          <wa-icon name="cube"></wa-icon>
+          <p>No models found.</p>
+        </div>
+      </section>
+    </wa-tab-panel>
+
+    <!-- API Docs -->
+    <wa-tab-panel name="docs">
+      <section class="panel panel-wide">
+        <iframe class="docs-frame" src="/docs" title="API Documentation"></iframe>
+      </section>
+    </wa-tab-panel>
+
+    <!-- Telemetry -->
+    <wa-tab-panel name="telemetry">
+      <section class="panel" x-data="telemetry">
+        <h2 class="panel-title">Telemetry</h2>
+        <wa-callout variant="danger" x-show="error" x-cloak>
+          <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+          <span x-text="`Failed to load telemetry: ${error}`"></span>
+        </wa-callout>
+        <template x-if="info">
+          <div class="telemetry-grid">
+            <wa-card>
+              <div slot="header" class="card-title"><wa-icon name="microchip"></wa-icon> GPU Compute</div>
+              <template x-if="info.gpu_stats.compute.available">
+                <div class="gauges">
+                  <div class="gauge">
+                    <wa-progress-ring :value="clamp(info.gpu_stats.compute.utilization_percent)"
+                                      :style="ringStyle(info.gpu_stats.compute.utilization_percent)" label="GPU utilization">
+                      <span class="gauge-value" x-text="`${info.gpu_stats.compute.utilization_percent.toFixed(0)}%`"></span>
+                    </wa-progress-ring>
+                    <span class="gauge-caption">utilization</span>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!info.gpu_stats.compute.available">
+                <wa-callout variant="neutral" appearance="filled">
+                  <wa-icon slot="icon" name="circle-info"></wa-icon>
+                  <span x-text="info.gpu_stats.compute.reason || 'GPU compute utilization unavailable'"></span>
+                </wa-callout>
+              </template>
+            </wa-card>
+
+            <wa-card>
+              <div slot="header" class="card-title"><wa-icon name="memory"></wa-icon> <span x-text="`GPU VRAM (${info.device})`"></span></div>
+              <template x-if="info.gpu_stats.available">
+                <div class="gauges">
+                  <div class="gauge">
+                    <wa-progress-ring :value="clamp(vramPercent)" :style="ringStyle(vramPercent)" label="VRAM used">
+                      <span class="gauge-value" x-text="`${vramPercent.toFixed(0)}%`"></span>
+                    </wa-progress-ring>
+                    <span class="gauge-caption" x-text="`${formatGB(info.gpu_stats.used_bytes)} / ${formatGB(info.gpu_stats.total_bytes)} GB used`"></span>
+                  </div>
+                  <div class="gauge-notes">
+                    <div><span class="muted">PyTorch allocated</span> <strong x-text="`${formatGB(info.gpu_stats.allocated_bytes)} GB`"></strong></div>
+                    <div class="muted small" x-show="info.gpu_stats.total_is_approximate">Approximate: unified memory, no fixed VRAM ceiling.</div>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!info.gpu_stats.available">
+                <wa-callout variant="neutral" appearance="filled">
+                  <wa-icon slot="icon" name="circle-info"></wa-icon>
+                  <span x-text="info.gpu_stats.reason || 'GPU memory stats unavailable'"></span>
+                </wa-callout>
+              </template>
+            </wa-card>
+
+            <wa-card>
+              <div slot="header" class="card-title"><wa-icon name="server"></wa-icon> Node (Host)</div>
+              <div class="gauges">
+                <div class="gauge">
+                  <wa-progress-ring :value="clamp(info.host_stats.cpu_percent)" :style="ringStyle(info.host_stats.cpu_percent)" label="CPU usage">
+                    <span class="gauge-value" x-text="`${info.host_stats.cpu_percent.toFixed(0)}%`"></span>
+                  </wa-progress-ring>
+                  <span class="gauge-caption" x-text="`CPU · ${info.host_stats.cpu_count} cores`"></span>
+                </div>
+                <div class="gauge">
+                  <wa-progress-ring :value="clamp(info.host_stats.memory_percent)" :style="ringStyle(info.host_stats.memory_percent)" label="RAM usage">
+                    <span class="gauge-value" x-text="`${info.host_stats.memory_percent.toFixed(0)}%`"></span>
+                  </wa-progress-ring>
+                  <span class="gauge-caption" x-text="`RAM · ${formatGB(info.host_stats.memory_used_bytes)} / ${formatGB(info.host_stats.memory_total_bytes)} GB`"></span>
+                </div>
+              </div>
+              <div slot="footer" class="card-footer"><span class="muted">Load average</span> <strong x-text="loadAverage"></strong></div>
+            </wa-card>
+
+            <wa-card>
+              <div slot="header" class="card-title"><wa-icon name="layer-group"></wa-icon> Model Cache</div>
+              <div class="gauges">
+                <div class="gauge">
+                  <wa-progress-ring :value="clamp(cachePercent)" label="Model cache usage">
+                    <span class="gauge-value" x-text="`${info.cache_stats.cached_models}/${info.cache_stats.max_models}`"></span>
+                  </wa-progress-ring>
+                  <span class="gauge-caption">models loaded</span>
+                </div>
+                <div class="gauge-notes">
+                  <div class="tag-list" x-show="info.cache_stats.cache_keys.length">
+                    <template x-for="key in info.cache_stats.cache_keys" :key="key">
+                      <wa-badge appearance="outlined" variant="neutral" x-text="key"></wa-badge>
+                    </template>
+                  </div>
+                  <span class="muted" x-show="!info.cache_stats.cache_keys.length">Cache is empty.</span>
+                </div>
+              </div>
+            </wa-card>
+          </div>
+        </template>
+      </section>
+    </wa-tab-panel>
+  </wa-tab-group>
+
+  <wa-dialog x-data :label="$store.modal.title" :open="$store.modal.open" light-dismiss
+             @wa-hide="$event.target === $el && ($store.modal.open = false)" style="--width: 48rem">
+    <pre class="code" x-text="$store.modal.body"></pre>
+  </wa-dialog>
+
+  <wa-dialog x-data :label="$store.confirm.title" :open="$store.confirm.open"
+             @wa-hide="$event.target === $el && $store.confirm.answer(false)">
+    <p x-text="$store.confirm.message"></p>
+    <div slot="footer" class="dialog-footer">
+      <span class="spacer"></span>
+      <wa-button appearance="outlined" @click="$store.confirm.answer(false)">Cancel</wa-button>
+      <wa-button variant="danger" @click="$store.confirm.answer(true)" x-text="$store.confirm.action"></wa-button>
+    </div>
+  </wa-dialog>
+
+  <wa-toast id="toaster" placement="bottom-end"></wa-toast>
 
   <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/jobs.js"></script>
   <script src="js/outputs.js"></script>
   <script src="js/models.js"></script>
   <script src="js/telemetry.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/icons.js"></script>
+  <script type="module" src="vendor/webawesome/webawesome.loader.js" data-webawesome="vendor/webawesome"></script>
+  <script defer src="vendor/alpinejs/alpine.min.js"></script>
 </body>
 </html>
