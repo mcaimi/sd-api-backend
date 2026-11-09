@@ -10,9 +10,12 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
-from libs.stablediffusion.merge import SD15MergePipeline, SDXLMergePipeline
-from libs.stablediffusion.mergeops import MergeConfig, batch_merge_checkpoints
-from libs.globals.vars import MergeMethod
+from metastable.merge import (
+    MergeConfig,
+    MergeMethod,
+    MergePipeline,
+    batch_merge_checkpoints,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,22 +33,18 @@ async def merge_models_async(
     Async wrapper for single model merging.
 
     Args:
-        model_type: "sd15" or "sdxl"
+        model_type: "sd15", "sdxl", or "illustrious"
         base_model_path: Full path to base model
         target_model_path: Full path to target model
         method: Merge method (linear, slerp, additive, subtract)
-        alpha: Merge strength (0.0-1.0)
+        alpha: Weight of the target model (0.0-1.0)
         output_path: Full path for output model
         preserve_metadata: Whether to preserve metadata
 
     Returns:
         Dictionary with output_path and merge metadata
     """
-    # Select pipeline based on model type
-    if model_type == "sd15":
-        pipeline = SD15MergePipeline(device="auto")
-    else:  # sdxl
-        pipeline = SDXLMergePipeline(device="auto")
+    pipeline = MergePipeline.for_model_type(model_type, device="auto")
 
     # Create merge config
     merge_method = MergeMethod.from_string(method)
@@ -60,7 +59,7 @@ async def merge_models_async(
     loop = asyncio.get_event_loop()
 
     def _merge():
-        return pipeline.merge_for_pipeline_generator(
+        return pipeline.merge(
             base_model=base_model_path,
             target_model=target_model_path,
             config=config,
@@ -98,11 +97,11 @@ async def batch_merge_models_async(
     Async wrapper for batch merging.
 
     Args:
-        model_type: "sd15" or "sdxl"
+        model_type: "sd15", "sdxl", or "illustrious"
         base_model_path: Full path to base model
         target_model_paths: List of full paths to target models
         method: Merge method (linear, slerp, additive, subtract)
-        alpha: Merge strength (0.0-1.0)
+        alpha: Weight of the target model (0.0-1.0)
         output_dir: Directory for output models
         preserve_metadata: Whether to preserve metadata
 
@@ -158,7 +157,7 @@ async def recipe_merge_models_async(
     Async wrapper for recipe-based merging.
 
     Args:
-        model_type: "sd15" or "sdxl"
+        model_type: "sd15", "sdxl", or "illustrious"
         base_model_path: Full path to base model
         recipe_steps: List of dicts with keys: target_model_path, method, alpha
         output_path: Full path for final merged model
@@ -166,11 +165,7 @@ async def recipe_merge_models_async(
     Returns:
         Dictionary with output_path and recipe execution metadata
     """
-    # Select pipeline based on model type
-    if model_type == "sd15":
-        pipeline = SD15MergePipeline(device="auto")
-    else:  # sdxl
-        pipeline = SDXLMergePipeline(device="auto")
+    pipeline = MergePipeline.for_model_type(model_type, device="auto")
 
     # Transform recipe_steps into the format expected by create_merge_recipe
     # create_merge_recipe expects: List[Dict[str, Any]] with target_model, method, alpha
@@ -200,12 +195,8 @@ async def recipe_merge_models_async(
 
     try:
         logger.info(f"Starting recipe merge: {len(recipe_steps)} steps")
-        success = await loop.run_in_executor(None, _execute_recipe)
-
-        if success:
-            logger.info(f"Recipe merge completed: {output_path}")
-        else:
-            raise RuntimeError("Recipe merge failed")
+        await loop.run_in_executor(None, _execute_recipe)
+        logger.info(f"Recipe merge completed: {output_path}")
 
         return {
             "output_path": output_path,

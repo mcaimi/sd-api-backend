@@ -22,8 +22,8 @@ from api.services.merge import (
     recipe_merge_models_async,
 )
 from api.services.job_queue import get_job_queue
-from libs.shared.config import get_app_config
-from libs.shared.utils import enumerate_models
+from api.config import get_app_config
+from metastable.models import enumerate_models
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

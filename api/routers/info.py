@@ -7,9 +7,9 @@ Endpoints for informational requests.
 from typing import List
 from fastapi import APIRouter, HTTPException
 
-from libs.shared.config import get_app_config
-from libs.shared.utils import enumerate_models
-from libs.globals.vars import schedulers
+from api.config import get_app_config
+from metastable.models import enumerate_models
+from metastable.schedulers import SCHEDULERS
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ async def list_schedulers():
     """
 
     return [
-        scheduler_name for scheduler_name in schedulers.keys()
+        scheduler_name for scheduler_name in SCHEDULERS.keys()
     ]
 
 

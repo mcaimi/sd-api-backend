@@ -9,8 +9,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 from api.models.system import ModelListResponse, ModelMetadataResponse
-from libs.shared.config import get_app_config
-from libs.shared.utils import enumerate_models, read_safetensors_header
+from api.config import get_app_config
+from metastable.models import enumerate_models, read_safetensors_header
 
 router = APIRouter()
 

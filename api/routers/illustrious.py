@@ -17,7 +17,7 @@ from api.models.generation import (
 )
 from api.services.generation import generate_image_async, inpaint_image_async
 from api.services.job_queue import get_job_queue
-from libs.shared.config import get_app_config
+from api.config import get_app_config
 
 router = APIRouter()
 

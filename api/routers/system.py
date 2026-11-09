@@ -12,8 +12,8 @@ from fastapi import APIRouter
 from api.models.system import HealthResponse, SystemInfo
 from api.services.model_cache import get_cache_manager
 from api.services.job_queue import get_job_queue
-from libs.shared.device import get_device_settings
-from libs.shared.telemetry import (
+from metastable.device import get_device_settings
+from metastable.telemetry import (
     get_gpu_memory_stats,
     get_gpu_compute_stats,
     get_host_stats,

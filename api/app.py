@@ -12,9 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
+import metastable
+
 from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs
 from api.services.job_queue import get_job_queue
-from libs.shared.config import get_app_config
+from api.config import get_app_config
 
 WEBUI_DIR = Path(__file__).resolve().parent.parent / "webui"
 
@@ -52,6 +54,10 @@ def create_app() -> FastAPI:
     """
     # Load configuration
     config = get_app_config()
+
+    # Register the compute device before any torch.cuda usage, so ROCm
+    # environment overrides (gfx_override, env) take effect
+    metastable.configure_device(config.device)
 
     app = FastAPI(
         title="Stable Diffusion API",
