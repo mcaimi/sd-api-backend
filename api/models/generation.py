@@ -8,7 +8,7 @@ Request and response models for text-to-image and inpainting endpoints.
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 
-from libs.globals.vars import schedulers, flux_schedulers
+from metastable.schedulers import SCHEDULERS, FLUX_SCHEDULERS
 
 
 class LoraConfig(BaseModel):
@@ -33,8 +33,8 @@ class GenerationRequest(BaseModel):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in schedulers:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(schedulers.keys())}")
+        if v not in SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(SCHEDULERS.keys())}")
         return v
 
 
@@ -54,7 +54,7 @@ class InpaintRequest(BaseModel):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in schedulers:
+        if v not in SCHEDULERS:
             raise ValueError(f"Invalid scheduler: {v}")
         return v
 
@@ -78,7 +78,7 @@ class CompareModelsRequest(BaseModel):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in schedulers:
+        if v not in SCHEDULERS:
             raise ValueError(f"Invalid scheduler: {v}")
         return v
 
@@ -99,8 +99,8 @@ class FluxGenerationRequest(GenerationRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in flux_schedulers:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
+        if v not in FLUX_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
         return v
 
 
@@ -116,8 +116,8 @@ class FluxInpaintRequest(InpaintRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in flux_schedulers:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
+        if v not in FLUX_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
         return v
 
 
@@ -132,8 +132,8 @@ class FluxCompareModelsRequest(CompareModelsRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in flux_schedulers:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(flux_schedulers.keys())}")
+        if v not in FLUX_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
         return v
 
 

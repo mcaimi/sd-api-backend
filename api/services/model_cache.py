@@ -10,11 +10,9 @@ import logging
 from typing import Dict, Optional, Tuple
 from pathlib import Path
 
-from libs.stablediffusion.sd15 import SD15PipelineGenerator
-from libs.stablediffusion.sdxl import SDXLPipelineGenerator
-from libs.stablediffusion.illustrious import IllustriousPipelineGenerator
-from libs.stablediffusion.flux import FluxPipelineGenerator
-from libs.shared.config import get_app_config
+from metastable.pipelines import create_generator
+
+from api.config import get_app_config
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +51,7 @@ class ModelCacheManager:
         Get a pipeline from cache or load it.
 
         Args:
-            model_type: "sd15" or "sdxl"
+            model_type: "sd15", "sdxl", "illustrious", or "flux"
             model_path: Path to model checkpoint
             pipeline_type: "txt2img" or "inpaint"
 
@@ -94,37 +92,16 @@ class ModelCacheManager:
         loop = asyncio.get_event_loop()
 
         def _load():
-            if model_type == "sd15":
-                pipeline_gen = SD15PipelineGenerator(model_checkpoint=model_path)
-                if pipeline_type == "txt2img":
-                    pipeline_gen.loadSDPipeline()
-                else:  # inpaint
-                    pipeline_gen.loadSDInpaintPipeline()
-            elif model_type == "sdxl":
-                pipeline_gen = SDXLPipelineGenerator(model_checkpoint=model_path)
-                if pipeline_type == "txt2img":
-                    pipeline_gen.loadSDXLPipeline()
-                else:  # inpaint
-                    pipeline_gen.loadSDXLInpaintPipeline()
-            elif model_type == "illustrious":
-                pipeline_gen = IllustriousPipelineGenerator(model_checkpoint=model_path)
-                if pipeline_type == "txt2img":
-                    pipeline_gen.loadIllustriousPipeline()
-                else:  # inpaint
-                    pipeline_gen.loadIllustriousInpaintPipeline()
-            elif model_type == "flux":
-                pipeline_gen = FluxPipelineGenerator(
-                    model_checkpoint=model_path,
-                    components_dir=get_app_config().flux_components_path,
-                )
-                if pipeline_type == "txt2img":
-                    pipeline_gen.loadPipeline()
-                else:  # inpaint
-                    pipeline_gen.loadInpaintPipeline()
-            else:
-                raise ValueError(f"Unknown model type: {model_type}")
+            extra_kwargs = {}
+            if model_type == "flux":
+                extra_kwargs["components_dir"] = get_app_config().flux_components_path
+            pipeline_gen = create_generator(model_type, model_path, **extra_kwargs)
+            if pipeline_type == "txt2img":
+                pipeline_gen.load_pipeline()
+            else:  # inpaint
+                pipeline_gen.load_inpaint_pipeline()
 
-            pipeline_gen.pipeToConfiguredDevice()
+            pipeline_gen.to_device()
             return pipeline_gen
 
         # Run in executor to avoid blocking

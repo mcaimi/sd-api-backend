@@ -11,11 +11,11 @@ from typing import Optional
 from pathlib import Path
 import json
 
+from metastable.pipelines import LoraSpec
+
 from api.services.model_cache import get_cache_manager
 from api.utils.image_encoding import numpy_to_base64, base64_to_pil
-from libs.stablediffusion.funcs import get_random_seed
-from libs.globals.vars import RANDOM_BIT_LENGTH
-from libs.shared.config import get_app_config
+from api.config import get_app_config
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -67,6 +67,49 @@ async def persist_to_backend(image_array, metadata) -> bool:
         return False
 
 
+async def _prepare_pipeline(
+    model_type: str,
+    model_path: str,
+    pipeline_type: str,
+    loras: Optional[list],
+    custom_vae: Optional[str],
+):
+    """
+    Get a cached pipeline and apply the requested LoRAs and custom VAE.
+
+    Returns:
+        Tuple of (pipeline generator, JSON-serializable LoRA metadata)
+    """
+    cache_manager = get_cache_manager()
+    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, pipeline_type)
+
+    # Apply LoRAs if specified
+    lora_metadata = {}
+    if loras:
+        lora_specs = []
+        for i, lora_config in enumerate(loras):
+            lora_path = lora_config.get("path", lora_config["name"])
+            lora_specs.append(LoraSpec(path=lora_path, strength=lora_config["strength"]))
+            lora_metadata[f"lora_{i}"] = {
+                "name": lora_config["name"],
+                "lora_path": str(lora_path),
+                "merge_strength": lora_config["strength"],
+            }
+        try:
+            pipeline_gen.add_loras(lora_specs)
+        except Exception as e:
+            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
+            await cache_manager.evict(model_type, model_path, pipeline_type)
+            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, pipeline_type)
+            pipeline_gen.add_loras(lora_specs)
+
+    # Apply custom VAE if specified
+    if custom_vae:
+        pipeline_gen.load_custom_vae(custom_vae)
+
+    return pipeline_gen, lora_metadata
+
+
 async def generate_image_async(
     model_type: str,
     model_path: str,
@@ -104,35 +147,9 @@ async def generate_image_async(
     Returns:
         Dictionary with image_base64 and metadata
     """
-    # Get cached pipeline
-    cache_manager = get_cache_manager()
-    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "txt2img")
-
-    # Apply LoRAs if specified
-    lora_metadata = {}
-    if loras:
-        for i, lora_config in enumerate(loras):
-            lora_metadata[f"lora_{i}"] = {
-                "name": lora_config["name"],
-                "lora_path": Path(lora_config.get("path", lora_config["name"])),
-                "merge_strength": lora_config["strength"],
-                "metadata": {},
-            }
-        try:
-            pipeline_gen.addLorasToPipeline(lora_metadata)
-        except Exception as e:
-            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
-            await cache_manager.evict(model_type, model_path, "txt2img")
-            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "txt2img")
-            pipeline_gen.addLorasToPipeline(lora_metadata)
-
-    # Apply custom VAE if specified
-    if custom_vae:
-        pipeline_gen.loadCustomVAE(custom_vae)
-
-    # Generate seed if random
-    if seed < 0:
-        seed = get_random_seed(RANDOM_BIT_LENGTH)
+    pipeline_gen, lora_metadata = await _prepare_pipeline(
+        model_type, model_path, "txt2img", loras, custom_vae
+    )
 
     # Run generation in thread pool (blocking operation)
     loop = asyncio.get_event_loop()
@@ -171,7 +188,7 @@ async def generate_image_async(
     return {
         "image_base64": image_base64,
         "metadata": metadata,
-        "seed": seed,
+        "seed": metadata["instances"][0]["seed"],
     }
 
 
@@ -215,35 +232,9 @@ async def inpaint_image_async(
     Returns:
         Dictionary with image_base64 and metadata
     """
-    # Get cached pipeline
-    cache_manager = get_cache_manager()
-    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "inpaint")
-
-    # Apply LoRAs if specified
-    lora_metadata = {}
-    if loras:
-        for i, lora_config in enumerate(loras):
-            lora_metadata[f"lora_{i}"] = {
-                "name": lora_config["name"],
-                "lora_path": Path(lora_config.get("path", lora_config["name"])),
-                "merge_strength": lora_config["strength"],
-                "metadata": {},
-            }
-        try:
-            pipeline_gen.addLorasToPipeline(lora_metadata)
-        except Exception as e:
-            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
-            await cache_manager.evict(model_type, model_path, "inpaint")
-            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, "inpaint")
-            pipeline_gen.addLorasToPipeline(lora_metadata)
-
-    # Apply custom VAE if specified
-    if custom_vae:
-        pipeline_gen.loadCustomVAE(custom_vae)
-
-    # Generate seed if random
-    if seed < 0:
-        seed = get_random_seed(RANDOM_BIT_LENGTH)
+    pipeline_gen, lora_metadata = await _prepare_pipeline(
+        model_type, model_path, "inpaint", loras, custom_vae
+    )
 
     # Decode images
     input_image = base64_to_pil(image_base64)
@@ -288,5 +279,5 @@ async def inpaint_image_async(
     return {
         "image_base64": image_base64,
         "metadata": metadata,
-        "seed": seed,
+        "seed": metadata["instances"][0]["seed"],
     }

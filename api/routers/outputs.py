@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 from api.models.outputs import OutputItem, OutputListResponse
-from libs.shared.config import get_app_config
+from api.config import get_app_config
 
 router = APIRouter()
 

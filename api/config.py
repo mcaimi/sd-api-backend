@@ -12,9 +12,9 @@ from typing import Dict, Any, Optional
 
 from yaml import safe_load, YAMLError
 
-from libs.shared.parameters import Parameters
-from libs.shared.utils import check_or_create_path
-from libs.shared.exceptions import ConfigurationError
+from metastable import ConfigurationError
+
+from api.parameters import Parameters
 
 
 @dataclass
@@ -104,10 +104,6 @@ class AppConfig:
         return getattr(self.parameters.api, "port", 8000)
 
     @property
-    def api_workers(self) -> int:
-        return getattr(self.parameters.api, "workers", 1)
-
-    @property
     def cors_enabled(self) -> bool:
         return getattr(self.parameters.api.cors, "enabled", True)
 
@@ -120,6 +116,7 @@ class AppConfig:
         """
         The optional 'device' configuration subtree (compute backend, dtype,
         ROCm overrides), or None when parameters.yaml has no device section.
+        Passed to metastable.configure_device() at startup.
         """
         device = getattr(self.parameters, "device", None)
         return device if isinstance(device, Parameters) else None
@@ -193,33 +190,7 @@ class AppConfig:
             self.output_json_path,
         ]
         for path in paths:
-            check_or_create_path(path)
-
-    def get_output_path(self, filename: str, output_type: str = "images") -> Path:
-        """
-        Get full output path for a file.
-
-        Args:
-            filename: The filename to save
-            output_type: Either 'images' or 'json'
-
-        Returns:
-            Full Path object to the output file
-
-        Raises:
-            ConfigurationError: If output_type is not 'images' or 'json'
-        """
-        if output_type not in ("images", "json"):
-            raise ConfigurationError(
-                f"Invalid output_type: {output_type}. Must be 'images' or 'json'"
-            )
-
-        if output_type == "images":
-            base_path = self.output_images_path
-        else:  # json
-            base_path = self.output_json_path
-
-        return Path(base_path) / filename
+            Path(path).mkdir(parents=True, exist_ok=True)
 
 
 def _load_yaml_config(config_file: str) -> Dict[str, Any]:
@@ -266,14 +237,3 @@ def get_app_config(params_file: str = "parameters.yaml") -> AppConfig:
     config.setup_paths()
 
     return config
-
-
-def clear_config_cache() -> None:
-    """Clear the configuration cache (useful for testing or reloading)."""
-    get_app_config.cache_clear()
-
-
-# Convenience function for common pattern
-def get_model_paths(model_type: str) -> Dict[str, str]:
-    """Get model paths for the given model type."""
-    return get_app_config().get_model_paths(model_type)

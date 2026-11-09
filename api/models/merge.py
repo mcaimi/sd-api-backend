@@ -8,16 +8,16 @@ Request and response models for model merging endpoints.
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 
-from libs.globals.vars import MergeMethod
+from metastable.merge import MergeMethod
 
 
 class MergeRequest(BaseModel):
     """Request for model merging."""
-    model_type: str = Field(..., description="Model type: 'sd15' or 'sdxl'")
+    model_type: str = Field(..., description="Model type: 'sd15', 'sdxl', or 'illustrious'")
     base_model: str = Field(..., description="Base model checkpoint filename")
     target_model: str = Field(..., description="Target model checkpoint filename")
     method: str = Field("linear", description="Merge method (linear, slerp, additive, subtract)")
-    alpha: float = Field(0.5, ge=0.0, le=1.0, description="Merge strength/alpha")
+    alpha: float = Field(0.5, ge=0.0, le=1.0, description="Weight of the target model (0.0 = base, 1.0 = target)")
     output_name: str = Field(..., description="Output checkpoint filename")
     preserve_metadata: bool = Field(True, description="Preserve model metadata")
 
@@ -38,7 +38,7 @@ class MergeRequest(BaseModel):
 
 class BatchMergeRequest(BaseModel):
     """Request for batch merging."""
-    model_type: str = Field(..., description="Model type: 'sd15' or 'sdxl'")
+    model_type: str = Field(..., description="Model type: 'sd15', 'sdxl', or 'illustrious'")
     base_model: str
     target_models: List[str] = Field(..., min_length=1, description="List of target models")
     method: str = Field("linear")
@@ -78,7 +78,7 @@ class MergeRecipeStep(BaseModel):
 
 class MergeRecipeRequest(BaseModel):
     """Request for executing a merge recipe."""
-    model_type: str = Field(..., description="Model type: 'sd15' or 'sdxl'")
+    model_type: str = Field(..., description="Model type: 'sd15', 'sdxl', or 'illustrious'")
     base_model: str
     steps: List[MergeRecipeStep] = Field(..., min_length=1, description="Merge recipe steps")
     output_name: str
