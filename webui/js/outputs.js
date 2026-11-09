@@ -1,98 +1,102 @@
-const Outputs = (() => {
+document.addEventListener("alpine:init", () => {
   const PAGE_SIZE = 24;
-  let offset = 0;
-  let total = 0;
-  let currentPageCount = 0;
+  const REMOVE_ANIMATION_MS = 250;
 
-  async function showDetails(id) {
-    try {
-      const meta = await Api.getOutputMetadata(id);
-      showModal(`Output ${id}`, `<pre>${escapeHtml(JSON.stringify(meta, null, 2))}</pre>`);
-    } catch (e) {
-      showModal("Error", `<p>${escapeHtml(e.message)}</p>`);
-    }
-  }
+  Alpine.data("outputs", () => tabComponent("outputs", {
+    pageSize: PAGE_SIZE,
+    items: [],
+    total: 0,
+    offset: 0,
+    loading: true,
+    error: null,
+    removing: {},
+    viewer: { open: false, item: null, meta: null, error: null },
 
-  async function deleteItem(id) {
-    if (!confirm("Delete this output? This removes the image and metadata permanently.")) {
-      return;
-    }
-    try {
-      await Api.deleteOutput(id);
-    } catch (e) {
-      alert(`Could not delete output: ${e.message}`);
-      return;
-    }
-    if (currentPageCount === 1 && offset > 0) {
-      offset = Math.max(0, offset - PAGE_SIZE);
-    }
-    await refresh();
-  }
+    get page() {
+      return Math.floor(this.offset / PAGE_SIZE) + 1;
+    },
 
-  function render(data) {
-    total = data.total;
-    currentPageCount = data.items.length;
-    const container = document.getElementById("tab-outputs");
+    // Splits persisted metadata into prompts (shown as blocks) and scalar settings (shown as a grid).
+    get viewerFields() {
+      const generation = this.viewer.meta?.generation;
+      const fields = { prompts: [], settings: [], loras: [], vae: this.viewer.meta?.vae };
+      if (generation && typeof generation === "object") {
+        for (const [key, value] of Object.entries(generation)) {
+          const label = key.replace(/_/g, " ");
+          if (key.includes("prompt") && typeof value === "string") fields.prompts.push([label, value]);
+          else if (value !== null && typeof value !== "object") fields.settings.push([label, String(value)]);
+        }
+      }
+      for (const lora of Object.values(this.viewer.meta?.loras || {})) {
+        fields.loras.push(`${lora.name} (${lora.merge_strength})`);
+      }
+      return fields;
+    },
 
-    const cards = data.items.map((item) => `
-      <div class="pf-v5-c-card">
-        <div class="pf-v5-c-card__body">
-          <img src="${Api.outputImageUrl(item.id)}" alt="${item.id}" loading="lazy">
-        </div>
-        <div class="pf-v5-c-card__footer">
-          <small>${item.created_at}</small><br>
-          <button class="pf-v5-c-button pf-m-link pf-m-inline" data-details="${item.id}">Details</button>
-          <a class="pf-v5-c-button pf-m-link pf-m-inline" href="${item.image_url}" download>Image</a>
-          <a class="pf-v5-c-button pf-m-link pf-m-inline" href="${item.json_url}" download>JSON</a>
-          <button class="pf-v5-c-button pf-m-link pf-m-inline pf-m-danger" data-delete="${item.id}">Delete</button>
-        </div>
-      </div>
-    `).join("");
+    get viewerJson() {
+      return JSON.stringify(this.viewer.meta, null, 2);
+    },
 
-    const hasPrev = offset > 0;
-    const hasNext = offset + PAGE_SIZE < total;
+    imageUrl(id) {
+      return Api.outputImageUrl(id);
+    },
 
-    container.innerHTML = `
-      <h2 class="pf-v5-c-title pf-m-xl">Outputs</h2>
-      <div class="app-toolbar">
-        <button class="pf-v5-c-button pf-m-secondary" id="outputs-prev" ${hasPrev ? "" : "disabled"}>Previous</button>
-        <span>${total === 0 ? 0 : offset + 1}-${Math.min(offset + PAGE_SIZE, total)} of ${total}</span>
-        <button class="pf-v5-c-button pf-m-secondary" id="outputs-next" ${hasNext ? "" : "disabled"}>Next</button>
-      </div>
-      <div class="output-gallery">${cards || "<p>No outputs persisted yet.</p>"}</div>
-    `;
+    formatTimestamp,
 
-    container.querySelector("#outputs-prev")?.addEventListener("click", () => {
-      offset = Math.max(0, offset - PAGE_SIZE);
-      refresh();
-    });
-    container.querySelector("#outputs-next")?.addEventListener("click", () => {
-      offset += PAGE_SIZE;
-      refresh();
-    });
-    container.querySelectorAll("[data-details]").forEach((btn) => {
-      btn.addEventListener("click", () => showDetails(btn.dataset.details));
-    });
-    container.querySelectorAll("[data-delete]").forEach((btn) => {
-      btn.addEventListener("click", () => deleteItem(btn.dataset.delete));
-    });
-  }
+    goTo(page) {
+      this.offset = (page - 1) * PAGE_SIZE;
+      this.refresh();
+    },
 
-  async function refresh() {
-    try {
-      const data = await Api.listOutputs(PAGE_SIZE, offset);
-      render(data);
-    } catch (e) {
-      document.getElementById("tab-outputs").innerHTML =
-        `<div class="pf-v5-c-alert pf-m-danger"><div class="pf-v5-c-alert__title">Failed to load outputs: ${escapeHtml(e.message)}</div></div>`;
-    }
-  }
+    async openViewer(item) {
+      this.viewer = { open: true, item, meta: null, error: null };
+      try {
+        this.viewer.meta = await Api.getOutputMetadata(item.id);
+      } catch (e) {
+        this.viewer.error = e.message;
+      }
+    },
 
-  function activate() {
-    refresh();
-  }
+    async deleteItem(item) {
+      const confirmed = await this.$store.confirm.ask(
+        "Delete output?",
+        "This removes the image and its metadata permanently.",
+        "Delete",
+      );
+      if (!confirmed) return;
+      try {
+        await Api.deleteOutput(item.id);
+      } catch (e) {
+        notify(`Could not delete output: ${e.message}`);
+        return;
+      }
+      if (this.viewer.item?.id === item.id) this.viewer.open = false;
+      this.removing[item.id] = true;
+      await sleep(REMOVE_ANIMATION_MS);
+      if (this.items.length === 1 && this.offset > 0) {
+        this.offset = Math.max(0, this.offset - PAGE_SIZE);
+      }
+      await this.refresh();
+      delete this.removing[item.id];
+    },
 
-  function deactivate() {}
+    async refresh() {
+      try {
+        const data = await Api.listOutputs(PAGE_SIZE, this.offset);
+        this.items = data.items;
+        this.total = data.total;
+        this.error = null;
+      } catch (e) {
+        this.error = e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
 
-  return { activate, deactivate };
-})();
+    activate() {
+      this.refresh();
+    },
+
+    deactivate() {},
+  }));
+});
