@@ -4,25 +4,25 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sd-api-backend"
-version = "1.0.0"
-description = "REST API for Stable Diffusion image generation (SD1.5 and SDXL)"
+version = "2.0.0"
+description = "REST API for Stable Diffusion Image Generation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "bitsandbytes>=0.49.2",
-    "diffusers==0.39",
-    "fastapi>=0.115.0",
-    "peft>=0.19.1",
-    "pillow>=12.0.0",
-    "psutil>=6.0.0",
-    "pydantic>=2.10.0",
-    "python-multipart>=0.0.20",
-    "pyyaml>=6.0",
-    "safetensors>=0.4.0",
-    "torch==2.13.0",
-    "torchvision>=0.23.0",
-    "transformers==5.13",
-    "uvicorn[standard]>=0.32.0",
+  "bitsandbytes>=0.49.2",
+  "diffusers==0.42.1",
+  "fastapi>=0.115.0",
+  "peft>=0.19.1",
+  "pillow>=12.0.0",
+  "psutil>=6.0.0",
+  "pydantic>=2.10.0",
+  "python-multipart>=0.0.20",
+  "pyyaml>=6.0",
+  "safetensors>=0.4.0",
+  "torch==2.15.0",
+  "torchvision>=0.29",
+  "transformers==5.22.2",
+  "uvicorn[standard]>=0.32.0",
 ]
 
 [tool.hatch.build.targets.wheel]

@@ -89,9 +89,14 @@ class FluxPipelineGenerator(BasePipelineGenerator):
         }
 
     def _init_device(self) -> None:
-        """Initialize GPU/device settings, preferring bf16 for Flux/T5."""
+        """Initialize GPU/device settings, preferring bf16 for Flux/T5.
+
+        bf16 is only auto-selected when the user hasn't pinned a dtype in the
+        device config: ROCm hosts (especially older RDNA GPUs like the RX
+        5500 XT) default to float16, and an explicit device.dtype always wins.
+        """
         super()._init_device()
-        if self.accelerator != "cpu":
+        if self.accelerator != "cpu" and self.dtype_source == "auto":
             self.dtype = torch.bfloat16
 
     def loadPipeline(self) -> None:

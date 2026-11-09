@@ -12,8 +12,12 @@ from fastapi import APIRouter
 from api.models.system import HealthResponse, SystemInfo
 from api.services.model_cache import get_cache_manager
 from api.services.job_queue import get_job_queue
-from libs.shared.utils import get_gpu
-from libs.shared.telemetry import get_gpu_memory_stats, get_gpu_compute_stats, get_host_stats
+from libs.shared.device import get_device_settings
+from libs.shared.telemetry import (
+    get_gpu_memory_stats,
+    get_gpu_compute_stats,
+    get_host_stats,
+)
 
 router = APIRouter()
 
@@ -21,16 +25,14 @@ router = APIRouter()
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
-    return HealthResponse(
-        status="healthy",
-        service="sd-api-backend"
-    )
+    return HealthResponse(status="healthy", service="sd-api-backend")
 
 
 @router.get("/info", response_model=SystemInfo)
 async def system_info():
     """Get system information including GPU, cache, queue, and host stats."""
-    device, dtype = get_gpu()
+    settings = get_device_settings()
+    device = settings.backend
     cache_manager = get_cache_manager()
     job_queue = get_job_queue()
 
@@ -44,7 +46,9 @@ async def system_info():
 
     return SystemInfo(
         device=device,
-        dtype=str(dtype),
+        dtype=str(settings.dtype),
+        vendor=settings.vendor,
+        gpu_name=settings.gpu_name,
         cache_stats=cache_manager.get_stats(),
         queue_stats=job_queue.get_stats(),
         gpu_stats=gpu_stats,

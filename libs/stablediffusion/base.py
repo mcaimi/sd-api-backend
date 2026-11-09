@@ -18,7 +18,7 @@ from PIL import Image
 from diffusers import AutoencoderKL, UNet2DConditionModel, DiffusionPipeline
 
 from libs.globals.vars import RANDOM_BIT_LENGTH, schedulers
-from libs.shared.utils import get_gpu
+from libs.shared.device import get_device_settings
 from libs.shared.exceptions import PipelineError
 from libs.stablediffusion.funcs import get_random_seed
 
@@ -138,7 +138,9 @@ class BasePipelineGenerator(ABC):
         self.pipeline: Optional[DiffusionPipeline] = None
         self.inpaint_pipeline: Optional[DiffusionPipeline] = None
         self.accelerator: Optional[str] = None
+        self.torch_device: Optional[str] = None
         self.dtype: Optional[torch.dtype] = None
+        self.dtype_source: str = "auto"
 
     @staticmethod
     @abstractmethod
@@ -147,8 +149,17 @@ class BasePipelineGenerator(ABC):
         pass
 
     def _init_device(self) -> None:
-        """Initialize GPU/device settings."""
-        self.accelerator, self.dtype = get_gpu()
+        """Initialize GPU/device settings.
+
+        self.accelerator holds the backend label ("cuda", "rocm", "mps",
+        "cpu"); self.torch_device holds the torch-level device string to use
+        with torch APIs (on AMD ROCm builds that is still "cuda:N").
+        """
+        settings = get_device_settings()
+        self.accelerator = settings.backend
+        self.torch_device = settings.torch_device
+        self.dtype = settings.dtype
+        self.dtype_source = settings.dtype_source
 
     def _create_generator(self, seed: int) -> Generator:
         """Create a torch Generator with the given seed."""
@@ -156,7 +167,7 @@ class BasePipelineGenerator(ABC):
             actual_seed = get_random_seed(RANDOM_BIT_LENGTH)
         else:
             actual_seed = seed
-        return Generator(self.accelerator).manual_seed(actual_seed)
+        return Generator(self.torch_device).manual_seed(actual_seed)
 
     def _run_inference(
         self,
@@ -328,9 +339,9 @@ class BasePipelineGenerator(ABC):
     def pipeToConfiguredDevice(self) -> None:
         """Move pipeline(s) to the configured compute device."""
         if self.pipeline is not None:
-            self.pipeline.to(self.accelerator)
+            self.pipeline.to(self.torch_device)
         if self.inpaint_pipeline is not None:
-            self.inpaint_pipeline.to(self.accelerator)
+            self.inpaint_pipeline.to(self.torch_device)
 
     def loadCustomVAE(self, vae_checkpoint: Union[str, Path]) -> None:
         """Load a custom VAE into the pipeline."""

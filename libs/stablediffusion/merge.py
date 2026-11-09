@@ -24,7 +24,7 @@ import time
 
 import torch
 
-from libs.shared.utils import get_gpu
+from libs.shared.device import get_device_settings, torch_device_string
 from libs.globals.vars import MergeMethod
 from libs.shared.exceptions import MergeError
 from libs.stablediffusion.mergeops import (
@@ -49,6 +49,7 @@ __all__ = [
 @dataclass
 class ModelArchitectureInfo:
     """Information about a model architecture."""
+
     name: str
     base_resolution: int
     supported_resolutions: List[str] = field(default_factory=list)
@@ -65,8 +66,15 @@ SDXL_ARCHITECTURE = ModelArchitectureInfo(
     name="sdxl",
     base_resolution=1024,
     supported_resolutions=[
-        "1024x1024", "1152x896", "896x1152", "1216x832",
-        "832x1216", "1344x768", "768x1344", "1536x640", "640x1536",
+        "1024x1024",
+        "1152x896",
+        "896x1152",
+        "1216x832",
+        "832x1216",
+        "1344x768",
+        "768x1344",
+        "1536x640",
+        "640x1536",
     ],
 )
 
@@ -74,7 +82,7 @@ SDXL_ARCHITECTURE = ModelArchitectureInfo(
 class MergePipeline:
     """
     Unified merging pipeline for Stable Diffusion models.
-    
+
     Supports both SD1.5 and SDXL architectures with checkpoint caching,
     recipe-based merging, and batch processing.
     """
@@ -86,13 +94,21 @@ class MergePipeline:
     ):
         """
         Initialize the merge pipeline.
-        
+
         Args:
             architecture: Model architecture information
-            device: Compute device ("auto", "cpu", "cuda", "mps")
+            device: Compute device ("auto", "cpu", "cuda", "mps", "rocm").
+                "rocm" (AMD GPUs under PyTorch ROCm builds) is mapped to its
+                torch-level device string, since both torch and safetensors
+                address ROCm devices through the CUDA API ("cuda:N").
         """
         self.architecture = architecture
-        self.device = device if device != "auto" else get_gpu()[0]
+        if device == "auto":
+            self.device = get_device_settings().torch_device
+        elif device == "rocm":
+            self.device = torch_device_string("rocm", get_device_settings().index)
+        else:
+            self.device = device
         self.loaded_checkpoints: Dict[str, Dict[str, Any]] = {}
 
     def load_and_cache_checkpoint(
@@ -102,11 +118,11 @@ class MergePipeline:
     ) -> str:
         """
         Load and cache a checkpoint for future merging operations.
-        
+
         Args:
             checkpoint_path: Path to the checkpoint file
             cache_key: Optional custom key for the cache
-            
+
         Returns:
             The cache key used to store the checkpoint
         """
@@ -133,11 +149,11 @@ class MergePipeline:
     ) -> Dict[str, Any]:
         """
         Create a merge recipe for complex multi-step merging.
-        
+
         Args:
             base_model: Path to the base model checkpoint
             merge_steps: List of merge step configurations
-            
+
         Returns:
             Recipe dictionary
         """
@@ -155,11 +171,11 @@ class MergePipeline:
     ) -> bool:
         """
         Execute a complex merge recipe with multiple steps.
-        
+
         Args:
             recipe: Recipe dictionary from create_merge_recipe
             output_path: Path to save the final merged model
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -185,7 +201,9 @@ class MergePipeline:
                 # Create merge config
                 progress_callback = None
                 if step.get("show_progress", False):
-                    progress_callback = lambda p: logger.debug("Progress: %.1f%%", p * 100)
+                    progress_callback = lambda p: logger.debug(
+                        "Progress: %.1f%%", p * 100
+                    )
 
                 config = MergeConfig(
                     method=MergeMethod(step.get("method", "linear")),
@@ -204,13 +222,15 @@ class MergePipeline:
                 )
 
                 # Record step execution
-                recipe_metadata["steps_executed"].append({
-                    "step_index": i,
-                    "target_model": str(step["target_model"]),
-                    "method": step.get("method", "linear"),
-                    "alpha": step.get("alpha", 0.5),
-                    "completed_at": time.time(),
-                })
+                recipe_metadata["steps_executed"].append(
+                    {
+                        "step_index": i,
+                        "target_model": str(step["target_model"]),
+                        "method": step.get("method", "linear"),
+                        "alpha": step.get("alpha", 0.5),
+                        "completed_at": time.time(),
+                    }
+                )
 
             # Save final result
             return save_checkpoint(current_weights, output_path, recipe_metadata)
@@ -231,13 +251,13 @@ class MergePipeline:
     ) -> Optional[str]:
         """
         Merge models specifically for use with pipeline generators.
-        
+
         Args:
             base_model: Path to base model
             target_model: Path to target model
             config: Merge configuration
             output_path: Path to save merged model
-            
+
         Returns:
             Path to saved model if successful, None otherwise
         """
@@ -253,7 +273,9 @@ class MergePipeline:
             # Perform merge
             logger.info(
                 "Merging %s with %s using %s",
-                base_model, target_model, config.method.value
+                base_model,
+                target_model,
+                config.method.value,
             )
             merged_weights = merge_checkpoints(base_weights, target_weights, config)
 
@@ -310,14 +332,13 @@ class MergePipeline:
 # Convenience classes for backward compatibility
 class SD15MergePipeline(MergePipeline):
     """SD1.5 specific merge pipeline (convenience class)."""
-    
+
     def __init__(self, device: str = "auto"):
         super().__init__(architecture=SD15_ARCHITECTURE, device=device)
 
 
 class SDXLMergePipeline(MergePipeline):
     """SDXL specific merge pipeline (convenience class)."""
-    
+
     def __init__(self, device: str = "auto"):
         super().__init__(architecture=SDXL_ARCHITECTURE, device=device)
-

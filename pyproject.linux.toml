@@ -1,12 +1,12 @@
 [project]
 name = "sd-api-backend"
-version = "1.0.0"
-description = "REST API for Stable Diffusion image generation (SD1.5 and SDXL)"
+version = "2.0.0"
+description = "REST API for Stable Diffusion Image Generation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
   "bitsandbytes>=0.49.2",
-  "diffusers==0.39",
+  "diffusers==0.42.1",
   "fastapi>=0.115.0",
   "peft>=0.19.1",
   "pillow>=12.0.0",
@@ -14,27 +14,22 @@ dependencies = [
   "python-multipart>=0.0.20",
   "pyyaml>=6.0",
   "safetensors>=0.4.0",
-  "transformers==5.13",
+  "transformers==5.22.2",
   "uvicorn[standard]>=0.32.0",
 ]
 
 [project.optional-dependencies]
-cpu = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
-"rocm7.2" = [
-  "torch>=2.13.0",
-  "torchvision>=0.23.0",
-  "triton-rocm",
-  "torchaudio",
-]
-cu126 = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
-cu130 = ["torch>=2.13.0", "torchvision>=0.23.0", "torchaudio"]
+cpu = ["torch>=2.15.0", "torchvision>=0.29", "torchaudio"]
+"rocm10.0" = ["torch>=2.15.0", "torchvision>=0.29", "triton-rocm", "torchaudio"]
+cu132 = ["torch>=2.15.0", "torchvision>=0.29", "torchaudio"]
+cu134 = ["torch>=2.15.0", "torchvision>=0.29", "torchaudio"]
 
 [tool.uv]
 conflicts = [
   [
-    { extra = "rocm7.2" },
-    { extra = "cu126" },
-    { extra = "cu130" },
+    { extra = "rocm10.0" },
+    { extra = "cu132" },
+    { extra = "cu134" },
     { extra = "cpu" },
   ],
 ]
@@ -43,24 +38,24 @@ environments = ["sys_platform == 'linux'"]
 [tool.uv.sources]
 torch = [
   { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
-  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
-  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
-  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+  { index = "pytorch-cu132", marker = "sys_platform == 'linux'", extra = "cu132" },
+  { index = "pytorch-cu134", marker = "sys_platform == 'linux'", extra = "cu134" },
+  { index = "pytorch-rocm10.0", marker = "sys_platform == 'linux'", extra = "rocm10.0" },
 ]
 triton-rocm = [
-  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+  { index = "pytorch-rocm10.0", marker = "sys_platform == 'linux'", extra = "rocm10.0" },
 ]
 torchvision = [
   { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
-  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
-  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
-  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+  { index = "pytorch-cu132", marker = "sys_platform == 'linux'", extra = "cu132" },
+  { index = "pytorch-cu134", marker = "sys_platform == 'linux'", extra = "cu134" },
+  { index = "pytorch-rocm10.0", marker = "sys_platform == 'linux'", extra = "rocm10.0" },
 ]
 torchaudio = [
   { index = "pytorch-cpu", marker = "sys_platform == 'linux'", extra = "cpu" },
-  { index = "pytorch-cu130", marker = "sys_platform == 'linux'", extra = "cu130" },
-  { index = "pytorch-cu126", marker = "sys_platform == 'linux'", extra = "cu126" },
-  { index = "pytorch-rocm7.2", marker = "sys_platform == 'linux'", extra = "rocm7.2" },
+  { index = "pytorch-cu120", marker = "sys_platform == 'linux'", extra = "cu132" },
+  { index = "pytorch-cu134", marker = "sys_platform == 'linux'", extra = "cu134" },
+  { index = "pytorch-rocm10.0", marker = "sys_platform == 'linux'", extra = "rocm10.0" },
 ]
 
 [[tool.uv.index]]
@@ -69,18 +64,18 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-rocm7.2"
-url = "https://download.pytorch.org/whl/rocm7.2"
+name = "pytorch-rocm10.0"
+url = "https://download.pytorch.org/whl/rocm10.0"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu130"
-url = "https://download.pytorch.org/whl/cu130"
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
+name = "pytorch-cu134"
+url = "https://download.pytorch.org/whl/cu134"
 explicit = true
 
 [build-system]
