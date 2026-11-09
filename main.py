@@ -6,7 +6,7 @@ Run with: uvicorn main:app --reload
 """
 
 from api.app import app
-from libs.shared.config import get_app_config
+from api.config import get_app_config
 
 if __name__ == "__main__":
     import uvicorn
