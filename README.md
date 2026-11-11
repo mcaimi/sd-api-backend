@@ -2,7 +2,7 @@
 
 A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5, SDXL, Illustrious XL, and Flux pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
 
-This is a rewrite effort of the [SD-WebApp](https://codeberg.org/mcaimi/sd-webapp) project, and has been brewing for a bit now.
+This is a rewrite effort of the [SD-WebApp](https://github.com/mcaimi/sd-webapp) project, and has been brewing for a bit now.
 The idea is to decouple the UI from the actual inference backend. This repo will host the backend code.
 
 The Stable Diffusion pipelines, device selection, checkpoint merging and telemetry live in the [metastable](https://github.com/mcaimi/metastable) library ([PyPI](https://pypi.org/project/metastable/)); this repo is the REST API and web UI on top of it.
@@ -19,7 +19,7 @@ The Stable Diffusion pipelines, device selection, checkpoint merging and telemet
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
 - **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
-- **AMD ROCm Support** - Config-driven backend selection (`device.backend: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 5500 XT), plus `rocm-smi` telemetry
+- **AMD ROCm Support** - Config-driven backend selection (`device.back$end: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 6600 XT), plus `rocm-smi` telemetry
 - **Flux Memory Offload** - Flux pipelines use `enable_model_cpu_offload()` instead of a full device move to fit its larger (~12B parameter transformer + T5-XXL encoder) footprint on consumer hardware
 - **Configurable Output** - Optional disk persistence of generated images and metadata to `outputs/images/` and `outputs/json/` as PNG and JSON
 - **System Endpoints** - Health checks, system info (GPU, cache stats, queue stats), and configuration exposure
@@ -513,12 +513,12 @@ implements HIP behind the CUDA API, transformers/torch report these devices as
 `GET /api/v1/system/info` (`torch.version.hip` is set on ROCm builds).
 
 1. **Install the ROCm torch build** — swap in the Linux variant of the project
-   file, which carries the `rocm7.2` extra pointing at the official PyTorch
+   file, which carries the `rocm10.0` extra pointing at the official PyTorch
    ROCm wheel index:
 
    ```bash
    cp pyproject.linux.toml pyproject.toml
-   uv sync --extra rocm7.2
+   uv sync --extra rocm10.0
    ```
 
 2. **Select the backend in `parameters.yaml`** (optional section; defaults are
@@ -563,7 +563,8 @@ implements HIP behind the CUDA API, transformers/torch report these devices as
    - It might be necessary to downgrade all ROCm packages to pre 6.X versions
      to fully support an older card. A container image is clearly preferred for
      this use case and one may come in the future.
-   - A 4 GB variant card is SD 1.5 territory only; also, keep `api.model_cache.max_models: 1`.
+   - A 4 GB variant card, if supported, is SD 1.5 territory only; also, 
+     keep `api.model_cache.max_models: 1`.
    - SDXL/Illustrious need at least 8GB of VRAM. For Flux, stick to modern,
      supported ROCm cards
 
