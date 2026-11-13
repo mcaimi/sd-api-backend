@@ -14,6 +14,44 @@ function formatTimestamp(iso) {
   return iso.replace("T", " ").replace(/\.\d+$/, "");
 }
 
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return "?";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1000 && unit < units.length - 1) {
+    value /= 1000;
+    unit += 1;
+  }
+  return `${value.toFixed(unit && value < 10 ? 1 : 0)} ${units[unit]}`;
+}
+
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds)) return "?";
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
+  return `${Math.floor(seconds / 3600)}h ${Math.round((seconds % 3600) / 60)}m`;
+}
+
+function formatCount(n) {
+  return new Intl.NumberFormat(undefined, { notation: "compact" }).format(n || 0);
+}
+
+// Plain text from untrusted HTML (e.g. Civitai descriptions). DOMParser doesn't run scripts or load images.
+function htmlToText(html) {
+  const doc = new DOMParser().parseFromString(html || "", "text/html");
+  doc.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+  doc.querySelectorAll("p, li, div, h1, h2, h3, h4, h5, h6").forEach((el) => el.append("\n"));
+  return doc.body.textContent.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(
+    () => notify(`Copied "${text}"`, "success"),
+    () => notify("Could not copy to the clipboard"),
+  );
+}
+
 function notify(message, variant = "danger") {
   const icon = variant === "danger" ? "triangle-exclamation" : "circle-info";
   document.getElementById("toaster").create(message, { variant, icon });
