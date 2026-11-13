@@ -5,6 +5,7 @@ Centralized Application Configuration
 Provides a single point of configuration loading and caching for the API.
 """
 
+import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -14,7 +15,10 @@ from yaml import safe_load, YAMLError
 
 from metastable import ConfigurationError
 
+from api.constants import MODEL_TYPES
 from api.parameters import Parameters
+
+CIVITAI_DEFAULT_BASE_URL = "https://civitai.com/api/v1"
 
 
 @dataclass
@@ -137,6 +141,53 @@ class AppConfig:
         return self._api_setting("model_cache", "max_models", 2)
 
     @property
+    def job_queue_io_workers(self) -> int:
+        """Number of concurrent I/O job workers (Civitai downloads)."""
+        return self._api_setting("job_queue", "io_workers", 2)
+
+    def _civitai_setting(self, key: str, default: Any) -> Any:
+        """Read parameters.civitai.<key>; the whole section is optional."""
+        return getattr(getattr(self.parameters, "civitai", None), key, default)
+
+    def _civitai_number(self, key: str, default: float, minimum: float) -> float:
+        value = self._civitai_setting(key, default)
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or value < minimum:
+            raise ConfigurationError(f"civitai.{key} must be a number >= {minimum}, got {value!r}")
+        return value
+
+    @property
+    def civitai_enabled(self) -> bool:
+        return bool(self._civitai_setting("enabled", True))
+
+    @property
+    def civitai_api_key(self) -> Optional[str]:
+        """Civitai API key; the CIVITAI_API_KEY environment variable wins."""
+        key = os.environ.get("CIVITAI_API_KEY") or self._civitai_setting("api_key", None)
+        key = str(key).strip() if key else ""
+        return key or None
+
+    @property
+    def civitai_base_url(self) -> str:
+        return str(self._civitai_setting("base_url", CIVITAI_DEFAULT_BASE_URL)).rstrip("/")
+
+    @property
+    def civitai_nsfw(self) -> bool:
+        """Default value of the NSFW toggle in Civitai searches."""
+        return bool(self._civitai_setting("nsfw", False))
+
+    @property
+    def civitai_search_cache_ttl(self) -> float:
+        return self._civitai_number("search_cache_ttl", 60, 0)
+
+    @property
+    def civitai_request_timeout(self) -> float:
+        return self._civitai_number("request_timeout", 30, 1)
+
+    @property
+    def civitai_min_free_space_gb(self) -> float:
+        return self._civitai_number("min_free_space_gb", 5, 0)
+
+    @property
     def device(self) -> Optional[Parameters]:
         """
         The optional 'device' configuration subtree (compute backend, dtype,
@@ -147,9 +198,14 @@ class AppConfig:
         return device if isinstance(device, Parameters) else None
 
     def as_dict(self) -> dict:
+        """Configuration for display; secrets are masked."""
+        parameters = self.parameters.to_dict()
+        civitai = parameters.get("civitai")
+        if isinstance(civitai, dict) and civitai.get("api_key"):
+            civitai["api_key"] = "***"
         return {
             "config_file": self.config_file,
-            "config_parameters": self.parameters.to_dict(),
+            "config_parameters": parameters,
         }
 
     def get_model_paths(self, model_type: str) -> Dict[str, str]:
@@ -165,9 +221,9 @@ class AppConfig:
         Raises:
             ConfigurationError: If model_type is not a supported architecture
         """
-        if model_type not in ("sd15", "sdxl", "illustrious", "flux"):
+        if model_type not in MODEL_TYPES:
             raise ConfigurationError(
-                f"Invalid model_type: {model_type}. Must be 'sd15', 'sdxl', 'illustrious', or 'flux'"
+                f"Invalid model_type: {model_type}. Must be one of {', '.join(MODEL_TYPES)}"
             )
 
         if model_type == "sd15":
@@ -244,8 +300,6 @@ def get_app_config(params_file: str = "parameters.yaml") -> AppConfig:
     """
     # Get config file path from environment or use default
     # if env variable is specified, the it overrides the filename provided
-    import os
-
     config_file = os.environ.get("CONFIG_FILE", params_file)
 
     # Load YAML configuration
