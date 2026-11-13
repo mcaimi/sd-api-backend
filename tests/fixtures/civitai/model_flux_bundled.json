@@ -1,0 +1,317 @@
+{
+ "id": 618692,
+ "name": "FLUX",
+ "coverImageId": null,
+ "sfwCoverImageId": null,
+ "description": "<p><span style=\"color:#e64980\">Please check out the</span> <a rel=\"ugc\" href=\"https://education.civitai.com/quickstart-guide-to-flux-1\">Quickstart Guide to Flux </a><span style=\"color:#e64980\">for all the info you need to get started!</span></p><p></p><p><code>FLUX.1 [dev]</code> is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions. For more information, please read our <a target=\"_blank\" rel=\"ugc\" href=\"https://blackforestlabs.ai/announcing-bl",
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "type": "Checkpoint",
+ "minor": false,
+ "sfwOnly": false,
+ "poi": false,
+ "nsfw": false,
+ "nsfwLevel": 3,
+ "availability": "Public",
+ "userId": -1,
+ "hasActivePaidAccess": false,
+ "hasSfwFace": false,
+ "baseModels": [
+  "Flux.1 D",
+  "Flux.1 Krea"
+ ],
+ "cosmetic": null,
+ "eventDecoration": null,
+ "supportsGeneration": true,
+ "stats": {
+  "downloadCount": 355901,
+  "thumbsUpCount": 24687,
+  "thumbsDownCount": 245,
+  "commentCount": 738,
+  "tippedAmountCount": 230
+ },
+ "tags": [
+  "base model",
+  "flux.1"
+ ],
+ "modelVersions": [
+  {
+   "id": 691639,
+   "index": 0,
+   "name": "Dev",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2024-08-02T23:12:54.445Z",
+   "publishedAt": "2024-08-02T23:46:31.363Z",
+   "status": "Published",
+   "flags": 8,
+   "availability": "Public",
+   "nsfwLevel": 1,
+   "covered": true,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 271116,
+    "thumbsUpCount": 22729,
+    "thumbsDownCount": 195
+   },
+   "files": [
+    {
+     "id": 1134793,
+     "sizeKB": 23245051.3203125,
+     "name": "flux1-dev.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-01-02T18:29:50.262Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp32"
+     },
+     "hashes": {
+      "AutoV1": "B04B3BA1",
+      "AutoV2": "4610115BB0",
+      "SHA256": "4610115BB0C89560703C892C59AC2742FA821E60EF5871B33493BA544683ABD7",
+      "CRC32": "527B8682",
+      "BLAKE3": "40ACE2CF5D03A95EC710054EC5E4C8E864341A7EBFEFE188ED750C41A0463795",
+      "AutoV3": "2F3C5CAAC046",
+      "SHA256_12": "4610115BB0C8"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/691639?fileId=1134793"
+    },
+    {
+     "id": 639902,
+     "sizeKB": 16678605.42773438,
+     "name": "flux.1_dev_8x8_e4m3fn-marduk191.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-01-02T18:22:33.893Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "pruned",
+      "fp": "fp32"
+     },
+     "hashes": {
+      "AutoV1": "4AF4416B",
+      "AutoV2": "2EDA627C8A",
+      "SHA256": "2EDA627C8AEE140EDC77E28ED8DD3C662928AE60F0F960F36824F8862DCBB713",
+      "CRC32": "41B0E783",
+      "BLAKE3": "C9C2F6F6CD6D9E201A71A4F9AC9AFCB3372115ED112E856381D44380037A3246",
+      "AutoV3": "3416493A910C",
+      "SHA256_12": "2EDA627C8AEE"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/691639?fileId=639902",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f905bc28-9db6-4f83-85ae-93c94718881d/original=true/22496037.jpeg",
+     "nsfwLevel": 1,
+     "width": 576,
+     "height": 1024,
+     "hash": "UI4;u}afHZo{y:afMeoymCa{X*jHU|f*o|aL",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/20df020a-9433-4429-8635-7e331a3a1d15/original=true/22493595.jpeg",
+     "nsfwLevel": 1,
+     "width": 1024,
+     "height": 768,
+     "hash": "U7AUNu00@FRRC6-pHXnj*ekqKPs.v1IB.mkp",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/691639"
+  },
+  {
+   "id": 699279,
+   "index": 1,
+   "name": "Schnell",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2024-08-05T20:35:40.257Z",
+   "publishedAt": "2024-08-05T22:14:22.921Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 3,
+   "description": "<p><code>FLUX.1 [schnell]</code> is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions. For more information, please read our <a target=\"_blank\" rel=\"ugc\" href=\"https://blackforestlabs.ai/announcing-black-forest-labs/\"><strong><u>blog post</u></strong></a>.</p><p>Key Features</p><ol><li><p>Cutting-edge output quality and competitive prompt following, matching the performance of closed source alternatives.</p></li><li><p>Trained using latent adve",
+   "covered": true,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 28355,
+    "thumbsUpCount": 1818,
+    "thumbsDownCount": 22
+   },
+   "files": [
+    {
+     "id": 614182,
+     "sizeKB": 23225104.1875,
+     "name": "flux1-schnell.sft",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-01-02T18:26:04.600Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp32"
+     },
+     "hashes": {
+      "AutoV1": "875161AF",
+      "AutoV2": "9403429E00",
+      "SHA256": "9403429E0052277AC2A87AD800ADECE5481EECEFD9ED334E1F348723621D2A0A",
+      "CRC32": "3613411A",
+      "BLAKE3": "202D1D57667FDC0B5B088A46DCE7C801FFCF2E0933D4C521E272399ECE17AA7B",
+      "AutoV3": "D314672FC698",
+      "SHA256_12": "9403429E0052"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/699279?fileId=614182"
+    },
+    {
+     "id": 640253,
+     "sizeKB": 16668614.95117188,
+     "name": "flux.1_schnell_8x8_e4m3fn-marduk191.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-01-02T18:22:34.077Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "pruned",
+      "fp": "fp32"
+     },
+     "hashes": {
+      "AutoV1": "004976FD",
+      "AutoV2": "1E9040691D",
+      "SHA256": "1E9040691D8829798F2D4A513EA4B607DB4D3B0BF2A6842F85F11569481FB0B8",
+      "CRC32": "9CACA187",
+      "BLAKE3": "E85B2DD8AE72F9DF493EBC55ACF9A88E7329473EB984FF82EF1297BB8A8FE39D",
+      "AutoV3": "F0EBF0A2756A",
+      "SHA256_12": "1E9040691D88"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/699279?fileId=640253",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/608b3333-c895-4d0c-9cae-bb03838d6997/original=true/22933728.jpeg",
+     "nsfwLevel": 1,
+     "width": 3212,
+     "height": 1880,
+     "hash": "UPH1;]Di=|IC}R}?IBSPvfwbIpX9tlIpj?kB",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/145cb61e-27a7-4e9b-913b-8fdd91e7f244/original=true/22939213.jpeg",
+     "nsfwLevel": 1,
+     "width": 768,
+     "height": 1024,
+     "hash": "UORe{Xxv_Nxt-:R-Ips:yYWXVrocyEofrpe.",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/699279"
+  },
+  {
+   "id": 699332,
+   "index": 2,
+   "name": "Pro (Legacy)",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2024-08-05T21:02:52.335Z",
+   "publishedAt": "2024-08-06T09:48:21.000Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 3,
+   "description": "<p>Pro has been superseded by Pro 1.1 and is now considered a Flux Legacy model, no longer available for use.</p>",
+   "covered": false,
+   "coveredNext": false,
+   "stats": {
+    "downloadCount": 24034,
+    "thumbsUpCount": 1235,
+    "thumbsDownCount": 12
+   },
+   "files": [],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/206d7a90-9c12-475d-9acb-e6f93336f503/original=true/23047678.jpeg",
+     "nsfwLevel": 1,
+     "width": 576,
+     "height": 1024,
+     "hash": "UI4;u}afHZo{y:afMeoymCa{X*jHU|f*o|aL",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/9a3207a6-739f-4ea7-b459-86f984f49966/original=true/23048834.jpeg",
+     "nsfwLevel": 1,
+     "width": 832,
+     "height": 1216,
+     "hash": "UOD]9z_N.8?HOs%MtRX9%1t7t7xtocWBxat7",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": true,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/699332"
+  }
+ ]
+}

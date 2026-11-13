@@ -1,0 +1,826 @@
+{
+ "items": [
+  {
+   "id": 667086,
+   "name": "NSFW MASTER",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p><span style=\"color:rgb(250, 176, 5)\">Update&gt;&gt;</span></p><h1 id=\"z-image-turbo-v1\">Z-image turbo V1 </h1><p>This model is trained on the same dataset as flux version. Use it and let me know what can be improved. <br /><br /><br /><strong>FLUX [NSFW] MASTER</strong></p><p>Very happy to share my new lora model! this model is all you need when comes to generate thing using Flux although is has some small problems but it will be fixed soon in the next update!! <br />As of now try it out and ",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "Image",
+    "RentCivit",
+    "Rent"
+   ],
+   "allowDerivatives": false,
+   "allowDifferentLicense": false,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 29,
+   "availability": "Public",
+   "userId": 2668870,
+   "hasActivePaidAccess": true,
+   "hasSfwFace": false,
+   "baseModels": [
+    "Krea 2",
+    "ZImageTurbo",
+    "Flux.1 D"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 236341,
+    "thumbsUpCount": 6689,
+    "thumbsDownCount": 26,
+    "commentCount": 103,
+    "tippedAmountCount": 573
+   },
+   "creator": {
+    "username": "Shopon_Skp",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3fbcd03e-cd45-4be9-82cf-2b80fa562551/width=96/Shopon_Skp.jpeg"
+   },
+   "tags": [
+    "boobs",
+    "flux nsfw master",
+    "flux pony",
+    "nude",
+    "nsfw",
+    "realistic",
+    "nude girl",
+    "naked",
+    "character",
+    "vagina",
+    "flux.1",
+    "flux",
+    "pony flux",
+    "pony"
+   ],
+   "modelVersions": [
+    {
+     "id": 746602,
+     "index": 3,
+     "name": "v1.0",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-08-20T15:10:47.906Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 29,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 133381,
+      "thumbsUpCount": 4282,
+      "thumbsDownCount": 18
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 660169,
+       "sizeKB": 167938.8125,
+       "name": "NSFW_master.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-08-20T15:12:12.326Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "D41591CA",
+        "AutoV2": "84CE473CDE",
+        "SHA256": "84CE473CDEAA1DDD016CDF0406E08B43BB14C01D2C94EF48DA2A035BB0B925C2",
+        "CRC32": "085BF5F3",
+        "BLAKE3": "3C203D8910F985E1267B21389907FAFBE85C241E29E6E2E3419550271FAE4D63",
+        "AutoV3": "8014C39A5528",
+        "SHA256_12": "84CE473CDEAA",
+        "SSHS_12": "e3b0c44298fc"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/746602",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 25287839,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8651af10-92b0-43aa-b855-e97d0b50f9e7/original=true/25287839.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UME.CN5600~CNGs:j@bHI:s:xGR*D*t6xuWB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/746602"
+    }
+   ]
+  },
+  {
+   "id": 796382,
+   "name": "UltraRealistic Lora Project",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p>The main goal was to make more 'live' images with livelier emotions and more dynamic poses and slightly amateurish quality (also can produce high quality images). <br /><br />P.S: Thanks to everyone for the feedback! I've noticed the comments (not only here) about anatomy issues, and I’ve been collecting reports and examples from all of you. I'm considering a couple of options to address this:</p><ol><li><p>Training a full checkpoint, which might be the more rational approach for consistent i",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "Image",
+    "RentCivit",
+    "Rent",
+    "Sell",
+    "SellMerge"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 7,
+   "availability": "Public",
+   "userId": 2703479,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "Flux.1 D"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 86551,
+    "thumbsUpCount": 3781,
+    "thumbsDownCount": 9,
+    "commentCount": 72,
+    "tippedAmountCount": 2550
+   },
+   "creator": {
+    "username": "Danrisi",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/9bb96845-beee-4075-9761-c409ed66b786/width=96/Danrisi.jpeg"
+   },
+   "tags": [
+    "woman",
+    "girls",
+    "sexy",
+    "photorealistic",
+    "style",
+    "aesthetic",
+    "man"
+   ],
+   "modelVersions": [
+    {
+     "id": 1026423,
+     "index": 0,
+     "name": "Flux - v2",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-11-04T10:55:00.023Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": null,
+     "trainedWords": [
+      "amateurish photo",
+      "low lighting",
+      "in motion",
+      "overexposed",
+      "underexposed",
+      "GoPro lens",
+      "eerie atmosphere",
+      "smeared background",
+      "smeared foreground"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 68149,
+      "thumbsUpCount": 3159,
+      "thumbsDownCount": 7
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 932239,
+       "sizeKB": 2094545.0234375,
+       "name": "UltraRealPhoto.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-11-04T10:21:25.267Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "F66BFF55",
+        "AutoV2": "B1C4DDF956",
+        "SHA256": "B1C4DDF95671E6B51817B4F3802865E544040C232C467E76B1CB0C251BD6B634",
+        "CRC32": "4D681E09",
+        "BLAKE3": "411049EDCEA4C65F520FEECF85D86F6450C303D580627FBA74F9F00198570531",
+        "AutoV3": "DAE2F8299B07",
+        "SHA256_12": "B1C4DDF95671"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1026423",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 38865933,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/6d9b315d-2df0-43f8-b749-da3c3dca7db2/original=true/38865933.jpeg",
+       "nsfwLevel": 1,
+       "width": 1216,
+       "height": 832,
+       "hash": "UOH_Z1nN4mo|00%Mx[M{9FSg-pRP~qRjV@?b",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 38271655,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8a9a1ef2-0883-4ea6-b99d-e47d6daa4e8e/original=true/38271655.jpeg",
+       "nsfwLevel": 1,
+       "width": 1216,
+       "height": 832,
+       "hash": "UH8GD+T,sFb:y.c7tRkUz6ZncBn-+BZoWCnU",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1026423"
+    },
+    {
+     "id": 940466,
+     "index": 2,
+     "name": "Flux - v1.2",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-10-10T12:34:31.116Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "",
+     "trainedWords": [
+      "amateurish photo",
+      "low lighting",
+      "in motion",
+      "overexposed",
+      "underexposed",
+      "GoPro lens",
+      "eerie atmosphere",
+      "smeared background",
+      "smeared foreground"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 8109,
+      "thumbsUpCount": 403,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 847830,
+       "sizeKB": 1197213.40625,
+       "name": "UltraRealistic_Lora_Project.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-10-10T09:31:01.483Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "3E35B2C4",
+        "AutoV2": "059AAB5676",
+        "SHA256": "059AAB5676943265A9563110909B0FDF1D576172153BDB3F975A397715CD107C",
+        "CRC32": "E03FA3D1",
+        "BLAKE3": "ECBB637376CA02C01CF45C3F4E5E88BDB8AC66259F4ED069C8BC43F26E057741",
+        "AutoV3": "E72EA4FB8315",
+        "SHA256_12": "059AAB567694"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/940466",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 33816168,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/02095b95-628f-4570-8a13-1b375832ba4d/original=true/33816168.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "U98OS8D%Djo|}_NqInjcrLbENZV[pZxIRjRi",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 33815933,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0a50afe9-aa1f-462a-ab16-222c59e779ae/original=true/33815933.jpeg",
+       "nsfwLevel": 1,
+       "width": 1024,
+       "height": 1024,
+       "hash": "UBC?T400Rn~q9FtR-:D%01^j4oo}-;slt8Ri",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/940466"
+    },
+    {
+     "id": 890545,
+     "index": 3,
+     "name": "Flux - v1.0",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-09-25T14:54:01.901Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "",
+     "trainedWords": [
+      "low-lit",
+      "bad light",
+      "nighttime",
+      "blurred",
+      "amateur low resolution photo",
+      "overexposed",
+      "noticeable noise in dark areas.",
+      "shot on a mobile phone"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 6821,
+      "thumbsUpCount": 445,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 799032,
+       "sizeKB": 1197380.203125,
+       "name": "Another_Amateur_Lora.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-09-25T14:51:21.443Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "93E49927",
+        "AutoV2": "4CC703E3D7",
+        "SHA256": "4CC703E3D7AB4B695B6AFF5388B419CE61F0FD496524F600709793C3841AC3A5",
+        "CRC32": "437413D0",
+        "BLAKE3": "8CA988540727B67EC8B35D21B99A9BA2FF2C67075A234D09B21D541299FBDB27",
+        "AutoV3": "D3616E466F3B",
+        "SHA256_12": "4CC703E3D7AB"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/890545",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 31287074,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/6e514df6-0ef0-4e1a-ad48-11f0d025fc2e/original=true/31287074.jpeg",
+       "nsfwLevel": 1,
+       "width": 1216,
+       "height": 832,
+       "hash": "U6D*;C^i0K-=0M5S9^^P8_]~^N9t~TtOs+oe",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 31286202,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/b5fb8955-3921-4c83-9fe9-a0300b30339b/original=true/31286202.jpeg",
+       "nsfwLevel": 1,
+       "width": 1216,
+       "height": 832,
+       "hash": "U4Bpb0?c00D$00Rj^,kDQ*D$?d-=?bxuI9Mw",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/890545"
+    }
+   ]
+  },
+  {
+   "id": 200255,
+   "name": "Hands XL + SD 1.5 + F1D + Pony + Illustrious + zit + ZIB",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p><strong>Update</strong>: <u>Please if you see any of my models somewhere else report or let me know! Thnx</u></p><p><u>Please read version info</u> (about this version)</p><p>Trained on base model(s) xl + sd1.5 + pony + illu + f1d + zit + zib</p><p>Update: Added <a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/models/411088?notOwner=true\">perfection</a> style model (Hands + Feet + all in one)</p><p>Update: Added <a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/models/421162/detail",
+   "allowNoCredit": false,
+   "allowCommercialUse": [
+    "RentCivit"
+   ],
+   "allowDerivatives": false,
+   "allowDifferentLicense": true,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 31,
+   "availability": "Public",
+   "userId": 1269491,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "ZImageBase",
+    "ZImageTurbo",
+    "Flux.1 D",
+    "Illustrious",
+    "Pony",
+    "SDXL 1.0",
+    "SD 1.5"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 314031,
+    "thumbsUpCount": 16497,
+    "thumbsDownCount": 95,
+    "commentCount": 158,
+    "tippedAmountCount": 88377
+   },
+   "creator": {
+    "username": "EauDeNoire",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/987fc36b-94ac-459a-a808-8bb8cf358f57/width=96/EauDeNoire.jpeg"
+   },
+   "tags": [
+    "pony",
+    "female",
+    "hyperrealism",
+    "sd1.5",
+    "person",
+    "woman",
+    "photorealistic",
+    "illustrious",
+    "girls",
+    "realistic",
+    "film",
+    "polish",
+    "cinematic",
+    "body",
+    "sexy",
+    "realism",
+    "sharp",
+    "real",
+    "f1d",
+    "zit",
+    "lora",
+    "detailed",
+    "anime",
+    "hands",
+    "photo",
+    "male",
+    "man",
+    "hand",
+    "enhancer",
+    "human",
+    "nails",
+    "sdxl",
+    "part",
+    "flux",
+    "assets"
+   ],
+   "modelVersions": [
+    {
+     "id": 804967,
+     "index": 2,
+     "name": "Hand F1D v2.0",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-09-06T20:53:12.811Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 15,
+     "description": "<p>This version is much better than previous flux version. Chances of extra finger or missng one are reduced. However, you may still experience some weirdness occasionally.</p><p>You can try model with or without trigger word(s) and see yourself which works better for you.</p><p>In addition, try starting with low lora weight. Start with 0.1 and work you way up till 1.</p><p>You'll notice some generated images are much better with low lora weight while others are great with higher weight. It's tr",
+     "trainedWords": [
+      "Detailed hand",
+      "Hand",
+      "Perfect hand"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 75863,
+      "thumbsUpCount": 4283,
+      "thumbsDownCount": 8
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 718511,
+       "sizeKB": 335747.4375,
+       "name": "Hand v2.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-09-04T11:17:04.745Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "F52FE75D",
+        "AutoV2": "82B169C950",
+        "SHA256": "82B169C9500DA411FBCCAA40538F34F44290A525B9A2710431E91229D281F96E",
+        "CRC32": "CFFAE199",
+        "BLAKE3": "8189FF08DD0AF5546E47B4FDECEC69A267098656B136B6F07DABB327C8895325",
+        "AutoV3": "A95D1EF1F6C7",
+        "SHA256_12": "82B169C9500D"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/804967",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 27706524,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0169124a-15a1-46f1-bbd7-07cbb6a97ead/original=true/27706524.jpeg",
+       "nsfwLevel": 1,
+       "width": 1024,
+       "height": 1024,
+       "hash": "UF9api%#.mt6tmjYtlMyIBMyVYadI9RjMxxu",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 27706510,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/ce3036a7-ebbc-4eb4-b610-a2dccad27772/original=true/27706510.jpeg",
+       "nsfwLevel": 1,
+       "width": 1024,
+       "height": 1024,
+       "hash": "U16ttARP02Sh2_WVQ-xa}R%M01Nd00oe+[s:",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/804967"
+    },
+    {
+     "id": 1620163,
+     "index": 3,
+     "name": "Hand \"WeapFocus\" F1D v1.5",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-04-04T20:01:02.329Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 13,
+     "description": "<p>F1D v1.5</p><p>This version has been trained to help with generating \"Weapon focused\" images.</p><p>Also, has been trained for much better <a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/models/697832/archery-style-flux1-dev\">archery</a> results.</p><p>You can lower lora weight if needed.</p><p>You can also use model in other hand focused images (not as good as <a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/models/200255?modelVersionId=804967\">v2</a>)</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 2043,
+      "thumbsUpCount": 155,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 1520168,
+       "sizeKB": 335747.046875,
+       "name": "Hand v1.5 gun focus.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-04-04T13:36:00.610Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "A185DE5D",
+        "AutoV2": "1840289812",
+        "SHA256": "184028981252E1D766DAA43CC8F10FD6E8D859E39EF970C729F58D381FEF29D7",
+        "CRC32": "D192B741",
+        "BLAKE3": "9BB0D74CB7DC39390D372AFFEDFABD7F637112FF435A8B21D40F9D2B1F81B3E7",
+        "AutoV3": "C28C8E443422",
+        "SHA256_12": "184028981252"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1620163",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 67957192,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/acdadb9d-3b2f-446d-a934-806234fd504a/original=true/67957192.jpeg",
+       "nsfwLevel": 1,
+       "width": 1024,
+       "height": 1024,
+       "hash": "UIDR=.0h^it7~UEMt6xZ0h%KE3of4=%LIWNI",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 67957193,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/23cd7275-884d-4837-aa8b-770856c2ea77/original=true/67957193.jpeg",
+       "nsfwLevel": 1,
+       "width": 1024,
+       "height": 1024,
+       "hash": "U47e6Y~p8_ELk=b^Mxsn9ZD%Mdv~rqsStRgN",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1620163"
+    },
+    {
+     "id": 781855,
+     "index": 7,
+     "name": "Hand F1D v1.0",
+     "baseModel": "Flux.1 D",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-08-29T12:26:39.200Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "<p>This is v1 of FLUX.1-dev</p><p>You may experience an extra hand finger occasionally but not necessarily.</p>",
+     "trainedWords": [
+      "Hand"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 3957,
+      "thumbsUpCount": 266,
+      "thumbsDownCount": 2
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 696707,
+       "sizeKB": 335747.4375,
+       "name": "hand v1.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-08-29T16:11:02.365Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "44FA18D1",
+        "AutoV2": "35082CB383",
+        "SHA256": "35082CB3835C90F55E502A2BA7F78EE53F5B3136EC436E0C99286A2F291EEF32",
+        "CRC32": "9B02AB6B",
+        "BLAKE3": "99F364BB21497FE5C09E9227486D6945952FC46F85C71B7BB6F2DAE6294F79FF",
+        "AutoV3": "6292D0D6B857",
+        "SHA256_12": "35082CB3835C"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/781855",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 26692222,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/4d8b92c2-6da6-4b1e-b20c-eeb0718197c6/original=true/26692222.jpeg",
+       "nsfwLevel": 1,
+       "width": 1448,
+       "height": 1448,
+       "hash": "UqQS*l%M?^Ri%gRjRixux^ayRPWBxuofRjWB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 26692228,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/60d02780-7bef-4bed-8c2b-3886ec2550cf/original=true/26692228.jpeg",
+       "nsfwLevel": 1,
+       "width": 1448,
+       "height": 1448,
+       "hash": "U68:u9^,000eK4XT-q=|$8xbyEx^?w%ND$D$",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/781855"
+    }
+   ]
+  }
+ ],
+ "metadata": {
+  "nextCursor": "74573|4629|599757",
+  "nextPage": "https://civitai.com/api/v1/models?types=LORA&baseModels=Flux.1%20D&sort=Most%20Downloaded&nsfw=false&limit=3&cursor=74573%7C4629%7C599757"
+ }
+}

@@ -1,0 +1,331 @@
+{
+ "id": 1799857,
+ "name": "CyberRealistic Flux",
+ "coverImageId": null,
+ "sfwCoverImageId": null,
+ "description": "<p><img src=\"https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f9e93e5d-60fe-4b7c-b57b-e1710cbb7840/original=true/f9e93e5d-60fe-4b7c-b57b-e1710cbb7840.jpeg\" /></p><p>Join The Tinkerer on Whop. Membership gets you early releases, private tools and a bunch of extra stuff.</p><p>👉 <a target=\"_blank\" rel=\"ugc\" href=\"https://whop.com/cyberdelia-ai-lab\"><strong>Join on Whop</strong></a><br />💬 <a target=\"_blank\" rel=\"ugc\" href=\"https://discord.gg/88R2hdjb22\"><strong>Join the community for support, free",
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "type": "Checkpoint",
+ "minor": false,
+ "sfwOnly": false,
+ "poi": false,
+ "nsfw": false,
+ "nsfwLevel": 31,
+ "availability": "Public",
+ "userId": 6357,
+ "hasActivePaidAccess": false,
+ "hasSfwFace": false,
+ "baseModels": [
+  "Flux.1 D"
+ ],
+ "cosmetic": null,
+ "eventDecoration": null,
+ "supportsGeneration": true,
+ "stats": {
+  "downloadCount": 28808,
+  "thumbsUpCount": 1482,
+  "thumbsDownCount": 6,
+  "commentCount": 98,
+  "tippedAmountCount": null
+ },
+ "creator": {
+  "username": "Cyberdelia",
+  "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/84729595-4bab-4897-b541-aa3738e396ff/width=96/Cyberdelia.jpeg"
+ },
+ "tags": [
+  "photorealistic",
+  "nsfw",
+  "porn",
+  "animals",
+  "cyberrealistic",
+  "base model",
+  "portraits",
+  "person",
+  "man",
+  "women"
+ ],
+ "modelVersions": [
+  {
+   "id": 2287992,
+   "index": 0,
+   "name": "v2.5",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2025-10-06T17:05:05.997Z",
+   "publishedAt": "2025-10-21T21:45:15.064Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 13,
+   "description": "<p>In this version, I’ve made improvements to skin texture and overall clarity - it’s much cleaner now. The model is fully NSFW-capable, so don’t worry 🙂<br /><br />I’ve included a range of different examples, all created without any LoRAs. There will only be a few NSFW samples, but it should be clear that this model can definitely handle them.<br /><br />Get it via Early Paid Access on Civitai or through <a target=\"_blank\" rel=\"ugc\" href=\"https://www.patreon.com/cyberdelia\">Patreon </a>(Discord",
+   "covered": false,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 11343,
+    "thumbsUpCount": 725,
+    "thumbsDownCount": 1
+   },
+   "files": [
+    {
+     "id": 2181185,
+     "sizeKB": 23245039.859375,
+     "name": "CyberRealistic_Flux_V2.5_FP16.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-10-07T09:01:00.384Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV1": "F440F8FA",
+      "AutoV2": "0D60068351",
+      "SHA256": "0D6006835172831955C4EB25FFF5F2C28F92834629E1FBAC332653F252BB6CF6",
+      "CRC32": "AD8817E0",
+      "BLAKE3": "E75E02DF54BBAC02EFC817EB03A9783CAF80C447ADDA9106CA3F9DEAA2AD7CA5",
+      "AutoV3": "4C1C8EF173BA",
+      "SHA256_12": "0D6006835172"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/2287992?fileId=2181185",
+     "primary": true
+    },
+    {
+     "id": 2181135,
+     "sizeKB": 11622572.40625,
+     "name": "CyberRealistic_Flux_V2.5_FP8.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-10-07T08:41:53.236Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "C5248ED9",
+      "AutoV2": "5FA0793A7E",
+      "SHA256": "5FA0793A7EC2944A2024A049D58AACC6B5153706E49ABC55EEA6D39C70F5640C",
+      "CRC32": "1DB96590",
+      "BLAKE3": "DE50280BE205DFC330AAA7EB628D4B2DDF8C5EC8DE29275F94E031F5FD7D3AF9",
+      "AutoV3": "4409EA706D2A",
+      "SHA256_12": "5FA0793A7EC2"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/2287992?fileId=2181135"
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/80cdc492-e764-47b7-8c3b-404725638b77/original=true/104671927.jpeg",
+     "nsfwLevel": 1,
+     "width": 1344,
+     "height": 1728,
+     "hash": "UMHnHH01_2IV~pD%.8xBO[IUt8s+%MIot7bI",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/5647cb45-c157-4fb1-82c4-c82be37907e2/original=true/104662174.jpeg",
+     "nsfwLevel": 1,
+     "width": 1344,
+     "height": 1728,
+     "hash": "UB8gmQ_MK*E+_M?uk?OFKQb^-oxZ9vIpw^xC",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/2287992"
+  },
+  {
+   "id": 2423826,
+   "index": 1,
+   "name": "v2.5 (GGUF Q4_1)",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2025-11-20T14:49:12.506Z",
+   "publishedAt": "2025-11-20T15:51:22.641Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 15,
+   "description": "<p>A quantized Q4_1 version of CyberRealistic Flux v2.5, optimized for faster inference with minimal quality loss. Perfect for running on lower-VRAM setups.</p>",
+   "covered": false,
+   "coveredNext": false,
+   "stats": {
+    "downloadCount": 1588,
+    "thumbsUpCount": 66,
+    "thumbsDownCount": 1
+   },
+   "files": [
+    {
+     "id": 2314429,
+     "sizeKB": 7485529.90625,
+     "name": "CyberRealistic_Flux_V2.5-q4_1.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-11-20T15:04:35.407Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "pruned",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV1": "3EAF4B7F",
+      "AutoV2": "B551F975B5",
+      "SHA256": "B551F975B589C08CB00408A66485377CEBA8912FE52A2EB172F05298A0CFD04E",
+      "CRC32": "84EABEFE",
+      "BLAKE3": "568FEDD9E3501BC6D310CAC16637E838CFDCD62555479B1FF08CD8CBA70B1CCB",
+      "AutoV3": "D2D4DF43BB73",
+      "SHA256_12": "B551F975B589"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/2423826?fileId=2314429",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/c6e828b3-b501-4a5d-9c8e-537902d8f735/original=true/110912289.jpeg",
+     "nsfwLevel": 1,
+     "width": 832,
+     "height": 1216,
+     "hash": "UYFF4^9aD*xu~VRjIVog?HayM{a}-:WCM|WC",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/9ca43d04-442a-47d6-b350-14ef5ce7ada0/original=true/111020968.jpeg",
+     "nsfwLevel": 1,
+     "width": 832,
+     "height": 1216,
+     "hash": "UjJu7MIoRPEMc[NerCsmFzt8wIocR5fPXmNI",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/2423826"
+  },
+  {
+   "id": 2423797,
+   "index": 2,
+   "name": "v2.5 (GGUF Q5_1)",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2025-11-20T14:37:30.632Z",
+   "publishedAt": "2025-11-20T15:51:25.508Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 15,
+   "description": "<p>A quantized Q5_1 version of CyberRealistic Flux v2.5, optimized for faster inference with minimal quality loss. Perfect for running on lower-VRAM setups.</p>",
+   "covered": false,
+   "coveredNext": false,
+   "stats": {
+    "downloadCount": 758,
+    "thumbsUpCount": 18,
+    "thumbsDownCount": 0
+   },
+   "files": [
+    {
+     "id": 2314412,
+     "sizeKB": 8930137.90625,
+     "name": "CyberRealistic_Flux_V2.5-q5_1.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-11-20T14:55:03.061Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "pruned",
+      "fp": "fp16"
+     },
+     "hashes": {
+      "AutoV1": "A27800CC",
+      "AutoV2": "251163A7DA",
+      "SHA256": "251163A7DA22AB0F3619C986B9C261267C62043B304604FBD9AEB4BCBBCD66D0",
+      "CRC32": "F09E2222",
+      "BLAKE3": "5C06B656A7B8D978CC80453183C27F40795A85EE164E2DB04E6DAD3B4C259664",
+      "AutoV3": "8BB1950597BE",
+      "SHA256_12": "251163A7DA22"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/2423797?fileId=2314412",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/856356f5-ca3d-499b-8f8a-48f013d2a9f6/original=true/111018333.jpeg",
+     "nsfwLevel": 1,
+     "width": 832,
+     "height": 1216,
+     "hash": "UG8{bZBN5f}LOUngrVa_FXoN,_J%+}WTFsw~",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/a59f6a3f-647c-4e84-a866-8882afc6f753/original=true/111023158.jpeg",
+     "nsfwLevel": 8,
+     "width": 832,
+     "height": 1216,
+     "hash": "U8Ee+10057^4IS^*-:xV8__2~UeT?GVs-oxa",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/2423797"
+  }
+ ]
+}
