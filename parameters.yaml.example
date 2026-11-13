@@ -67,9 +67,25 @@ api:
     # Concurrent generation/merge jobs. >1 runs jobs on different checkpoints
     # in parallel (Flux jobs stay serial) at the cost of more VRAM/RAM.
     num_workers: 1
+    io_workers: 2             # concurrent Civitai downloads (separate from GPU workers)
     result_ttl: 3600          # seconds a finished job is kept
   model_cache:
     max_models: 2             # keep >= num_workers
   cors:
     enabled: true
     allow_origins: ["*"]
+
+# Civitai search & download (optional section; defaults shown).
+#   api_key: needed for most checkpoint downloads (Settings > API Keys on
+#     civitai.com). The CIVITAI_API_KEY environment variable takes precedence.
+#     Never returned by the API: /info/app_settings shows it as "***".
+#   nsfw: default value of the NSFW toggle in the search UI.
+#   min_free_space_gb: refuse a download that would leave less free space.
+civitai:
+  enabled: true
+  api_key: ""
+  base_url: "https://civitai.com/api/v1"
+  nsfw: false
+  search_cache_ttl: 60        # seconds
+  request_timeout: 30         # seconds, metadata requests
+  min_free_space_gb: 5
