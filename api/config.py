@@ -111,6 +111,31 @@ class AppConfig:
     def cors_allow_origins(self) -> list:
         return getattr(self.parameters.api.cors, "allow_origins", ["*"])
 
+    def _api_setting(self, section: str, key: str, default: int) -> int:
+        """Read a positive integer from parameters.api.<section>.<key>."""
+        subtree = getattr(getattr(self.parameters, "api", None), section, None)
+        value = getattr(subtree, key, default)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            raise ConfigurationError(
+                f"api.{section}.{key} must be a positive integer, got {value!r}"
+            )
+        return value
+
+    @property
+    def job_queue_num_workers(self) -> int:
+        """Number of concurrent GPU job workers (generation and merge)."""
+        return self._api_setting("job_queue", "num_workers", 1)
+
+    @property
+    def job_queue_result_ttl(self) -> int:
+        """Seconds a finished job is kept before cleanup."""
+        return self._api_setting("job_queue", "result_ttl", 3600)
+
+    @property
+    def model_cache_max_models(self) -> int:
+        """Maximum number of pipelines kept loaded in the model cache."""
+        return self._api_setting("model_cache", "max_models", 2)
+
     @property
     def device(self) -> Optional[Parameters]:
         """

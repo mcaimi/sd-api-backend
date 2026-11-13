@@ -14,8 +14,8 @@ The Stable Diffusion pipelines, device selection, checkpoint merging and telemet
 - **Batch Generation** - Submit multiple generation jobs in a single request
 - **Model Comparison** - Generate images from multiple checkpoints side-by-side for comparison
 - **Multi-Model Merging** - Merge two or more models using configurable methods (linear, slerp, additive, subtract), with weight coefficients and multi-step recipe execution (SD 1.5/SDXL/Illustrious XL only — see [TODO.md](TODO.md) for planned Flux merge support)
-- **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`
-- **Model Caching** - LRU cache (max 2 pipelines) for expensive diffusion model loading, auto-eviction via access order
+- **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`; worker count and result TTL are configurable, and finished jobs are cleaned up after the TTL
+- **Model Caching** - LRU cache (configurable, default 2 pipelines) for expensive diffusion model loading. Pipelines are leased to one job at a time and never evicted while in use, so concurrent workers can't clobber each other's LoRAs/VAE
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
 - **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
@@ -134,8 +134,8 @@ Provided by `metastable.pipelines`; generators are created with `create_generato
 ┌──────────────────────┐     ┌─────────────────────┐     ┌──────────────────┐
 │  GenerationService   │────>│   ModelCacheManager  │────>│ BasePipelineGen  │
 │ ──────────────────── │     │ ───────────────────  │     │ ───────────────  │
-│ + generate()         │     │ + get_pipeline()     │     │ - cache: dict    │
-│ + inpaint()          │     │ + load_pipeline()    │     │ + forward()      │
+│ + generate()         │     │ + acquire()          │     │ - cache: dict    │
+│ + inpaint()          │     │ + _load_pipeline()   │     │ + forward()      │
 │ + batch_generate()   │     │ + clear_cache()      │     │ + add_loras()    │
 │ + compare_models()   │     │ + get_stats()        │     └──────────────────┘
 └──────────┬───────────┘     └─────────────────────┘
@@ -245,14 +245,23 @@ Client: GET /api/v1/jobs/{job_id}
 ### Model Cache Flow
 
 ```
-ModelCacheManager.get_pipeline(model_type, model_path, pipeline_type)
+async with ModelCacheManager.acquire(model_type, model_path, pipeline_type, state)
   1. Build cache key: "{model_type}:{model_name}:{pipeline_type}"
-  2. Cache HIT → update access order → return cached pipeline
-  3. Cache MISS → _load_pipeline() in thread pool
+  2. Take the pipeline's lock (all Flux pipelines share one lock, since they
+     share text encoders/VAE) → the lease is exclusive until the block exits
+  3. Cache HIT with a different LoRA/VAE state applied → drop it and reload
+  4. Cache HIT → update access order → yield cached pipeline
+  5. Cache MISS → if at capacity (>= max_models) evict the least-recently-used
+     pipeline that isn't leased; if all are leased, wait for one to be released
+  6. _load_pipeline() in thread pool
      → create_generator() → load_pipeline() / load_inpaint_pipeline() → to_device()
-  4. If at capacity (>= max_models) → evict least-recently-used
-  5. Insert new pipeline into cache
+  7. Insert new pipeline into cache and yield it
 ```
+
+The generation service applies LoRAs and the custom VAE and runs inference inside
+the lease. Each cached pipeline remembers which LoRA/VAE state is applied: a request
+for the same state reuses it, a different one reloads the pipeline (fused LoRAs
+can't be removed in place).
 
 ### Startup / Shutdown Flow
 
@@ -469,6 +478,20 @@ api:
     allow_origins: ["*"]
 ```
 
+#### Concurrent GPU jobs
+
+`api.job_queue.num_workers` sets how many generation/merge jobs run at once (default 1).
+With more than one worker:
+
+- jobs on **different** checkpoints run concurrently; jobs on the same checkpoint
+  (and pipeline type) still run one after another;
+- **Flux** jobs always run one at a time, because all Flux checkpoints share the
+  same text encoders and VAE;
+- peak VRAM/RAM grows with every job running at once, and on a single GPU total
+  throughput rarely improves — the main win is overlapping model loading or merges
+  with generation. Keep `model_cache.max_models` >= `num_workers`, otherwise
+  workers wait for a free cache slot.
+
 ### Flux Setup
 
 Flux checkpoints only ship the transformer; the shared text encoders, tokenizers, VAE, and scheduler must be populated once under `flux.components_path` in standard diffusers subfolder layout (`text_encoder/`, `tokenizer/`, `text_encoder_2/`, `tokenizer_2/`, `vae/`, `scheduler/`):
@@ -552,4 +575,7 @@ uv sync
 
 # Start the server
 uv run uvicorn api.app:app --host 0.0.0.0 --port 8000
+
+# Run the test suite
+uv run pytest
 ```

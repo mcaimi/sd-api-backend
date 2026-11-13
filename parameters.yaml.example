@@ -64,10 +64,12 @@ api:
   port: 8000
   workers: 1
   job_queue:
+    # Concurrent generation/merge jobs. >1 runs jobs on different checkpoints
+    # in parallel (Flux jobs stay serial) at the cost of more VRAM/RAM.
     num_workers: 1
-    result_ttl: 3600
+    result_ttl: 3600          # seconds a finished job is kept
   model_cache:
-    max_models: 2
+    max_models: 2             # keep >= num_workers
   cors:
     enabled: true
     allow_origins: ["*"]

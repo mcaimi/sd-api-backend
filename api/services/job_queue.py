@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, Optional, Callable, Any, List
 
+from api.config import get_app_config
+
 logger = logging.getLogger(__name__)
 
 
@@ -57,6 +59,7 @@ class JobQueue:
         self.queue: asyncio.Queue = asyncio.Queue()
         self.jobs: Dict[str, Job] = {}
         self.workers: List[asyncio.Task] = []
+        self._cleanup_task: Optional[asyncio.Task] = None
         self._lock = asyncio.Lock()
         self._running = False
 
@@ -123,6 +126,9 @@ class JobQueue:
             job = self.jobs.get(job_id)
             if not job or job.status in [JobStatus.COMPLETED, JobStatus.FAILED]:
                 return False
+            if job.status == JobStatus.QUEUED:
+                # Never reaches a worker, so stamp it here for TTL cleanup
+                job.completed_at = datetime.now()
             job.status = JobStatus.CANCELLED
             logger.info(f"Job {job_id} cancelled")
             return True
@@ -179,6 +185,7 @@ class JobQueue:
         for i in range(self.num_workers):
             worker = asyncio.create_task(self._worker(i))
             self.workers.append(worker)
+        self._cleanup_task = asyncio.create_task(self._cleanup_loop())
         logger.info(f"Started {self.num_workers} workers")
 
     async def stop_workers(self):
@@ -187,6 +194,11 @@ class JobQueue:
             return
 
         self._running = False
+
+        if self._cleanup_task:
+            self._cleanup_task.cancel()
+            await asyncio.gather(self._cleanup_task, return_exceptions=True)
+            self._cleanup_task = None
 
         # Wait for current jobs to complete
         await self.queue.join()
@@ -199,6 +211,16 @@ class JobQueue:
         await asyncio.gather(*self.workers, return_exceptions=True)
         self.workers.clear()
         logger.info("All workers stopped")
+
+    async def _cleanup_loop(self):
+        """Periodically drop finished jobs older than result_ttl."""
+        interval = min(60, self.result_ttl)
+        while self._running:
+            await asyncio.sleep(interval)
+            try:
+                await self.cleanup_old_jobs()
+            except Exception as e:
+                logger.error(f"Job cleanup failed: {e}", exc_info=True)
 
     async def cleanup_old_jobs(self):
         """Remove completed jobs older than TTL."""
@@ -254,7 +276,15 @@ def get_job_queue() -> JobQueue:
     """Get the singleton job queue instance."""
     global _job_queue
     if _job_queue is None:
-        _job_queue = JobQueue(num_workers=1, result_ttl=3600)
+        config = get_app_config()
+        num_workers = config.job_queue_num_workers
+        if num_workers > 1:
+            logger.warning(
+                f"api.job_queue.num_workers={num_workers}: jobs on different checkpoints run "
+                "concurrently and peak VRAM/RAM grows with each running job "
+                "(Flux jobs still run one at a time)"
+            )
+        _job_queue = JobQueue(num_workers=num_workers, result_ttl=config.job_queue_result_ttl)
     return _job_queue
 
 
