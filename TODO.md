@@ -1,15 +1,5 @@
 ## TODO
 
-Many features still need to be ported over from the [sd-webapp](https://codeberg.org/mcaimi/sd-webapp) project.
-
-The groundwork for everything has been ported over (e.g. simply copied from the old repo :))
-
-This document outlines what it is missing and what will *eventually* come:
-
-### Model Merging Pipeline
-
-- **merge features** - Mostly Done. Model merge APIs are exposed via `api/routers/merge.py` (`/merge/merge`, `/merge/batch`, `/merge/recipe`), backed by `api/services/merge.py`, the Pydantic models in `api/models/merge.py`, and the merge logic in the [metastable](https://github.com/mcaimi/metastable) library's `metastable.merge` package (supporting LINEAR, SLERP, ADDITIVE, SUBTRACT methods). Currently supports `sd15`, `sdxl`, and `illustrious` checkpoints; see the Flux section below for what's still missing.
-
 ### Flux Model Merging (mergeops)
 
 - **Flux merge support** - `/merge/*` endpoints currently reject `model_type: "flux"` (see `api/models/merge.py`'s `field_validator`s) and `metastable.merge` is not wired up for it.
