@@ -43,7 +43,7 @@ async def cancel_job(job_id: str):
     if not cancelled:
         raise HTTPException(
             status_code=400,
-            detail="Job cannot be cancelled (already completed or failed)",
+            detail="Job cannot be cancelled (not found or already finished)",
         )
 
     return {"message": "Job cancelled successfully", "job_id": job_id}

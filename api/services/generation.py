@@ -7,13 +7,14 @@ Async wrapper around SD pipeline generators for image generation and inpainting.
 
 import asyncio
 import logging
+from contextlib import asynccontextmanager
 from typing import Optional
 from pathlib import Path
 import json
 
 from metastable.pipelines import LoraSpec
 
-from api.services.model_cache import get_cache_manager
+from api.services.model_cache import get_cache_manager, DIRTY_STATE
 from api.utils.image_encoding import numpy_to_base64, base64_to_pil
 from api.config import get_app_config
 from uuid import uuid4
@@ -67,7 +68,17 @@ async def persist_to_backend(image_array, metadata) -> bool:
         return False
 
 
-async def _prepare_pipeline(
+def _requested_state(loras: Optional[list], custom_vae: Optional[str]) -> tuple:
+    """The LoRA/VAE state a request needs applied, comparable to CLEAN_STATE."""
+    lora_state = tuple(
+        (str(lora_config.get("path", lora_config["name"])), float(lora_config["strength"]))
+        for lora_config in (loras or [])
+    )
+    return (lora_state, str(custom_vae) if custom_vae else None)
+
+
+@asynccontextmanager
+async def _leased_pipeline(
     model_type: str,
     model_path: str,
     pipeline_type: str,
@@ -75,39 +86,52 @@ async def _prepare_pipeline(
     custom_vae: Optional[str],
 ):
     """
-    Get a cached pipeline and apply the requested LoRAs and custom VAE.
+    Lease a cached pipeline with the requested LoRAs and custom VAE applied.
 
-    Returns:
+    The lease is exclusive: run inference inside the context so no other job
+    can change the pipeline's LoRAs/VAE (or evict it) in the meantime.
+
+    Yields:
         Tuple of (pipeline generator, JSON-serializable LoRA metadata)
     """
     cache_manager = get_cache_manager()
-    pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, pipeline_type)
+    state = _requested_state(loras, custom_vae)
 
-    # Apply LoRAs if specified
+    lora_specs = []
     lora_metadata = {}
-    if loras:
-        lora_specs = []
-        for i, lora_config in enumerate(loras):
-            lora_path = lora_config.get("path", lora_config["name"])
-            lora_specs.append(LoraSpec(path=lora_path, strength=lora_config["strength"]))
-            lora_metadata[f"lora_{i}"] = {
-                "name": lora_config["name"],
-                "lora_path": str(lora_path),
-                "merge_strength": lora_config["strength"],
-            }
-        try:
-            pipeline_gen.add_loras(lora_specs)
-        except Exception as e:
-            logger.warning(f"Failed to apply LoRAs, evicting stale pipeline and reloading: {e}")
-            await cache_manager.evict(model_type, model_path, pipeline_type)
-            pipeline_gen = await cache_manager.get_pipeline(model_type, model_path, pipeline_type)
-            pipeline_gen.add_loras(lora_specs)
+    for i, lora_config in enumerate(loras or []):
+        lora_path = lora_config.get("path", lora_config["name"])
+        lora_specs.append(LoraSpec(path=lora_path, strength=lora_config["strength"]))
+        lora_metadata[f"lora_{i}"] = {
+            "name": lora_config["name"],
+            "lora_path": str(lora_path),
+            "merge_strength": lora_config["strength"],
+        }
 
-    # Apply custom VAE if specified
-    if custom_vae:
-        pipeline_gen.load_custom_vae(custom_vae)
+    def _apply(pipeline_gen):
+        if lora_specs:
+            pipeline_gen.add_loras(lora_specs)
+        if custom_vae:
+            pipeline_gen.load_custom_vae(custom_vae)
 
-    return pipeline_gen, lora_metadata
+    loop = asyncio.get_event_loop()
+    for attempt in (1, 2):
+        async with cache_manager.acquire(model_type, model_path, pipeline_type, state) as entry:
+            if entry.state != state:
+                # Until _apply finishes the pipeline is in an unknown state
+                entry.state = DIRTY_STATE
+                try:
+                    await loop.run_in_executor(None, _apply, entry.pipeline)
+                except Exception as e:
+                    if attempt == 2:
+                        raise
+                    # Leaving the lease with DIRTY_STATE makes the next acquire reload it
+                    logger.warning(f"Failed to apply LoRAs/VAE, reloading pipeline: {e}")
+                    continue
+                entry.state = state
+
+            yield entry.pipeline, lora_metadata
+            return
 
 
 async def generate_image_async(
@@ -147,14 +171,9 @@ async def generate_image_async(
     Returns:
         Dictionary with image_base64 and metadata
     """
-    pipeline_gen, lora_metadata = await _prepare_pipeline(
-        model_type, model_path, "txt2img", loras, custom_vae
-    )
-
-    # Run generation in thread pool (blocking operation)
     loop = asyncio.get_event_loop()
 
-    def _generate():
+    def _generate(pipeline_gen):
         extra_kwargs = {"true_cfg_scale": true_cfg_scale} if model_type == "flux" else {}
         image_array, metadata = pipeline_gen.forward(
             positive_prompt=positive_prompt,
@@ -169,7 +188,11 @@ async def generate_image_async(
         )
         return image_array, metadata
 
-    image_array, metadata = await loop.run_in_executor(None, _generate)
+    # Run generation in thread pool (blocking operation), holding the lease
+    async with _leased_pipeline(
+        model_type, model_path, "txt2img", loras, custom_vae
+    ) as (pipeline_gen, lora_metadata):
+        image_array, metadata = await loop.run_in_executor(None, _generate, pipeline_gen)
 
     # Convert to base64
     image_base64 = numpy_to_base64(image_array)
@@ -232,18 +255,13 @@ async def inpaint_image_async(
     Returns:
         Dictionary with image_base64 and metadata
     """
-    pipeline_gen, lora_metadata = await _prepare_pipeline(
-        model_type, model_path, "inpaint", loras, custom_vae
-    )
-
     # Decode images
     input_image = base64_to_pil(image_base64)
     mask_image = base64_to_pil(mask_base64)
 
-    # Run inpainting in thread pool (blocking operation)
     loop = asyncio.get_event_loop()
 
-    def _inpaint():
+    def _inpaint(pipeline_gen):
         extra_kwargs = {"true_cfg_scale": true_cfg_scale}
         if strength is not None:
             extra_kwargs["strength"] = strength
@@ -260,7 +278,11 @@ async def inpaint_image_async(
         )
         return image_array, metadata
 
-    image_array, metadata = await loop.run_in_executor(None, _inpaint)
+    # Run inpainting in thread pool (blocking operation), holding the lease
+    async with _leased_pipeline(
+        model_type, model_path, "inpaint", loras, custom_vae
+    ) as (pipeline_gen, lora_metadata):
+        image_array, metadata = await loop.run_in_executor(None, _inpaint, pipeline_gen)
 
     # Convert to base64
     image_base64 = numpy_to_base64(image_array)

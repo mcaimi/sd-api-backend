@@ -54,14 +54,21 @@
             </div>
           </template>
           <template x-for="job in jobs" :key="job.job_id">
-            <wa-details class="job" appearance="outlined" icon-placement="start">
+            <wa-details class="job" appearance="outlined" icon-placement="start"
+                        @wa-show="$event.target === $el && expand(job)"
+                        @wa-hide="$event.target === $el && delete expanded[job.job_id]">
               <div slot="summary" class="job-summary">
                 <code class="job-id" x-text="job.job_id.slice(0, 8)"></code>
-                <span x-text="job.job_type"></span>
+                <span class="job-type">
+                  <span x-text="job.job_type"></span>
+                  <span class="muted small job-type-file" x-show="job.detail?.filename" x-text="job.detail?.filename" :title="job.detail?.filename"></span>
+                </span>
                 <span><wa-badge pill :variant="statusVariant(job.status)" :attention="job.status === 'running' ? 'pulse' : 'none'" x-text="job.status"></wa-badge></span>
                 <span class="job-progress">
                   <wa-progress-bar :value="Math.round(job.progress * 100)" :label="`Progress of job ${job.job_id}`"></wa-progress-bar>
                   <span class="job-progress-value" x-text="`${Math.round(job.progress * 100)}%`"></span>
+                  <span class="job-progress-detail muted small" x-show="job.status === 'running' && job.detail?.bytes_total"
+                        x-text="downloadText(job)"></span>
                 </span>
                 <span class="muted" x-text="formatTimestamp(job.created_at)"></span>
                 <span class="job-actions">
@@ -71,19 +78,19 @@
                 </span>
               </div>
               <div class="job-result">
-                <template x-if="job.result">
+                <template x-if="results[job.job_id]">
                   <div class="job-result-body">
-                    <template x-if="job.result.image_base64">
-                      <img class="job-preview" :src="`data:image/png;base64,${job.result.image_base64}`" alt="Job result">
+                    <template x-if="results[job.job_id].image_base64">
+                      <img class="job-preview" :src="`data:image/png;base64,${results[job.job_id].image_base64}`" alt="Job result">
                     </template>
-                    <pre class="code" x-text="resultJson(job)"></pre>
+                    <pre class="code" x-text="resultJson(results[job.job_id])"></pre>
                   </div>
                 </template>
-                <template x-if="!job.result && job.error">
+                <template x-if="!results[job.job_id] && job.error">
                   <pre class="code code-danger" x-text="job.error"></pre>
                 </template>
-                <template x-if="!job.result && !job.error">
-                  <p class="muted">No result.</p>
+                <template x-if="!results[job.job_id] && !job.error">
+                  <p class="muted" x-text="job.status === 'completed' ? 'Loading result…' : 'No result yet.'"></p>
                 </template>
               </div>
             </wa-details>
@@ -213,8 +220,15 @@
 
     <!-- Models -->
     <wa-tab-panel name="models">
-      <section class="panel" x-data="models">
-        <h2 class="panel-title">Models</h2>
+      <section class="panel" x-data="models" @models-changed.window="onModelsChanged($event.detail)">
+        <div class="panel-header">
+          <h2 class="panel-title">Models</h2>
+          <wa-radio-group orientation="horizontal" size="s" :value="view" label="View" class="view-toggle"
+                          @change="setView($event.target.value)">
+            <wa-radio appearance="button" value="local"><wa-icon name="hard-drive"></wa-icon> Local</wa-radio>
+            <wa-radio appearance="button" value="civitai"><wa-icon name="globe"></wa-icon> Civitai</wa-radio>
+          </wa-radio-group>
+        </div>
         <div class="filters">
           <wa-radio-group label="Model type" orientation="horizontal" size="s" :value="modelType"
                           @change="select('modelType', $event.target.value)">
@@ -229,30 +243,266 @@
             </template>
           </wa-radio-group>
         </div>
-        <wa-callout variant="danger" x-show="error" x-cloak>
-          <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
-          <span x-text="`Failed to load models: ${error}`"></span>
-        </wa-callout>
 
-        <div class="list" :class="{ 'is-loading': loading }" x-show="!error && models.length">
-          <template x-for="m in models" :key="m.name">
-            <div class="list-row">
-              <wa-icon name="cube" class="list-row-icon"></wa-icon>
-              <code class="list-row-name" x-text="m.name"></code>
-              <span class="list-row-actions">
-                <wa-button size="s" appearance="plain" title="Metadata" @click="showMetadata(m.name)">
-                  <wa-icon name="circle-info" label="Metadata"></wa-icon>
-                </wa-button>
-                <wa-button size="s" appearance="plain" title="Download" :href="downloadUrl(m.name)" download>
-                  <wa-icon name="download" label="Download"></wa-icon>
-                </wa-button>
-              </span>
+        <!-- Local files -->
+        <div x-show="view === 'local'">
+          <wa-callout variant="danger" x-show="error" x-cloak>
+            <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+            <span x-text="`Failed to load models: ${error}`"></span>
+          </wa-callout>
+
+          <div class="list" :class="{ 'is-loading': loading }" x-show="!error && models.length">
+            <template x-for="m in models" :key="m.name">
+              <div class="list-row">
+                <template x-if="m.has_preview">
+                  <img class="list-row-thumb" :src="previewUrl(m.name)" alt="" loading="lazy">
+                </template>
+                <template x-if="!m.has_preview">
+                  <wa-icon name="cube" class="list-row-icon"></wa-icon>
+                </template>
+                <div class="list-row-main">
+                  <code class="list-row-name" x-text="m.name"></code>
+                  <div class="list-row-sub" x-show="m.civitai || m.flux_layout">
+                    <span class="muted" x-show="m.civitai" x-text="m.civitai && civitaiLabel(m)"></span>
+                    <wa-badge appearance="outlined" :variant="m.flux_layout?.t5xxl ? 'brand' : 'neutral'"
+                              x-show="m.flux_layout" x-text="m.flux_layout && layoutLabel(m.flux_layout)"></wa-badge>
+                    <template x-for="word in (m.civitai?.trained_words || [])" :key="word">
+                      <wa-tag size="small" class="trigger-word" title="Copy trigger word" @click="copyText(word)" x-text="word"></wa-tag>
+                    </template>
+                  </div>
+                </div>
+                <span class="list-row-actions">
+                  <wa-button size="s" appearance="plain" title="Open on Civitai" x-show="m.civitai?.url"
+                             :href="m.civitai?.url" target="_blank" rel="noopener noreferrer">
+                    <wa-icon name="arrow-up-right-from-square" label="Open on Civitai"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" title="Identify on Civitai" x-show="!m.civitai"
+                             :loading="!!identifying[m.name]" @click="identify(m.name)">
+                    <wa-icon name="fingerprint" label="Identify on Civitai"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" title="Metadata" @click="showMetadata(m.name)">
+                    <wa-icon name="circle-info" label="Metadata"></wa-icon>
+                  </wa-button>
+                  <wa-button size="s" appearance="plain" title="Download" :href="downloadUrl(m.name)" download>
+                    <wa-icon name="download" label="Download"></wa-icon>
+                  </wa-button>
+                </span>
+              </div>
+            </template>
+          </div>
+          <div class="empty-state" x-show="!loading && !error && models.length === 0" x-cloak>
+            <wa-icon name="cube"></wa-icon>
+            <p>No models found.</p>
+            <wa-button size="s" appearance="outlined" @click="setView('civitai')">
+              <wa-icon slot="start" name="globe"></wa-icon> Browse Civitai
+            </wa-button>
+          </div>
+        </div>
+
+        <!-- Civitai browser -->
+        <div x-data="civitai" x-show="view === 'civitai'" x-cloak>
+          <wa-callout variant="danger" x-show="statusError" x-cloak>
+            <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+            <span x-text="`Civitai is unavailable: ${statusError}`"></span>
+          </wa-callout>
+          <wa-callout variant="neutral" x-show="status && !status.enabled" x-cloak>
+            <wa-icon slot="icon" name="circle-info"></wa-icon>
+            Civitai integration is disabled (<code>civitai.enabled</code> in parameters.yaml).
+          </wa-callout>
+
+          <template x-if="status?.enabled">
+            <div class="stack-m">
+              <wa-callout variant="warning" x-show="!status.has_api_key">
+                <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+                No Civitai API key configured: most checkpoints can't be downloaded without one.
+                Set <code>civitai.api_key</code> in parameters.yaml or the <code>CIVITAI_API_KEY</code> environment variable.
+              </wa-callout>
+
+              <div class="civitai-toolbar">
+                <wa-input class="civitai-search" size="s" placeholder="Search Civitai" with-clear :value="query"
+                          @input="onQueryInput($event.target.value)" @wa-clear="onQueryInput('')"
+                          @keydown.enter="search()">
+                  <wa-icon slot="start" name="magnifying-glass"></wa-icon>
+                </wa-input>
+                <wa-select size="s" label="Sort" :value="sort" @change="setFilter('sort', $event.target.value)">
+                  <template x-for="option in status.sort_options" :key="option">
+                    <wa-option :value="option" x-text="option"></wa-option>
+                  </template>
+                </wa-select>
+                <wa-select size="s" label="Period" :value="period" @change="setFilter('period', $event.target.value)">
+                  <template x-for="option in status.period_options" :key="option">
+                    <wa-option :value="option" x-text="option"></wa-option>
+                  </template>
+                </wa-select>
+                <wa-switch size="s" :checked="nsfw" @change="setFilter('nsfw', $event.target.checked)">NSFW</wa-switch>
+              </div>
+
+              <wa-callout variant="danger" x-show="error">
+                <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+                <span x-text="`Search failed: ${error}`"></span>
+              </wa-callout>
+
+              <div class="civitai-grid" :class="{ 'is-loading': loading && items.length }">
+                <template x-for="n in (loading && !items.length ? 8 : 0)" :key="`skeleton-${n}`">
+                  <wa-skeleton effect="sheen" class="civitai-card-skeleton"></wa-skeleton>
+                </template>
+                <template x-for="(item, index) in items" :key="item.id">
+                  <article class="civitai-card" tabindex="0" :style="`--i: ${index % 24}`"
+                           @click="openDetail(item)" @keydown.enter="openDetail(item)">
+                    <div class="civitai-card-media" :class="{ 'is-blurred': isBlurred(item.preview) }">
+                      <template x-if="item.preview?.type === 'image'">
+                        <img :src="thumbUrl(item.preview)" alt="" loading="lazy" referrerpolicy="no-referrer"
+                             @load="$el.classList.add('is-loaded')">
+                      </template>
+                      <template x-if="item.preview?.type === 'video'">
+                        <video :src="item.preview.url" muted loop playsinline autoplay preload="metadata"></video>
+                      </template>
+                      <template x-if="!item.preview">
+                        <wa-icon name="cube"></wa-icon>
+                      </template>
+                    </div>
+                    <div class="civitai-card-body">
+                      <div class="civitai-card-title" x-text="item.name"></div>
+                      <div class="muted small" x-show="item.creator" x-text="`by ${item.creator}`"></div>
+                      <div class="tag-list">
+                        <template x-for="base in item.base_models" :key="base">
+                          <wa-badge appearance="outlined" variant="neutral" x-text="base"></wa-badge>
+                        </template>
+                      </div>
+                      <div class="civitai-card-stats muted small">
+                        <span title="Downloads"><wa-icon name="download"></wa-icon> <span x-text="formatCount(item.stats.downloads)"></span></span>
+                        <span title="Likes"><wa-icon name="star"></wa-icon> <span x-text="formatCount(item.stats.thumbs_up)"></span></span>
+                      </div>
+                    </div>
+                  </article>
+                </template>
+              </div>
+              <div class="empty-state" x-show="!loading && !error && items.length === 0" x-cloak>
+                <wa-icon name="magnifying-glass"></wa-icon>
+                <p>No matching models on Civitai.</p>
+              </div>
+              <div class="load-more" x-show="nextCursor && items.length">
+                <wa-button appearance="outlined" :loading="loadingMore" @click="loadMore()">Load more</wa-button>
+              </div>
             </div>
           </template>
-        </div>
-        <div class="empty-state" x-show="!loading && !error && models.length === 0" x-cloak>
-          <wa-icon name="cube"></wa-icon>
-          <p>No models found.</p>
+
+          <wa-dialog class="civitai-dialog" light-dismiss :open="detail.open"
+                     :label="detail.summary?.name || 'Model'"
+                     @wa-hide="$event.target === $el && (detail.open = false)">
+            <template x-if="detail.error">
+              <wa-callout variant="danger">
+                <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+                <span x-text="detail.error"></span>
+              </wa-callout>
+            </template>
+            <template x-if="!detail.model && !detail.error">
+              <div class="stack-s">
+                <wa-skeleton effect="sheen"></wa-skeleton>
+                <wa-skeleton effect="sheen"></wa-skeleton>
+                <wa-skeleton effect="sheen" style="width: 60%"></wa-skeleton>
+              </div>
+            </template>
+            <template x-if="detail.model">
+              <div class="civitai-detail">
+                <div class="civitai-detail-media" :class="{ 'is-blurred': isBlurred(version?.preview || detail.model.preview) }">
+                  <template x-if="(version?.preview || detail.model.preview)?.type === 'image'">
+                    <img :src="thumbUrl(version?.preview || detail.model.preview)" alt="" referrerpolicy="no-referrer">
+                  </template>
+                  <template x-if="(version?.preview || detail.model.preview)?.type === 'video'">
+                    <video :src="(version?.preview || detail.model.preview).url" muted loop playsinline autoplay></video>
+                  </template>
+                </div>
+                <div class="stack-m civitai-detail-info">
+                  <div class="civitai-detail-meta">
+                    <span class="muted" x-show="detail.model.creator" x-text="`by ${detail.model.creator}`"></span>
+                    <span class="muted"><wa-icon name="download"></wa-icon> <span x-text="formatCount(detail.model.stats.downloads)"></span></span>
+                    <wa-button size="s" appearance="plain" :href="civitaiUrl(detail.model)" target="_blank" rel="noopener noreferrer">
+                      <wa-icon slot="start" name="arrow-up-right-from-square"></wa-icon> civitai.com
+                    </wa-button>
+                  </div>
+
+                  <wa-select size="s" label="Version" :value="String(detail.versionId)" x-show="detail.model.versions.length > 1"
+                             @change="detail.versionId = Number($event.target.value)">
+                    <template x-for="v in detail.model.versions" :key="v.id">
+                      <wa-option :value="String(v.id)" x-text="`${v.name} (${v.base_model})`"></wa-option>
+                    </template>
+                  </wa-select>
+
+                  <template x-if="version">
+                    <div class="stack-m">
+                      <div class="tag-list">
+                        <wa-badge variant="neutral" x-text="version.base_model"></wa-badge>
+                        <wa-badge variant="warning" x-show="version.model_type && version.model_type !== modelType"
+                                  x-text="`for ${version.model_type}`"></wa-badge>
+                        <wa-badge variant="warning" x-show="version.early_access">early access</wa-badge>
+                      </div>
+
+                      <div x-show="version.trained_words.length">
+                        <div class="meta-label">Trigger words</div>
+                        <div class="tag-list">
+                          <template x-for="word in version.trained_words" :key="word">
+                            <wa-tag size="small" class="trigger-word" title="Copy" @click="copyText(word)" x-text="word"></wa-tag>
+                          </template>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="meta-label">Files</div>
+                        <div class="file-list">
+                          <template x-for="file in version.files" :key="file.id">
+                            <div class="file-row">
+                              <div class="file-main">
+                                <code class="file-name" x-text="file.name"></code>
+                                <span class="muted small"
+                                      x-text="[formatBytes(file.size_bytes), file.format, file.fp, file.size_variant, file.target_resource_type].filter(Boolean).join(' · ')"></span>
+                                <template x-for="warning in file.warnings" :key="warning">
+                                  <span class="file-warning small" x-text="warning"></span>
+                                </template>
+                                <template x-if="layouts[file.id]?.data">
+                                  <span class="small">
+                                    <span x-text="layoutText(layouts[file.id].data.layout)"></span>
+                                    <span class="file-warning" x-show="layouts[file.id].data.missing_components.length"
+                                          x-text="`Missing in flux.components_path: ${layouts[file.id].data.missing_components.join(', ')}`"></span>
+                                  </span>
+                                </template>
+                                <span class="file-warning small" x-show="layouts[file.id]?.error" x-text="layouts[file.id]?.error"></span>
+                              </div>
+                              <div class="file-actions">
+                                <wa-button size="s" appearance="plain" x-show="canCheckLayout(version, file) && !layouts[file.id]?.data"
+                                           :loading="!!layouts[file.id]?.loading" @click="checkLayout(version, file)">Check layout</wa-button>
+                                <template x-if="file.local_path">
+                                  <wa-badge variant="success" :title="file.local_path">downloaded</wa-badge>
+                                </template>
+                                <template x-if="!file.local_path && !file.compatible">
+                                  <span class="muted small file-reason" x-text="file.reason"></span>
+                                </template>
+                                <template x-if="!file.local_path && file.compatible && downloadState(file) && downloadState(file).status !== 'failed' && downloadState(file).status !== 'cancelled'">
+                                  <span class="file-progress">
+                                    <wa-progress-bar :value="Math.round(downloadState(file).progress * 100)" label="Download progress"></wa-progress-bar>
+                                    <span class="small muted" x-text="downloadState(file).status === 'queued' ? 'queued' : `${Math.round(downloadState(file).progress * 100)}%`"></span>
+                                  </span>
+                                </template>
+                                <template x-if="!file.local_path && file.compatible && (!downloadState(file) || downloadState(file).status === 'failed' || downloadState(file).status === 'cancelled')">
+                                  <wa-button size="s" variant="brand" @click="download(version, file)">
+                                    <wa-icon slot="start" name="download"></wa-icon> Download
+                                  </wa-button>
+                                </template>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                      <wa-details summary="Description" appearance="plain" x-show="description">
+                        <p class="civitai-description" x-text="description"></p>
+                      </wa-details>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </wa-dialog>
         </div>
       </section>
     </wa-tab-panel>
@@ -385,6 +635,7 @@
   <script src="js/jobs.js"></script>
   <script src="js/outputs.js"></script>
   <script src="js/models.js"></script>
+  <script src="js/civitai.js"></script>
   <script src="js/telemetry.js"></script>
   <script type="module" src="js/icons.js"></script>
   <script type="module" src="vendor/webawesome/webawesome.loader.js" data-webawesome="vendor/webawesome"></script>

@@ -7,7 +7,10 @@ Shared cache for loaded SD pipelines to avoid repeated model loading.
 
 import asyncio
 import logging
-from typing import Dict, Optional, Tuple
+from collections import OrderedDict
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from typing import Any, AsyncIterator, Dict, Optional, Set
 from pathlib import Path
 
 from metastable.pipelines import create_generator
@@ -16,13 +19,34 @@ from api.config import get_app_config
 
 logger = logging.getLogger(__name__)
 
+# State of a freshly loaded pipeline: no LoRAs fused, stock VAE.
+# States are (((lora_path, strength), ...), custom_vae_path_or_None).
+CLEAN_STATE = ((), None)
+
+# Marks a pipeline whose LoRA/VAE application failed or was interrupted;
+# it never equals a requested state, so the next lease reloads it.
+DIRTY_STATE = object()
+
+# All Flux pipelines share one set of text encoders/VAE (metastable's
+# load_flux_shared_components), so they can't run concurrently either.
+FLUX_LOCK_GROUP = "flux"
+
+
+@dataclass
+class CachedPipeline:
+    """A cached pipeline generator and the LoRA/VAE state applied to it."""
+
+    pipeline: Any
+    state: Any = CLEAN_STATE
+
 
 class ModelCacheManager:
     """
     Unified cache manager for SD pipelines.
 
     Maintains an LRU cache of loaded models to avoid repeated loading overhead.
-    Thread-safe for concurrent access.
+    Pipelines are handed out as exclusive leases via acquire(): a pipeline is
+    used by one job at a time, and is never evicted while leased.
     """
 
     def __init__(self, max_models: int = 2):
@@ -33,59 +57,105 @@ class ModelCacheManager:
             max_models: Maximum number of models to cache
         """
         self.max_models = max_models
-        self._cache: Dict[str, Tuple] = {}  # key -> (pipeline, last_used_time)
-        self._lock = asyncio.Lock()
-        self._access_order: list = []  # For LRU tracking
+        self._cache: "OrderedDict[str, CachedPipeline]" = OrderedDict()  # LRU order, oldest first
+        self._in_use: Set[str] = set()
+        self._loading = 0  # cache slots reserved by in-flight loads
+        self._cond = asyncio.Condition()  # guards the fields above
+        self._group_locks: Dict[str, asyncio.Lock] = {}
 
     def _make_cache_key(self, model_type: str, model_path: str, pipeline_type: str) -> str:
         """Generate cache key from model parameters."""
         return f"{model_type}:{Path(model_path).name}:{pipeline_type}"
 
-    async def get_pipeline(
+    @asynccontextmanager
+    async def acquire(
         self,
         model_type: str,
         model_path: str,
-        pipeline_type: str = "txt2img"
-    ):
+        pipeline_type: str = "txt2img",
+        state: Any = CLEAN_STATE,
+    ) -> AsyncIterator[CachedPipeline]:
         """
-        Get a pipeline from cache or load it.
+        Lease a pipeline from the cache, loading it if needed.
+
+        The lease is exclusive for its whole duration, so the holder can
+        apply LoRAs/VAE and run inference without other jobs interfering.
+        The yielded entry's state is either CLEAN_STATE or the requested
+        state; a pipeline carrying any other state is reloaded first.
+        Holders must set entry.state to whatever they leave applied.
 
         Args:
             model_type: "sd15", "sdxl", "illustrious", or "flux"
             model_path: Path to model checkpoint
             pipeline_type: "txt2img" or "inpaint"
+            state: The LoRA/VAE state the holder is going to apply
 
-        Returns:
-            Pipeline generator instance
+        Yields:
+            CachedPipeline entry
         """
         cache_key = self._make_cache_key(model_type, model_path, pipeline_type)
+        group = FLUX_LOCK_GROUP if model_type == "flux" else cache_key
+        lock = self._group_locks.setdefault(group, asyncio.Lock())
 
-        async with self._lock:
-            # Check cache
-            if cache_key in self._cache:
-                pipeline, _ = self._cache[cache_key]
-                # Update access order
-                if cache_key in self._access_order:
-                    self._access_order.remove(cache_key)
-                self._access_order.append(cache_key)
+        async with lock:
+            entry = await self._checkout(cache_key, model_type, model_path, pipeline_type, state)
+            try:
+                yield entry
+            finally:
+                async with self._cond:
+                    self._in_use.discard(cache_key)
+                    self._cond.notify_all()
+
+    async def _checkout(
+        self, cache_key: str, model_type: str, model_path: str, pipeline_type: str, state: Any
+    ) -> CachedPipeline:
+        """Return a cached entry for cache_key marked in use, loading it if needed."""
+        async with self._cond:
+            entry = self._cache.get(cache_key)
+            if entry is not None and entry.state not in (CLEAN_STATE, state):
+                logger.info(f"Applied LoRA/VAE state of {cache_key} differs from request, reloading")
+                del self._cache[cache_key]
+                entry = None
+
+            if entry is not None:
+                self._cache.move_to_end(cache_key)
+                self._in_use.add(cache_key)
                 logger.info(f"Cache hit for {cache_key}")
-                return pipeline
+                return entry
 
-            # Load new pipeline
-            logger.info(f"Cache miss for {cache_key}, loading model...")
+            await self._reserve_slot()
+            self._loading += 1
+            self._in_use.add(cache_key)
+
+        logger.info(f"Cache miss for {cache_key}, loading model...")
+        try:
             pipeline = await self._load_pipeline(model_type, model_path, pipeline_type)
+        except BaseException:
+            async with self._cond:
+                self._loading -= 1
+                self._in_use.discard(cache_key)
+                self._cond.notify_all()
+            raise
 
-            # Evict oldest if at capacity
-            if len(self._cache) >= self.max_models:
-                oldest_key = self._access_order.pop(0)
-                del self._cache[oldest_key]
-                logger.info(f"Evicted {oldest_key} from cache")
+        entry = CachedPipeline(pipeline=pipeline)
+        async with self._cond:
+            self._loading -= 1
+            self._cache[cache_key] = entry
+        return entry
 
-            # Add to cache
-            self._cache[cache_key] = (pipeline, asyncio.get_event_loop().time())
-            self._access_order.append(cache_key)
-
-            return pipeline
+    async def _reserve_slot(self) -> None:
+        """
+        Wait until a cache slot is free, evicting the least recently used
+        idle pipeline if needed. Must be called with self._cond held.
+        """
+        while len(self._cache) + self._loading >= self.max_models:
+            victim = next((key for key in self._cache if key not in self._in_use), None)
+            if victim is None:
+                # Every cached pipeline is leased: wait for one to be released
+                await self._cond.wait()
+                continue
+            del self._cache[victim]
+            logger.info(f"Evicted {victim} from cache")
 
     async def _load_pipeline(self, model_type: str, model_path: str, pipeline_type: str):
         """Load a pipeline in a thread pool executor."""
@@ -107,22 +177,11 @@ class ModelCacheManager:
         # Run in executor to avoid blocking
         return await loop.run_in_executor(None, _load)
 
-    async def evict(self, model_type: str, model_path: str, pipeline_type: str = "txt2img") -> bool:
-        """Remove a specific pipeline from the cache. Returns True if evicted, False if not found."""
-        cache_key = self._make_cache_key(model_type, model_path, pipeline_type)
-        async with self._lock:
-            if cache_key not in self._cache:
-                return False
-            del self._cache[cache_key]
-            self._access_order.remove(cache_key)
-            logger.info(f"Evicted {cache_key} from cache")
-            return True
-
     async def clear_cache(self):
-        """Clear all cached models."""
-        async with self._lock:
-            self._cache.clear()
-            self._access_order.clear()
+        """Clear all cached models that aren't currently leased."""
+        async with self._cond:
+            for key in [key for key in self._cache if key not in self._in_use]:
+                del self._cache[key]
         logger.info("Model cache cleared")
 
     def get_stats(self) -> dict:
@@ -130,6 +189,7 @@ class ModelCacheManager:
         return {
             "cached_models": len(self._cache),
             "max_models": self.max_models,
+            "in_use": len(self._in_use),
             "cache_keys": list(self._cache.keys()),
         }
 
@@ -142,7 +202,7 @@ def get_cache_manager() -> ModelCacheManager:
     """Get the singleton cache manager instance."""
     global _cache_manager
     if _cache_manager is None:
-        _cache_manager = ModelCacheManager(max_models=2)
+        _cache_manager = ModelCacheManager(max_models=get_app_config().model_cache_max_models)
     return _cache_manager
 
 

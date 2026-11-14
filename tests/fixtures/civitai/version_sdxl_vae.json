@@ -1,0 +1,158 @@
+{
+ "id": 333245,
+ "modelId": 296576,
+ "name": "SDXL-VAE",
+ "nsfwLevel": 1,
+ "createdAt": "2024-02-07T16:31:02.045Z",
+ "updatedAt": "2025-02-14T21:45:24.573Z",
+ "status": "Published",
+ "publishedAt": "2024-02-07T16:42:40.673Z",
+ "trainedWords": [],
+ "trainingStatus": null,
+ "trainingDetails": null,
+ "baseModel": "SDXL 1.0",
+ "baseModelType": "Standard",
+ "description": null,
+ "uploadType": "Created",
+ "usageControl": "Download",
+ "licensingFee": null,
+ "paidAccess": null,
+ "air": "urn:air:sdxl:vae:civitai:296576@333245",
+ "stats": {
+  "downloadCount": 156961,
+  "thumbsUpCount": 6878
+ },
+ "model": {
+  "name": "SDXL VAE",
+  "type": "VAE",
+  "nsfw": false,
+  "poi": false
+ },
+ "files": [
+  {
+   "id": 264202,
+   "sizeKB": 326798.01171875,
+   "name": "sdxl_vae.safetensors",
+   "overrideName": null,
+   "type": "Model",
+   "pickleScanResult": "Success",
+   "pickleScanMessage": "No Pickle imports",
+   "virusScanResult": "Success",
+   "virusScanMessage": null,
+   "scannedAt": "2024-02-07T16:36:18.846",
+   "metadata": {
+    "format": "SafeTensor",
+    "size": null,
+    "fp": null
+   },
+   "hashes": {
+    "AutoV1": "D636E597",
+    "AutoV2": "63AEECB90F",
+    "SHA256": "63AEECB90FF7BC1C115395962D3E803571385B61938377BC7089B36E81E92E2E",
+    "CRC32": "9109193B",
+    "BLAKE3": "9EF46CD2F47F064860494C1D6E6BBB0D1A12052B641ED09C78DD265F767CD110",
+    "AutoV3": "F723FEC0B7D3",
+    "SHA256_12": "63AEECB90FF7"
+   },
+   "primary": true,
+   "downloadUrl": "https://civitai.com/api/download/models/333245?fileId=264202"
+  }
+ ],
+ "images": [
+  {
+   "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/78a2f5a9-3e6f-4af5-819c-98fa1dc54049/original=true/6370787.jpeg",
+   "nsfwLevel": 1,
+   "width": 2048,
+   "height": 1563,
+   "hash": "UgLgU=S4j[WC_Ns:ayof?voLj@az?bofayj[",
+   "type": "image",
+   "metadata": {
+    "hash": "UgLgU=S4j[WC_Ns:ayof?voLj@az?bofayj[",
+    "size": 3006101,
+    "width": 2048,
+    "height": 1563
+   },
+   "minor": false,
+   "poi": false,
+   "meta": {
+    "Size": "1024x1280",
+    "seed": 1646029021,
+    "Model": "SorcererXL-3",
+    "steps": 50,
+    "Script": "X/Y/Z plot",
+    "X Type": "VAE",
+    "hashes": {
+     "model": "fd6e65dd42"
+    },
+    "prompt": "A beautiful anthro cat furry female princess, cartoon",
+    "Version": "f0.0.10-latest-64-g257ac265",
+    "sampler": "DPM++ 2M Karras",
+    "X Values": "\"None,sdxl_vae.safetensors\"",
+    "cfgScale": 7,
+    "clipSkip": 2,
+    "resources": [
+     {
+      "hash": "fd6e65dd42",
+      "name": "SorcererXL-3",
+      "type": "model"
+     }
+    ],
+    "Model hash": "fd6e65dd42",
+    "negativePrompt": "nsfw"
+   },
+   "availability": "Public",
+   "hasMeta": true,
+   "hasPositivePrompt": true,
+   "onSite": false,
+   "remixOfId": null
+  },
+  {
+   "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8490f5c8-7785-412d-8249-9ef711cd7c95/original=true/6370789.jpeg",
+   "nsfwLevel": 1,
+   "width": 2048,
+   "height": 1563,
+   "hash": "UrI#DSxtWW%0_NfQj@WC.9WCoKNI?uoLazs:",
+   "type": "image",
+   "metadata": {
+    "hash": "UrI#DSxtWW%0_NfQj@WC.9WCoKNI?uoLazs:",
+    "size": 4266318,
+    "width": 2048,
+    "height": 1563
+   },
+   "minor": false,
+   "poi": false,
+   "meta": {
+    "Size": "1024x1280",
+    "seed": 1078200645,
+    "Model": "SorcererXL-3",
+    "steps": 50,
+    "Script": "X/Y/Z plot",
+    "X Type": "VAE",
+    "hashes": {
+     "model": "fd6e65dd42"
+    },
+    "prompt": "funny creature from parallel reality, extremely detailed oil painting, multicoloured, unreal 5 render, rhads, Bruce Pennington, Studio Ghibli, tim hildebrandt, digital art, 8K artistic photography, octane render, beautiful composition, trending on artstation, award-winning photograph, masterpiece",
+    "Version": "f0.0.10-latest-64-g257ac265",
+    "sampler": "DPM++ 2M Karras",
+    "X Values": "\"None,sdxl_vae.safetensors\"",
+    "cfgScale": 7,
+    "clipSkip": 2,
+    "resources": [
+     {
+      "hash": "fd6e65dd42",
+      "name": "SorcererXL-3",
+      "type": "model"
+     }
+    ],
+    "Model hash": "fd6e65dd42",
+    "negativePrompt": "nsfw"
+   },
+   "availability": "Public",
+   "hasMeta": true,
+   "hasPositivePrompt": true,
+   "onSite": false,
+   "remixOfId": null
+  }
+ ],
+ "downloadUrl": "https://civitai.com/api/download/models/333245"
+}

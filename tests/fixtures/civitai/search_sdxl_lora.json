@@ -1,0 +1,855 @@
+{
+ "items": [
+  {
+   "id": 122359,
+   "name": "Detail Tweaker XL",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p>Detail tweaker for SDXL.</p><p>Works with weights [-3, 3]</p><p>Use positive weight to increase details and negative weight to reduce details.</p><p>Good weight depends on your prompt and number of sampling steps, I recommend starting at 1.5 and then adjusting it.</p>",
+   "allowNoCredit": false,
+   "allowCommercialUse": [
+    "Image",
+    "RentCivit",
+    "Rent"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": false,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 5,
+   "availability": "Public",
+   "userId": 1969604,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "SDXL 1.0"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 465544,
+    "thumbsUpCount": 43829,
+    "thumbsDownCount": 67,
+    "commentCount": 124,
+    "tippedAmountCount": 12535
+   },
+   "creator": {
+    "username": "w4r10ck",
+    "image": null
+   },
+   "tags": [
+    "detailed",
+    "enhancer",
+    "undetailed",
+    "detail",
+    "concept"
+   ],
+   "modelVersions": [
+    {
+     "id": 135867,
+     "index": 0,
+     "name": "v1.0",
+     "baseModel": "SDXL 1.0",
+     "baseModelType": "Standard",
+     "publishedAt": "2023-08-07T14:55:02.627Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 1,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 460583,
+      "thumbsUpCount": 43674,
+      "thumbsDownCount": 66
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 99264,
+       "sizeKB": 223097.9921875,
+       "name": "add-detail-xl.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2023-08-07T14:55:53.517Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "29A40D2E",
+        "AutoV2": "0D9BD1B873",
+        "SHA256": "0D9BD1B873A7863E128B4672E3E245838858F71469A3CEC58123C16C06F83BD7",
+        "CRC32": "A94E124F",
+        "BLAKE3": "595854A2079ABB9AF0FD84830DDF1142ABFFAA70DEBF51C25C2E73A248CB11CA",
+        "AutoV3": "9C783C8CE46C",
+        "SHA256_12": "0D9BD1B873A7"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/135867",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 1917130,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/217179cb-87a0-4e96-8d77-e410f757aba0/original=true/1917130.jpeg",
+       "nsfwLevel": 1,
+       "width": 2698,
+       "height": 1158,
+       "hash": "UUHK;5WYoJR*~qWCj[j[_Ns:a}of_3s:azof",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 1917133,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/1132c8aa-053e-468b-9f80-32a071f73f57/original=true/1917133.jpeg",
+       "nsfwLevel": 1,
+       "width": 2698,
+       "height": 1158,
+       "hash": "UWDb~Kofa|of?vj[j[kC~WbHj[kC~qoffkof",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/135867"
+    },
+    {
+     "id": 133241,
+     "index": 1,
+     "name": "v0.3",
+     "baseModel": "SDXL 1.0",
+     "baseModelType": "Standard",
+     "publishedAt": "2023-08-04T07:53:00.654Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 5,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 4961,
+      "thumbsUpCount": 586,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 97113,
+       "sizeKB": 166544.4453125,
+       "name": "tweak-detail-xl.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2023-08-04T07:25:45.241Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "25D7E652",
+        "AutoV2": "A5E633C9AF",
+        "SHA256": "A5E633C9AFD9D12DA2D34A2FD691E74D3E5FDA19DF8AD4B73B7F94E65F1FB168",
+        "CRC32": "0B1AB6FD",
+        "BLAKE3": "E207C3548FDB9E7F929E925D313AA4F3C656BC6813F2873EC8A0C130215FCA3E",
+        "AutoV3": "2FE68B23E748",
+        "SHA256_12": "A5E633C9AFD9"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/133241",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 1867497,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/fe78b324-2c06-419f-9465-d9a56d6a6276/original=true/1867497.jpeg",
+       "nsfwLevel": 1,
+       "width": 3072,
+       "height": 1166,
+       "hash": "UUF~5Js:oeae~qofayfP_3t7ayof?wWBjtWB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 1867498,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/b9f5c0ff-7833-43d8-8a7f-3f36ccf30d5e/original=true/1867498.jpeg",
+       "nsfwLevel": 1,
+       "width": 3072,
+       "height": 1166,
+       "hash": "UbFsi9t7aekW-@jZj[oL-iWBWXV@?abFfPj[",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/133241"
+    }
+   ]
+  },
+  {
+   "id": 264290,
+   "name": "Not Artists Styles for Pony Diffusion V6 XL",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p>Styles are trained on synthetic data and do not copy the styles of artists!</p><p>Photo 2 - is trained on real data (Dataset from Unsplash)</p><p>[M] Merged LoRAs</p><p>Recommended LoRA Strength (Weight): 0.8-1</p><p>Preview generated without using ADetailer &amp; Hires. fix</p>",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "RentCivit",
+    "Rent",
+    "Image"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 23,
+   "availability": "Public",
+   "userId": 1461,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "Pony"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 667627,
+    "thumbsUpCount": 26800,
+    "thumbsDownCount": 39,
+    "commentCount": 196,
+    "tippedAmountCount": 525024
+   },
+   "creator": {
+    "username": "obuyb404",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f952faa0-33fb-4bf8-8e5c-75bdaabda037/width=96/obuyb404.jpeg"
+   },
+   "tags": [
+    "female",
+    "anime",
+    "western art",
+    "digital art",
+    "bara",
+    "male",
+    "yaoi",
+    "ponyxl",
+    "style"
+   ],
+   "modelVersions": [
+    {
+     "id": 1558543,
+     "index": 0,
+     "name": "Abstract Painting",
+     "baseModel": "Pony",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-03-20T21:38:31.969Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": null,
+     "trainedWords": [
+      "abstractionism, brush stroke, traditional media, "
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 15752,
+      "thumbsUpCount": 1385,
+      "thumbsDownCount": 2
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 1458454,
+       "sizeKB": 56075.02734375,
+       "name": "Abstract Painting - Style [LoRA] - Pony V6 XL.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-03-20T21:40:46.942Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "709B4299",
+        "AutoV2": "DF7C757437",
+        "SHA256": "DF7C757437EF3696E76EE5CC18C063681478639132547B6292B0B4D773814BA5",
+        "CRC32": "E98D67FC",
+        "BLAKE3": "CB5461E03231F3A5C6F6AD84A56512B0D9CA50760E6985D4FA898259899A9D80",
+        "AutoV3": "ED4B441296AC",
+        "SHA256_12": "DF7C757437EF"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1558543",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 64739376,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/7c79113b-a6d7-4e22-a3d4-b06c9bb2cfa4/original=true/64739376.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "U6E:3yEU?K~VMckspKI.0Jr;QRDiFyDiRf?b",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 64739390,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/79b0f5ad-b38a-48dd-9018-85ad0c8993e1/original=true/64739390.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "UJJ8O%%g5On5-rbx*0nh5afTxcWVY7Rkrsg3",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1558543"
+    },
+    {
+     "id": 882225,
+     "index": 1,
+     "name": "Sketch Illustration",
+     "baseModel": "Pony",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-09-23T07:16:55.030Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": "<p>Repeats: 10</p><p>Epoch: 12</p><p>Image Count: 20</p><p>Network Rank (Dimension): 32</p><p>Network Alpha: 16</p><p>Batch size: 1</p><p>Clip skip: 1</p><p>Training steps: 2400</p><p>Resolution: 1024x1024</p><p>Train Resolution: 1024,1024</p><p>Model: ponyDiffusionV6XL_v6</p><p>LR Scheduler: cosine_with_restarts</p><p>Optimizer: AdamW8bit</p><p>Learning rate: 0,0005</p><p>Text Encoder learning rate: 0,00005</p><p>Unet learning rate: 0,0005</p><p>Captioning: WD14 Captioning (SmilingWolf/wd-v1-4-",
+     "trainedWords": [
+      "sketch,",
+      "monochrome, greyscale,"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 17759,
+      "thumbsUpCount": 1878,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 790721,
+       "sizeKB": 223097.11328125,
+       "name": "Sketch Illustration Style [LoRA] - Pony V6 XL.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-09-23T07:21:26.831Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "BFB65FA6",
+        "AutoV2": "531B83607E",
+        "SHA256": "531B83607EC0C664AE4FA7F61461CA9C0A27BB63881BA7710BF5FE2D9B084E42",
+        "CRC32": "799F6F74",
+        "BLAKE3": "4BE008AE2E74E976DEC6098F85D076EFE41037073599058D2A2DBEA6D400660D",
+        "AutoV3": "53A63BF168CD",
+        "SHA256_12": "531B83607EC0"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/882225",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 30898667,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f3594b58-b7b3-4999-9a7c-08da91294505/original=true/30898667.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "U5D9-a4n00-;00-;?IM{01?b00ah~XD%-:xu",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 30898395,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f6e6f8ab-7c95-448c-902f-a45d6d26647a/original=true/30898395.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "UFHBxU%iE]~qD*?cyYs:5E%h%OM~x[RS$gNe",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/882225"
+    },
+    {
+     "id": 874078,
+     "index": 2,
+     "name": "Dream Painting",
+     "baseModel": "Pony",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-09-21T03:51:31.690Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": "<p>Repeats: 10</p><p>Epoch: 12</p><p>Image Count: 20</p><p>Network Rank (Dimension): 32</p><p>Network Alpha: 16</p><p>Batch size: 1</p><p>Clip skip: 1</p><p>Training steps: 2400</p><p>Resolution: 1024x1024</p><p>Train Resolution: 1024,1024</p><p>Model: ponyDiffusionV6XL_v6</p><p>LR Scheduler: cosine_with_restarts</p><p>Optimizer: AdamW8bit</p><p>Learning rate: 0,0005</p><p>Text Encoder learning rate: 0,00005</p><p>Unet learning rate: 0,0005</p><p>Captioning: WD14 Captioning (SmilingWolf/wd-v1-4-",
+     "trainedWords": [
+      "painterly, traditional media, realistic,"
+     ],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 4231,
+      "thumbsUpCount": 300,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 782909,
+       "sizeKB": 223097.79296875,
+       "name": "Dream Painting Style [LoRA] - Pony V6 XL.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-09-21T03:55:52.909Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "D36B5B4D",
+        "AutoV2": "A808E0B5E8",
+        "SHA256": "A808E0B5E858A19F4AE6D0EA57C2CC5ED3FB3076F779C0761FCCFF45FE4A6E55",
+        "CRC32": "AA3D3698",
+        "BLAKE3": "56DA1EBEFCE1D4257BAD3AD6F7F1A5D96D06C14ABD7D7958D70F0989C3B5643B",
+        "AutoV3": "8EA96D71D6A0",
+        "SHA256_12": "A808E0B5E858"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/874078",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 30516905,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/46d856d5-f426-4067-836e-900c306dcee7/original=true/30516905.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "U8FO}?E104~p0J.9D+S6F}Mw#iRh00WA?HRj",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 30516903,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3e1b6cf1-ce80-4f2e-9893-e161d83206ff/original=true/30516903.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1152,
+       "hash": "UEKAyu?IE0xv$SM{.Tt76V%MXTWrF|ogMwR*",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/874078"
+    }
+   ]
+  },
+  {
+   "id": 212532,
+   "name": "All Disney Princess XL LoRA Model from Ralph Breaks the Internet",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<h1 id=\"heading-45\"><strong>All Disney Princess XL LoRA Model - Ralph Breaks the Internet</strong></h1><p>If You Like This Model, Give It a ❤️</p><p>This LoRA model is trained on screen capture images featuring beloved Disney princesses from the movie Ralph Breaks the Internet, including Rapunzel, Snow White, Ariel, Aurora, Belle, Cinderella, Elsa, Anna, Jasmine, Mulan, Merida, Tiana, Moana, and Pocahontas. It's designed to be an All-in-One Model for your creative endeavors.</p><p></p><p>Check o",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "Image",
+    "RentCivit",
+    "Rent",
+    "Sell",
+    "SellMerge"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "LORA",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 7,
+   "availability": "Public",
+   "userId": 13068,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "SDXL 1.0",
+    "Illustrious",
+    "Pony"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 209261,
+    "thumbsUpCount": 21883,
+    "thumbsDownCount": 55,
+    "commentCount": 127,
+    "tippedAmountCount": 5159
+   },
+   "creator": {
+    "username": "titansteng",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/ac6ad6dd-f1b4-4682-9c50-0b292d137fd3/width=96/titansteng.jpeg"
+   },
+   "tags": [
+    "disney",
+    "disney frozen",
+    "disney princess",
+    "character"
+   ],
+   "modelVersions": [
+    {
+     "id": 244808,
+     "index": 0,
+     "name": "v2.0",
+     "baseModel": "SDXL 1.0",
+     "baseModelType": "Standard",
+     "publishedAt": "2023-11-30T16:48:56.230Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": "<p>This version add more data. The high resolution images are created by using v1.0 LoRA and img2img upscaling.<br />I also add more character in to this model as well.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 143922,
+      "thumbsUpCount": 19176,
+      "thumbsDownCount": 41
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 189513,
+       "sizeKB": 223159.80859375,
+       "name": "princess_xl_v2.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2023-11-30T16:50:38.684Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "B82E3316",
+        "AutoV2": "80AA67913A",
+        "SHA256": "80AA67913AEBC89A01BE1907E62122F339FDFEE70C171AB7BA967C5E5FCF27EA",
+        "CRC32": "16038C8B",
+        "BLAKE3": "12EFCF9E620D3E2D6C8F80CB2418D3480AB3D37B62EED51EDABBF2572AFA6B6D",
+        "AutoV3": "12A7BD822B5F",
+        "SHA256_12": "80AA67913AEB"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/244808",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 4058459,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/1fe78b11-cc7a-46d9-b5b8-92761b072ce3/original=true/4058459.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UGGudz9GAb~V}?S%S$t8J6ElIA9a-oIpRPNG",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 4058460,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/e79402d6-4994-40e9-837a-c8501dbbed42/original=true/4058460.jpeg",
+       "nsfwLevel": 1,
+       "width": 1152,
+       "height": 1536,
+       "hash": "UdHe8@$yob~UsAjrNbs:OsjEaLRkn%jZWDWB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/244808"
+    },
+    {
+     "id": 1467389,
+     "index": 2,
+     "name": "Pony v2",
+     "baseModel": "Pony",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-02-27T04:07:58.455Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "<p>this version is trained on Pony XL V6</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 14167,
+      "thumbsUpCount": 1074,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 1368687,
+       "sizeKB": 249186.546875,
+       "name": "princess_rc_pony_v2.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-02-27T04:05:48.555Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "01D359FF",
+        "AutoV2": "59FD819AE5",
+        "SHA256": "59FD819AE5AD8976CA6DF0EF6D561A5CD9C51733DD0B77F058188E9345E86D21",
+        "CRC32": "1A4A6B81",
+        "BLAKE3": "DFAC53A2152B7EB38EF41268B107DED4155BF53050F26AA7A07799D1CC770BDC",
+        "AutoV3": "76D5D2B42BD4",
+        "SHA256_12": "59FD819AE5AD"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1467389",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 60369145,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/b505f1c3-cefb-4917-9d34-8626695acf4e/original=true/60369145.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UFDJ;r9E4TIp~VMx9FpJIqs.xutlKQWBv|V@",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 60369228,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/7a7685ae-fec7-44f0-9ed3-bc5fb6254544/original=true/60369228.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UAC%po_3Bo?^r@%g57M{D$M{-pE14nXTaf$z",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1467389"
+    },
+    {
+     "id": 431144,
+     "index": 3,
+     "name": "Pony(beta)",
+     "baseModel": "Pony",
+     "baseModelType": "Standard",
+     "publishedAt": "2024-04-06T04:45:51.164Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "<p>The same dataset with v2.0 version but train with Pony Diffusion. Seem like a lot of people want me to make this version. Remember this is just beta version.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 17371,
+      "thumbsUpCount": 1269,
+      "thumbsDownCount": 2
+     },
+     "supportsGeneration": true,
+     "files": [
+      {
+       "id": 351898,
+       "sizeKB": 223159.82421875,
+       "name": "princess_pony_v1.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2024-04-06T04:46:06.187Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": null,
+        "fp": null
+       },
+       "hashes": {
+        "AutoV1": "57CE270E",
+        "AutoV2": "518B885E22",
+        "SHA256": "518B885E224FF08ED036C825B99B15D2BFAB95D29139F5AF2C4EA7F08C9FAB73",
+        "CRC32": "E7FD12C1",
+        "BLAKE3": "346F738FC1A3A76D590752113D2AA2A985FBFE57AFC2CB87623ECF7A749DE135",
+        "AutoV3": "D0F4730BDFAC",
+        "SHA256_12": "518B885E224F"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/431144",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 9263057,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/49e857ef-4617-4a04-abba-18cd60788f7a/original=true/9263057.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UYI;Cp~AoGxYw]WYWV%158IpRQIoxZs.NGE2",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 9263059,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f4f7e787-f0ae-426d-8767-0cf6bb6d075d/original=true/9263059.jpeg",
+       "nsfwLevel": 1,
+       "width": 768,
+       "height": 1024,
+       "hash": "UEHxKW0L?a58MK?G0L4:_NIo-Vw^EikqIBR5",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/431144"
+    }
+   ]
+  }
+ ],
+ "metadata": {
+  "nextCursor": "21019|155256|300005",
+  "nextPage": "https://civitai.com/api/v1/models?types=LORA&types=LoCon&types=DoRA&baseModels=SDXL%201.0&baseModels=Pony&sort=Highest%20Rated&nsfw=false&limit=3&cursor=21019%7C155256%7C300005"
+ }
+}

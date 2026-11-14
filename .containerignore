@@ -1,0 +1,12 @@
+.git
+.venv
+.gitignore
+__pycache__/
+*.py[cod]
+models/
+outputs/
+parameters.yaml
+*.safetensors
+*.ckpt
+*.pt
+*.pth

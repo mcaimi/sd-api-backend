@@ -1,0 +1,917 @@
+{
+ "items": [
+  {
+   "id": 933065,
+   "name": "animemix",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p>いろいろマージしました。</p><p></p>",
+   "allowNoCredit": false,
+   "allowCommercialUse": [
+    "RentCivit"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "Checkpoint",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 31,
+   "availability": "Public",
+   "userId": 4051323,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "Illustrious"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 19498,
+    "thumbsUpCount": 1324,
+    "thumbsDownCount": 4,
+    "commentCount": 14,
+    "tippedAmountCount": 1421
+   },
+   "creator": {
+    "username": "koronen",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/368d192e-92df-4cd3-be13-0a63ee74011e/width=96/koronen.jpeg"
+   },
+   "tags": [
+    "base model",
+    "anime",
+    "nsfw",
+    "woman"
+   ],
+   "modelVersions": [
+    {
+     "id": 2290816,
+     "index": 0,
+     "name": "v8.0",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-10-07T14:56:00.693Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 7102,
+      "thumbsUpCount": 576,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 2181971,
+       "sizeKB": 6775431.58984375,
+       "name": "animemixillustrious_v8.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-10-07T15:01:17.449Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "5D7B4FA1",
+        "AutoV2": "357F63D278",
+        "SHA256": "357F63D2784CF0DA28F44F14BABACA854CCD8FE2581F196DF1FC39CBFA053AC8",
+        "CRC32": "26E88115",
+        "BLAKE3": "97CAFE42638AA42E94F9E73B5DE2B893A6571347FFF85807F772F3AFD3D1AA7D",
+        "AutoV3": "FF3A61B6D994",
+        "SHA256_12": "357F63D2784C"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/2290816",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 104707765,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/827d4c41-7300-49c2-91ea-78b967b49882/original=true/104707765.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "UNJI5]D#1HRj7|ITTcr?xtWS$jn~_MInozNG",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 104707816,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/6ed176db-6c15-4f96-9704-0bd4270f2d0f/original=true/104707816.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "UFEefM$e0fWC.8J.0er=02sRNfIoH=xa~Us,",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/2290816"
+    },
+    {
+     "id": 2066807,
+     "index": 1,
+     "name": "v7.5",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-07-31T08:44:59.092Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 5,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 3294,
+      "thumbsUpCount": 312,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1963258,
+       "sizeKB": 6775431.74609375,
+       "name": "animemixillustrious_v7.5.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-07-31T08:47:42.028Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "5ACE6DAA",
+        "AutoV2": "A2AA82DB4E",
+        "SHA256": "A2AA82DB4ED64163C7AA2CC3E11938A004604278D263AB3149D99CD748475841",
+        "CRC32": "0C724998",
+        "BLAKE3": "644E2D4C27FA1F4F5CB790D0BFA5CBC161C68E2C522F03C3605064242B3B9A7A",
+        "AutoV3": "974EDD890705",
+        "SHA256_12": "A2AA82DB4ED6"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/2066807",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 91537035,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/ba14788e-9f4b-4a78-b17e-6a39b2f07627/original=true/91537035.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "UGJth}_1%o-q=myEpM%04pIU^ixuIESwk9My",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 91537072,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/252ccf63-cfc4-4899-98a0-68e2ceb486f1/original=true/91537072.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "UMLDu]9wD*D*4.Mx?^s;4nSf-Uoft7xZV@Rj",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/2066807"
+    },
+    {
+     "id": 1911387,
+     "index": 2,
+     "name": "v7.0",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-06-17T03:49:52.830Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 15,
+     "description": null,
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 1871,
+      "thumbsUpCount": 196,
+      "thumbsDownCount": 1
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1810076,
+       "sizeKB": 6775431.54296875,
+       "name": "animemixillustrious_v70.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-06-17T03:44:48.594Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "3BD01680",
+        "AutoV2": "E58DAD222B",
+        "SHA256": "E58DAD222B0462D663F59B29F086C9941B203DB8EBA854B93144CA7590512CD6",
+        "CRC32": "E02EA6DA",
+        "BLAKE3": "1B8780D28F19B59454457EBFC1C60267C1BFE3E71B95C9C259A624885F378857",
+        "AutoV3": "8C48B7298B77",
+        "SHA256_12": "E58DAD222B04"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1911387",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 82791073,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/66741318-47dd-4b77-bf8a-3a5e736d770c/original=true/82791073.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "UBNvMg-:_H%M_0tk2wxb?]%L.Tsolot6xnM{",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 82791103,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/4ddb0f52-a193-48cc-8c2d-48e02a024e3d/original=true/82791103.jpeg",
+       "nsfwLevel": 1,
+       "width": 1344,
+       "height": 1728,
+       "hash": "ULPFcdxap0n$~7a}IAxtyCaytmRjyYbHRQkB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1911387"
+    }
+   ]
+  },
+  {
+   "id": 1298771,
+   "name": "Anime Screenshot Merge NoobAI",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p><strong>This is a v-prediction model, please make sure you're using a compatible UI.</strong></p><p></p><p>I wanted to make a merge that gave a solid 2D anime screenshot base style without needing to throw in a ton of extra tags. See galleries for my recommended prompt structure, all of my images are a single pass with no upscalers or refiners.</p><p></p><p>All credit goes to the original checkpoint authors and whoever they credit for their own models.</p><ul><li><p><a target=\"_blank\" rel=\"ug",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "RentCivit",
+    "Image",
+    "Rent"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "Checkpoint",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 7,
+   "availability": "Public",
+   "userId": 2785725,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "NoobAI",
+    "Illustrious"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 15047,
+    "thumbsUpCount": 1315,
+    "thumbsDownCount": 1,
+    "commentCount": 28,
+    "tippedAmountCount": 3560
+   },
+   "creator": {
+    "username": "aimalias",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8576faa7-d76b-46ff-a88d-850bb7906376/width=96/aimalias.jpeg"
+   },
+   "tags": [
+    "base model",
+    "anime"
+   ],
+   "modelVersions": [
+    {
+     "id": 1907945,
+     "index": 0,
+     "name": "v4.0",
+     "baseModel": "NoobAI",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-06-16T17:52:11.177Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 1,
+     "description": "<p>Updated the mix to hopefully get more varied poses and better lighting. Let me know if you think it's an improvement or not! Check the gallery for prompt structure, keep negatives simple for the best results.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 7586,
+      "thumbsUpCount": 837,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1808699,
+       "sizeKB": 6775440.400390625,
+       "name": "anime-screenshots-vpred-v4.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-06-16T17:19:44.182Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "AD6CA767",
+        "AutoV2": "80585B5EBE",
+        "SHA256": "80585B5EBE751B90F7B0FDD303D067CD244CDED770053482F6BA598D189B1A24",
+        "CRC32": "C5D51F99",
+        "BLAKE3": "08E94BA5B3981E4DDC220D9AC5B9A0E20733220B8D33AA978B93F028CD7B31B2",
+        "AutoV3": "ECBC8BC8B450",
+        "SHA256_12": "80585B5EBE75"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1907945",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 82704795,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0ca11246-f7d9-4587-9254-aa1f67a54f37/original=true/82704795.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "U37x2coa009FXoDha%.800s+xv%M?w?bIAD$",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 82704789,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/a48ac066-f9c8-4fa8-aec7-02ee189bc06a/original=true/82704789.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UADS,oN500XJ=.x{5uXL07yD-UIW77nK==s@",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1907945"
+    },
+    {
+     "id": 1767684,
+     "index": 1,
+     "name": "v3.2",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-05-09T20:08:00.118Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": "<p>Sorry for another update so soon, this should be the last one for a while!</p><p>Updated the merge recipe for better hands without hand negatives + a less AI-shaded aesthetic. New settings in model description.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 3633,
+      "thumbsUpCount": 328,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1668685,
+       "sizeKB": 6775443.525390625,
+       "name": "anime-screenshots-vpred.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-05-09T20:14:26.924Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "FDF4309C",
+        "AutoV2": "D6215AE339",
+        "SHA256": "D6215AE339D7659065865ED783A3939D5538F61AA07123947D3C3AE10CAC6B59",
+        "CRC32": "0389A88E",
+        "BLAKE3": "3865162BC596AE3782DD5D05B671758FE6390EC68C55A2354881F2FE64E7C6B8",
+        "AutoV3": "ED26AD8409AB",
+        "SHA256_12": "D6215AE339D7"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1767684",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 75258123,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0330d7fc-5926-4732-a50e-0ff0f21c8e9c/original=true/75258123.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "U4Bge,0n019u=+U{0E$%0fyD_io|5stdH]$z",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 75258103,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/17db1bbc-f3f0-4f34-b618-fe88e05558b5/original=true/75258103.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UAIW[,?v6JMe_4?u0xiv5tEN4.xoTx%g~ANF",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1767684"
+    },
+    {
+     "id": 1756513,
+     "index": 2,
+     "name": "v3.1",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-05-07T03:45:32.443Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 5,
+     "description": "<p>I used the merge model node backwards by accident, lol. Much nicer style now IMO.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 992,
+      "thumbsUpCount": 120,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1657403,
+       "sizeKB": 6775447.126953125,
+       "name": "anime-screenshots-vpred.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-05-07T03:09:27.259Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "784BD45B",
+        "AutoV2": "FB89B3559B",
+        "SHA256": "FB89B3559B5E285F6BE6D22A8DCB31E54529C2A6B54097A771C32A5E632E427C",
+        "CRC32": "28681810",
+        "BLAKE3": "AB0BBD5B9A9D9EECD9A10B0040F4A8DD4E8E117799F25A4B72AD2F3C5DBC7457",
+        "AutoV3": "3E6E8A88E685",
+        "SHA256_12": "FB89B3559B5E"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1756513",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 74697197,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/46bdfb2d-dc40-4ef3-829f-6c7c2685e776/original=true/74697197.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UDE3VPNw00m+~fT20kn#%fNHvgNbtlnjn4nh",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 74698311,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/2969a823-ec9e-4ab6-9c77-7d54f7aa393a/original=true/74698311.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UMJZPV~B^$wc^%x@I.ob0Mr?Ios.9bn+RlS3",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1756513"
+    }
+   ]
+  },
+  {
+   "id": 1332074,
+   "name": "Anime Screenshot Merge IL",
+   "coverImageId": null,
+   "sfwCoverImageId": null,
+   "description": "<p><span style=\"color:rgb(193, 194, 197)\">I wanted to make a merge that gave a solid 2D anime screenshot base style without needing to throw in a ton of extra tags.</span></p><p></p><p>Start positive prompt with \"anime coloring\", beyond that check the gallery for sample prompts!</p><p></p><h3 id=\"settings-8t0l0j6qa\">Settings</h3><p>Steps: 20-30</p><p>CFG: 2-4</p><p>Sampler: Euler or Euler Ancestral</p>",
+   "allowNoCredit": true,
+   "allowCommercialUse": [
+    "RentCivit",
+    "Image"
+   ],
+   "allowDerivatives": true,
+   "allowDifferentLicense": true,
+   "type": "Checkpoint",
+   "minor": false,
+   "sfwOnly": false,
+   "poi": false,
+   "nsfw": false,
+   "nsfwLevel": 7,
+   "availability": "Public",
+   "userId": 2785725,
+   "hasActivePaidAccess": false,
+   "hasSfwFace": false,
+   "baseModels": [
+    "Illustrious"
+   ],
+   "cosmetic": null,
+   "eventDecoration": null,
+   "supportsGeneration": true,
+   "stats": {
+    "downloadCount": 6371,
+    "thumbsUpCount": 812,
+    "thumbsDownCount": 1,
+    "commentCount": 14,
+    "tippedAmountCount": 3060
+   },
+   "creator": {
+    "username": "aimalias",
+    "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8576faa7-d76b-46ff-a88d-850bb7906376/width=96/aimalias.jpeg"
+   },
+   "tags": [
+    "anime",
+    "style"
+   ],
+   "modelVersions": [
+    {
+     "id": 1975760,
+     "index": 0,
+     "name": "v4.0",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-07-05T05:37:07.000Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 5,
+     "description": "<p>New recipe that, from my testing, seems like it's dramatically better at everything!</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 3535,
+      "thumbsUpCount": 566,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1873366,
+       "sizeKB": 6775442.603515625,
+       "name": "anime-screenshots-v4.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-07-05T05:17:52.504Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "CBD56979",
+        "AutoV2": "901395A230",
+        "SHA256": "901395A2304C76064505D38A6A3713F6EB9A429F95DD8CF9A21865FD35B75A67",
+        "CRC32": "729DD062",
+        "BLAKE3": "9907B12CD5C60C6A847F4E0A5DDEA4D3EADF8B62C9EE139A38ECEFBA204460A0",
+        "AutoV3": "EE7D35B50889",
+        "SHA256_12": "901395A2304C"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1975760",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 86366744,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/a8d8931b-23f7-45e0-940b-3c18008876bb/original=true/86366744.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UGBoRAWBNFso~Cn$IoNa=zoeELj[-CxZR%so",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 86366767,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/19bbeff0-9fb6-4f0a-a625-75fa26d2bf5a/original=true/86366767.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "U15#w_00JFr-.8w]00.700_4%NOGW7NG~XIq",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1975760"
+    },
+    {
+     "id": 1910631,
+     "index": 1,
+     "name": "v3.0",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-06-17T02:34:58.669Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 7,
+     "description": "<p>Updated the mix to hopefully get more varied poses and better lighting. Much more dynamic and looks better to me overall, but can result in more chaotic compositions too. Let me know if you think it's an improvement or not! Check the gallery for prompt structure, keep negatives simple for the best results.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 852,
+      "thumbsUpCount": 108,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1809449,
+       "sizeKB": 6775440.267578125,
+       "name": "anime-screenshots-v3.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-06-16T22:42:55.490Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "43737208",
+        "AutoV2": "B4E47BAF07",
+        "SHA256": "B4E47BAF073F4248E5A991E709D1B4DE098A0C6BE48DCF963663AEF3F38F22A8",
+        "CRC32": "644CA362",
+        "BLAKE3": "2BBF6EFED29EDDE92C66EBFD3E2B312B99F4CB28E59973448238B383FD8688CA",
+        "AutoV3": "6436E494877D",
+        "SHA256_12": "B4E47BAF073F"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1910631",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 82779287,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/43246a8f-2b8c-401b-a3eb-81d9080b377d/original=true/82779287.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UE9Y}X^Qj=ae}t=xjYn%-AxFoJxas9WAj[xH",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 82778687,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f8097c81-e33f-4d97-a326-4474a2785241/original=true/82778687.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UGE:M2D}11pc}fOxNMne1YS[Vy=t1#OPrWeb",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1910631"
+    },
+    {
+     "id": 1524609,
+     "index": 2,
+     "name": "v2.0",
+     "baseModel": "Illustrious",
+     "baseModelType": "Standard",
+     "publishedAt": "2025-05-01T20:18:14.093Z",
+     "flags": 0,
+     "availability": "Public",
+     "nsfwLevel": 3,
+     "description": "<p>Updated the merge recipe to improve lighting and increase knowledge base, Illustrious 2.0 included.</p>",
+     "trainedWords": [],
+     "vaeId": null,
+     "coveredNext": true,
+     "paidAccess": null,
+     "stats": {
+      "downloadCount": 1342,
+      "thumbsUpCount": 177,
+      "thumbsDownCount": 0
+     },
+     "supportsGeneration": false,
+     "files": [
+      {
+       "id": 1634050,
+       "sizeKB": 6775445.009765625,
+       "name": "anime-screenshots-epsilon.safetensors",
+       "overrideName": null,
+       "type": "Model",
+       "pickleScanResult": "Success",
+       "pickleScanMessage": "No Pickle imports",
+       "virusScanResult": "Success",
+       "virusScanMessage": null,
+       "scannedAt": "2025-05-01T20:23:36.022Z",
+       "metadata": {
+        "format": "SafeTensor",
+        "size": "full",
+        "fp": "fp16"
+       },
+       "hashes": {
+        "AutoV1": "8179BD8A",
+        "AutoV2": "95C85D554B",
+        "SHA256": "95C85D554B4065F6BA30981F132885D17319628B3B3A4AC2212D1908A9BF36C9",
+        "CRC32": "25264FCF",
+        "BLAKE3": "962A1B2AAA2D0AFA7ABC09DE64768478605A3EFBC89590AD2F30885FBAF257E7",
+        "AutoV3": "57D917162BF1",
+        "SHA256_12": "95C85D554B40"
+       },
+       "downloadUrl": "https://civitai.com/api/download/models/1524609",
+       "primary": true
+      }
+     ],
+     "images": [
+      {
+       "id": 73556757,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3548e4cd-2480-4200-b13a-34fe9115a35e/original=true/73556757.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UFBgoExs00WB*IoJDkazctaevzWVuPofR5WB",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      },
+      {
+       "id": 73556771,
+       "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/ad64428b-23fc-40dd-94e9-af0a872361a2/original=true/73556771.jpeg",
+       "nsfwLevel": 1,
+       "width": 832,
+       "height": 1216,
+       "hash": "UUI}e6.jx+iu;Sv~V{E3XXssskjW?sy9w]RP",
+       "type": "image",
+       "minor": false,
+       "poi": false,
+       "hasMeta": true,
+       "hasPositivePrompt": true,
+       "onSite": false,
+       "remixOfId": null
+      }
+     ],
+     "downloadUrl": "https://civitai.com/api/download/models/1524609"
+    }
+   ]
+  }
+ ],
+ "metadata": {
+  "nextCursor": "3",
+  "nextPage": "https://civitai.com/api/v1/models?query=anime&types=Checkpoint&baseModels=Illustrious&baseModels=NoobAI&nsfw=false&limit=3&cursor=3"
+ }
+}

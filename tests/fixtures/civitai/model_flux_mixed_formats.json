@@ -1,0 +1,569 @@
+{
+ "id": 141592,
+ "name": "PixelWave",
+ "coverImageId": null,
+ "sfwCoverImageId": null,
+ "description": "<h1 id=\"pixelwave-flux.1-schnell-04-apache-2.0!-n1cbyi1x8\"><span style=\"color:rgb(253, 126, 20)\">PixelWave FLUX.1-schnell 04 - Apache 2.0!</span></h1><p><strong>Safetensor Files: </strong><a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/api/download/models/1726219?type=Model&amp;format=SafeTensor&amp;size=full&amp;fp=bf16\"><strong>💾BF16 </strong></a><a target=\"_blank\" rel=\"ugc\" href=\"https://civitai.com/api/download/models/1726219?type=Model&amp;format=SafeTensor&amp;size=full&amp;fp=fp8\">",
+ "allowNoCredit": false,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": false,
+ "type": "Checkpoint",
+ "minor": false,
+ "sfwOnly": false,
+ "poi": false,
+ "nsfw": false,
+ "nsfwLevel": 7,
+ "availability": "Public",
+ "userId": 2219052,
+ "hasActivePaidAccess": false,
+ "hasSfwFace": false,
+ "baseModels": [
+  "Flux.1 S",
+  "Flux.1 D",
+  "SDXL 1.0"
+ ],
+ "cosmetic": null,
+ "eventDecoration": null,
+ "supportsGeneration": true,
+ "stats": {
+  "downloadCount": 68743,
+  "thumbsUpCount": 3518,
+  "thumbsDownCount": 14,
+  "commentCount": 170,
+  "tippedAmountCount": 81480
+ },
+ "creator": {
+  "username": "humblemikey",
+  "image": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/cee45f78-087e-4e64-b1d7-e9f6415384fb/width=96/humblemikey.jpeg"
+ },
+ "tags": [
+  "anime",
+  "digital art",
+  "traditional art",
+  "photography",
+  "base model",
+  "3d animation"
+ ],
+ "modelVersions": [
+  {
+   "id": 1726219,
+   "index": 0,
+   "name": "FLUX.1-schnell 04",
+   "baseModel": "Flux.1 S",
+   "baseModelType": "Standard",
+   "createdAt": "2025-04-30T00:34:52.111Z",
+   "publishedAt": "2025-05-04T01:27:39.737Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 3,
+   "description": "<p>Fine tune of schnell model, not using the dev model in anyway. Apache 2.0 license!</p><p>Trained with kohya using a custom sigma schedule and freezing time and modulation parameters to prevent degradation of time distillation.</p><p>➤ Combined training steps : 1,360,641 </p><p>➤ Active training time: 1192.61 hours (49.7 days)</p>",
+   "covered": false,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 10596,
+    "thumbsUpCount": 327,
+    "thumbsDownCount": 0
+   },
+   "files": [
+    {
+     "id": 1628520,
+     "sizeKB": 11612565.1953125,
+     "name": "pixelwave_flux1_schnell_04_fp8.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-04-30T12:29:37.942Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "5C0D11A9",
+      "AutoV2": "A26B548B7A",
+      "SHA256": "A26B548B7AEB5D424163DD2B18907EE8AF222D484E6CBEBBA6223EFB469220E2",
+      "CRC32": "8374DC12",
+      "BLAKE3": "643F37D184F00E4034353783C4CE5D704E3ACA2ED442FB7A0A78D9D5DCDC9D9D",
+      "AutoV3": "ED694712E766",
+      "SHA256_12": "A26B548B7AEB"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1726219?fileId=1628520",
+     "primary": true
+    },
+    {
+     "id": 1627776,
+     "sizeKB": 23225042.65625,
+     "name": "pixelwave_flux1_schnell_04_bf16.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-04-30T07:32:52.568Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "bf16"
+     },
+     "hashes": {
+      "AutoV1": "0BD959A5",
+      "AutoV2": "565B846820",
+      "SHA256": "565B846820AADC75F954702388BD8E4DD414B499E312C2A548088B451503A52C",
+      "CRC32": "FF47D6D4",
+      "BLAKE3": "2A60FAB6B8DDE740DE504CFE3DE7450559F21C5D2AE4E53E3643E5990848062E",
+      "AutoV3": "697293071374",
+      "SHA256_12": "565B846820AA"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1726219?fileId=1627776"
+    },
+    {
+     "id": 1628805,
+     "sizeKB": 6756273.03125,
+     "name": "pixelwave_flux1_schnell_04_Q4_K_M.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-04-30T13:48:56.239Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "full",
+      "fp": "nf4"
+     },
+     "hashes": {
+      "AutoV1": "87F5D1D5",
+      "AutoV2": "74A0198768",
+      "SHA256": "74A0198768D7EC2A38CBD3093926A76834DE6BDB9C480DC400CCDFFDB1C3F4AF",
+      "CRC32": "4DD65722",
+      "BLAKE3": "C7E4952CCA05B94F744BE9EF3380247BA5B66D318DBD8FA3A2CF3D2BF540377C",
+      "AutoV3": "220DCDD6BA03",
+      "SHA256_12": "74A0198768D7"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1726219?fileId=1628805"
+    },
+    {
+     "id": 1628120,
+     "sizeKB": 5995625.2578125,
+     "name": "pixelwave_flux1_schnell_04_nf4.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-04-30T09:42:24.137Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "nf4"
+     },
+     "hashes": {
+      "AutoV1": "C8D67C77",
+      "AutoV2": "89DEB0178C",
+      "SHA256": "89DEB0178C8890469705770108C272638BB61CE0799AD2CDA0542107BC92B68D",
+      "CRC32": "4746EFA5",
+      "BLAKE3": "8929BF49ABC85429DDB8214EE994BE2B57EEE0024144218829D23FBD3ADFD0E7",
+      "AutoV3": "E2DDBBCA3316",
+      "SHA256_12": "89DEB0178C88"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1726219?fileId=1628120"
+    },
+    {
+     "id": 1628646,
+     "sizeKB": 12403377.03125,
+     "name": "pixelwave_flux1_schnell_04_Q8_0.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2025-04-30T13:01:09.489Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "2813736B",
+      "AutoV2": "4616EF84F9",
+      "SHA256": "4616EF84F9F88A3C55432D76B935F8F70C0B833CEF81AE4E8EE4DB4F8004D15E",
+      "CRC32": "A1E7ECD1",
+      "BLAKE3": "391FFBD9F44B7066C33B5498885A003CCC1E47128B29F02E40D3974B989D0EAC",
+      "AutoV3": "7CE9EBEAEBF1",
+      "SHA256_12": "4616EF84F9F8"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1726219?fileId=1628646"
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/f09b28d9-41f8-44f2-be2c-1628330292a5/original=true/73372450.jpeg",
+     "nsfwLevel": 1,
+     "width": 1040,
+     "height": 1520,
+     "hash": "UADZ#n1b0||^F_]n+vEz[BOC2tw|1aR*OExG",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8e858987-5e2c-4eec-9837-67f62b7d02f3/original=true/73372041.jpeg",
+     "nsfwLevel": 1,
+     "width": 832,
+     "height": 1216,
+     "hash": "U6A0UM}9dp-plTTd0LI:aK=_}rrW9aS$%MIp",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/1726219"
+  },
+  {
+   "id": 992642,
+   "index": 1,
+   "name": "FLUX.1-dev 03",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Standard",
+   "createdAt": "2024-10-25T09:28:40.439Z",
+   "publishedAt": "2024-10-25T10:55:54.443Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 1,
+   "description": "<p>Fine tuned for 5 weeks on my 4090.</p>",
+   "covered": false,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 24700,
+    "thumbsUpCount": 1876,
+    "thumbsDownCount": 9
+   },
+   "files": [
+    {
+     "id": 898629,
+     "sizeKB": 11622572.2578125,
+     "name": "pixelwave_flux1_dev_fp8_03.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-10-25T10:24:50.798Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "224EAC89",
+      "AutoV2": "50944A180C",
+      "SHA256": "50944A180CB3878E7F17DBD5FA0E2F354C2C9BE1CF5A37BAF249D5E84276C252",
+      "CRC32": "7193B9F6",
+      "BLAKE3": "336781B06E0DFC88010E53E9DF30216FD2331797A7E8043CFA07ECA264E48141",
+      "AutoV3": "55920035507F",
+      "SHA256_12": "50944A180CB3"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/992642?fileId=898629",
+     "primary": true
+    },
+    {
+     "id": 914675,
+     "sizeKB": 6000842.115234375,
+     "name": "pixelwave_flux1_dev_nf4_03.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-10-30T07:31:40.189Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "nf4"
+     },
+     "hashes": {
+      "AutoV1": "5359A6FE",
+      "AutoV2": "D642E07EFA",
+      "SHA256": "D642E07EFAEABF5799B8E98BD2612FD0E6CB77BB39E7CF742FDE6A50E0E862F4",
+      "CRC32": "1A37BF77",
+      "BLAKE3": "B340A46C2307E33C3629DEB79162897D6BB2DBBB75124A55A14C089B73E4CEED",
+      "AutoV3": "C9CAEAE8A85B",
+      "SHA256_12": "D642E07EFAEA"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/992642?fileId=914675"
+    },
+    {
+     "id": 927286,
+     "sizeKB": 6777801.28125,
+     "name": "pixelwave_flux1_dev_Q4_K_M_03.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-11-03T00:38:46.917Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "full",
+      "fp": "nf4"
+     },
+     "hashes": {
+      "AutoV1": "BA46877E",
+      "AutoV2": "035E107B63",
+      "SHA256": "035E107B6355B54AD88C00E0ED62C4A528BC079BB483D70572852968C0979D99",
+      "CRC32": "8784B5A8",
+      "BLAKE3": "A84C8A5C62212D8BC53FDA0ACC0295C4BD50A7E432B7182D1F0A738CEF4B8774",
+      "AutoV3": "8060325ECA57",
+      "SHA256_12": "035E107B6355"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/992642?fileId=927286"
+    },
+    {
+     "id": 898594,
+     "sizeKB": 23245039.71875,
+     "name": "pixelwave_flux1_dev_bf16_03.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-10-25T10:14:06.984Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "bf16"
+     },
+     "hashes": {
+      "AutoV1": "008D968C",
+      "AutoV2": "A34D7B4F23",
+      "SHA256": "A34D7B4F2343C24A6E7D7203353F1156690EEBBF9CCFA5BF523DA80A0CD25A09",
+      "CRC32": "29615904",
+      "BLAKE3": "C693B2B419BB70EFAF5CA633510AFBC20749E16854ABE5509A294BA7C207A3D3",
+      "AutoV3": "D1CB00AFCD76",
+      "SHA256_12": "A34D7B4F2343"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/992642?fileId=898594"
+    },
+    {
+     "id": 927338,
+     "sizeKB": 12424905.28125,
+     "name": "pixelwave_flux1_dev_Q8_0_03.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-11-03T01:10:55.861Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "65243EEB",
+      "AutoV2": "49B429B788",
+      "SHA256": "49B429B788FE2D96A533A284CAF1BE6CF3869A697B4A42A8E5F5FEA17FBF3FAE",
+      "CRC32": "B2764F93",
+      "BLAKE3": "D938ABDB4B8315925BDD999AC296A0722DA34BC23274E5E1007BC3A37B7C4BDB",
+      "AutoV3": "65C4EA1C93EB",
+      "SHA256_12": "49B429B788FE"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/992642?fileId=927338"
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8b01daf5-2286-4547-b53d-828721a0c551/original=true/36472754.jpeg",
+     "nsfwLevel": 1,
+     "width": 1344,
+     "height": 1728,
+     "hash": "U46*EnE30}^%X3afniX70LxF}?EL={RkNJ%1",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/4b30f558-aa1d-4b4e-9057-fd429a0dce86/original=true/36472828.jpeg",
+     "nsfwLevel": 1,
+     "width": 1344,
+     "height": 1728,
+     "hash": "USEM?ut84nawyGogVqR*R=WARhogR$V?o0oz",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/992642"
+  },
+  {
+   "id": 1002647,
+   "index": 2,
+   "name": "FLUX.1-schnell 03",
+   "baseModel": "Flux.1 S",
+   "baseModelType": "Standard",
+   "createdAt": "2024-10-28T09:28:42.277Z",
+   "publishedAt": "2024-10-30T00:21:39.607Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 1,
+   "description": "<p>I extracted the difference between PixelWave Flux.1-dev 03 and Flux.1-dev, then added that to the schnell model. Then I fine tuned further for a couple of days.</p><p>As training differences were extracted from dev and applied to schnell, this could be interpreted as a derivative of the dev model and as such inherit the license from dev.</p>",
+   "covered": false,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 4097,
+    "thumbsUpCount": 100,
+    "thumbsDownCount": 0
+   },
+   "files": [
+    {
+     "id": 913479,
+     "sizeKB": 11612565.203125,
+     "name": "pixelwave_flux1_schnell_fp8_03.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-10-31T22:45:07.279Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "50650687",
+      "AutoV2": "830900AE6F",
+      "SHA256": "830900AE6F0753275D1928D04CD299EDE3EF7FFB908F0ACE282B28DB24F858D0",
+      "CRC32": "848F0616",
+      "BLAKE3": "7BA01C7137F975BA0B92C130CF7803A9A384D7002A649B0AACDC32D14E8AC89B",
+      "AutoV3": "7F2D0E7719B1",
+      "SHA256_12": "830900AE6F07"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1002647?fileId=913479",
+     "primary": true
+    },
+    {
+     "id": 913624,
+     "sizeKB": 5995625.250976562,
+     "name": "pixelwave_flux1_schnell_nf4_03.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-10-29T23:33:21.545Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "nf4"
+     },
+     "hashes": {
+      "AutoV1": "DBB1DF88",
+      "AutoV2": "E90208E3E5",
+      "SHA256": "E90208E3E5F0ABF586180360F336427609C8C6317BB602963FD68D1A18C45125",
+      "CRC32": "C50BE89D",
+      "BLAKE3": "2AD63581CFC48B1A6EFB470D938EF279B79325FDC4FECB9CA388F54500200A44",
+      "AutoV3": "0FB305B8A186",
+      "SHA256_12": "E90208E3E5F0"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1002647?fileId=913624"
+    },
+    {
+     "id": 927400,
+     "sizeKB": 12403377.03125,
+     "name": "pixelwave_flux1_schnell_Q8_0_03.gguf",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-11-03T01:35:20.481Z",
+     "metadata": {
+      "format": "GGUF",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "81936FCC",
+      "AutoV2": "41C6A476AF",
+      "SHA256": "41C6A476AF17350E1569DB5DE48640A45CC92C8968D4B91DB9E3AF2CFE3589E3",
+      "CRC32": "516CFA84",
+      "BLAKE3": "CFA53BB3F89FF86A9CAF83766670E1220B70934356DBBFB2A2D8D8D54DA783F4",
+      "AutoV3": "7AE49DE01E64",
+      "SHA256_12": "41C6A476AF17"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1002647?fileId=927400"
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/9427295b-22da-4192-a3e0-807e1d4629d0/original=true/37285432.jpeg",
+     "nsfwLevel": 1,
+     "width": 896,
+     "height": 1152,
+     "hash": "UCAA|5%%00H=xxM_NF%hI9ROxbo#OEtSslM{",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/626a3687-00ed-4765-bb65-e8c72a307f1b/original=true/37285430.jpeg",
+     "nsfwLevel": 1,
+     "width": 896,
+     "height": 1152,
+     "hash": "U9B;IXI@8w-o}?RPV]bH00fkgkM|9^S%%LXS",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/1002647"
+  }
+ ]
+}

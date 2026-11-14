@@ -2,7 +2,7 @@
 
 A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5, SDXL, Illustrious XL, and Flux pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
 
-This is a rewrite effort of the [SD-WebApp](https://codeberg.org/mcaimi/sd-webapp) project, and has been brewing for a bit now.
+This is a rewrite effort of the [SD-WebApp](https://github.com/mcaimi/sd-webapp) project, and has been brewing for a bit now.
 The idea is to decouple the UI from the actual inference backend. This repo will host the backend code.
 
 The Stable Diffusion pipelines, device selection, checkpoint merging and telemetry live in the [metastable](https://github.com/mcaimi/metastable) library ([PyPI](https://pypi.org/project/metastable/)); this repo is the REST API and web UI on top of it.
@@ -14,12 +14,12 @@ The Stable Diffusion pipelines, device selection, checkpoint merging and telemet
 - **Batch Generation** - Submit multiple generation jobs in a single request
 - **Model Comparison** - Generate images from multiple checkpoints side-by-side for comparison
 - **Multi-Model Merging** - Merge two or more models using configurable methods (linear, slerp, additive, subtract), with weight coefficients and multi-step recipe execution (SD 1.5/SDXL/Illustrious XL only — see [TODO.md](TODO.md) for planned Flux merge support)
-- **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`
-- **Model Caching** - LRU cache (max 2 pipelines) for expensive diffusion model loading, auto-eviction via access order
+- **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`; worker count and result TTL are configurable, and finished jobs are cleaned up after the TTL
+- **Model Caching** - LRU cache (configurable, default 2 pipelines) for expensive diffusion model loading. Pipelines are leased to one job at a time and never evicted while in use, so concurrent workers can't clobber each other's LoRAs/VAE
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
 - **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
-- **AMD ROCm Support** - Config-driven backend selection (`device.backend: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 5500 XT), plus `rocm-smi` telemetry
+- **AMD ROCm Support** - Config-driven backend selection (`device.back$end: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 6600 XT), plus `rocm-smi` telemetry
 - **Flux Memory Offload** - Flux pipelines use `enable_model_cpu_offload()` instead of a full device move to fit its larger (~12B parameter transformer + T5-XXL encoder) footprint on consumer hardware
 - **Configurable Output** - Optional disk persistence of generated images and metadata to `outputs/images/` and `outputs/json/` as PNG and JSON
 - **System Endpoints** - Health checks, system info (GPU, cache stats, queue stats), and configuration exposure
@@ -134,8 +134,8 @@ Provided by `metastable.pipelines`; generators are created with `create_generato
 ┌──────────────────────┐     ┌─────────────────────┐     ┌──────────────────┐
 │  GenerationService   │────>│   ModelCacheManager  │────>│ BasePipelineGen  │
 │ ──────────────────── │     │ ───────────────────  │     │ ───────────────  │
-│ + generate()         │     │ + get_pipeline()     │     │ - cache: dict    │
-│ + inpaint()          │     │ + load_pipeline()    │     │ + forward()      │
+│ + generate()         │     │ + acquire()          │     │ - cache: dict    │
+│ + inpaint()          │     │ + _load_pipeline()   │     │ + forward()      │
 │ + batch_generate()   │     │ + clear_cache()      │     │ + add_loras()    │
 │ + compare_models()   │     │ + get_stats()        │     └──────────────────┘
 └──────────┬───────────┘     └─────────────────────┘
@@ -245,14 +245,23 @@ Client: GET /api/v1/jobs/{job_id}
 ### Model Cache Flow
 
 ```
-ModelCacheManager.get_pipeline(model_type, model_path, pipeline_type)
+async with ModelCacheManager.acquire(model_type, model_path, pipeline_type, state)
   1. Build cache key: "{model_type}:{model_name}:{pipeline_type}"
-  2. Cache HIT → update access order → return cached pipeline
-  3. Cache MISS → _load_pipeline() in thread pool
+  2. Take the pipeline's lock (all Flux pipelines share one lock, since they
+     share text encoders/VAE) → the lease is exclusive until the block exits
+  3. Cache HIT with a different LoRA/VAE state applied → drop it and reload
+  4. Cache HIT → update access order → yield cached pipeline
+  5. Cache MISS → if at capacity (>= max_models) evict the least-recently-used
+     pipeline that isn't leased; if all are leased, wait for one to be released
+  6. _load_pipeline() in thread pool
      → create_generator() → load_pipeline() / load_inpaint_pipeline() → to_device()
-  4. If at capacity (>= max_models) → evict least-recently-used
-  5. Insert new pipeline into cache
+  7. Insert new pipeline into cache and yield it
 ```
+
+The generation service applies LoRAs and the custom VAE and runs inference inside
+the lease. Each cached pipeline remembers which LoRA/VAE state is applied: a request
+for the same state reuses it, a different one reloads the pipeline (fused LoRAs
+can't be removed in place).
 
 ### Startup / Shutdown Flow
 
@@ -469,6 +478,20 @@ api:
     allow_origins: ["*"]
 ```
 
+#### Concurrent GPU jobs
+
+`api.job_queue.num_workers` sets how many generation/merge jobs run at once (default 1).
+With more than one worker:
+
+- jobs on **different** checkpoints run concurrently; jobs on the same checkpoint
+  (and pipeline type) still run one after another;
+- **Flux** jobs always run one at a time, because all Flux checkpoints share the
+  same text encoders and VAE;
+- peak VRAM/RAM grows with every job running at once, and on a single GPU total
+  throughput rarely improves — the main win is overlapping model loading or merges
+  with generation. Keep `model_cache.max_models` >= `num_workers`, otherwise
+  workers wait for a free cache slot.
+
 ### Flux Setup
 
 Flux checkpoints only ship the transformer; the shared text encoders, tokenizers, VAE, and scheduler must be populated once under `flux.components_path` in standard diffusers subfolder layout (`text_encoder/`, `tokenizer/`, `text_encoder_2/`, `tokenizer_2/`, `vae/`, `scheduler/`):
@@ -490,12 +513,12 @@ implements HIP behind the CUDA API, transformers/torch report these devices as
 `GET /api/v1/system/info` (`torch.version.hip` is set on ROCm builds).
 
 1. **Install the ROCm torch build** — swap in the Linux variant of the project
-   file, which carries the `rocm7.2` extra pointing at the official PyTorch
+   file, which carries the `rocm10.0` extra pointing at the official PyTorch
    ROCm wheel index:
 
    ```bash
    cp pyproject.linux.toml pyproject.toml
-   uv sync --extra rocm7.2
+   uv sync --extra rocm10.0
    ```
 
 2. **Select the backend in `parameters.yaml`** (optional section; defaults are
@@ -540,7 +563,8 @@ implements HIP behind the CUDA API, transformers/torch report these devices as
    - It might be necessary to downgrade all ROCm packages to pre 6.X versions
      to fully support an older card. A container image is clearly preferred for
      this use case and one may come in the future.
-   - A 4 GB variant card is SD 1.5 territory only; also, keep `api.model_cache.max_models: 1`.
+   - A 4 GB variant card, if supported, is SD 1.5 territory only; also, 
+     keep `api.model_cache.max_models: 1`.
    - SDXL/Illustrious need at least 8GB of VRAM. For Flux, stick to modern,
      supported ROCm cards
 
@@ -552,4 +576,32 @@ uv sync
 
 # Start the server
 uv run uvicorn api.app:app --host 0.0.0.0 --port 8000
+
+# Run the test suite
+uv run pytest
 ```
+
+### Container
+
+The `Containerfile` builds a Debian-based image; dependencies are synced with `uv` and the server runs as an unprivileged user (OpenShift arbitrary-UID compatible, writable paths are group `0`). It listens on `0.0.0.0` by default.
+
+```bash
+podman build -t sd-api-backend -f Containerfile .
+
+podman run -p 8000:8000 \
+  -v ./models:/opt/app-root/data/models:Z \
+  -v ./outputs:/opt/app-root/data/outputs:Z \
+  sd-api-backend
+```
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `SD_API_HOST` | `0.0.0.0` | Listening address |
+| `SD_API_PORT` | `8000` | Listening port |
+| `SD_API_MODELS_DIR` | `/opt/app-root/data/models` | Root for checkpoints, LoRAs, VAEs, and Flux components |
+| `SD_API_OUTPUTS_DIR` | `/opt/app-root/data/outputs` | Root for persisted images and JSON metadata |
+| `SD_API_PERSIST_OUTPUTS` | `true` | Persist generated outputs to disk |
+| `SD_API_DEVICE_BACKEND` | `auto` | `auto` / `cuda` / `rocm` / `cpu` |
+| `CONFIG_FILE` | `/opt/app-root/config/parameters.yaml` | Generated from the variables above at startup unless the file already exists (mount your own `parameters.yaml` here to take full control) |
+
+The same variables are also build arguments (`--build-arg SD_API_PORT=...`). The default build uses `pyproject.toml` (PyPI torch, CUDA-enabled on Linux); a different project file and extras can be selected with `--build-arg PYPROJECT=pyproject.linux.toml --build-arg UV_SYNC_ARGS="--extra cu134"`.

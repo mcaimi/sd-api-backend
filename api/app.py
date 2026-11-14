@@ -14,8 +14,10 @@ from contextlib import asynccontextmanager
 
 import metastable
 
-from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs
+from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs, civitai
 from api.services.job_queue import get_job_queue
+from api.services.civitai_client import close_civitai_client
+from api.services.downloads import cleanup_partial_downloads
 from api.config import get_app_config
 
 WEBUI_DIR = Path(__file__).resolve().parent.parent / "webui"
@@ -33,6 +35,7 @@ async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown events."""
     # Startup
     logger.info("Starting SD API Backend...")
+    cleanup_partial_downloads()
     job_queue = get_job_queue()
     await job_queue.start_workers()
     logger.info("Job queue workers started")
@@ -43,6 +46,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down SD API Backend...")
     await job_queue.stop_workers()
     logger.info("Job queue workers stopped")
+    await close_civitai_client()
 
 
 def create_app() -> FastAPI:
@@ -89,6 +93,7 @@ def create_app() -> FastAPI:
     app.include_router(info.router, prefix="/api/v1/info", tags=["Informational"])
     app.include_router(merge.router, prefix="/api/v1/merge", tags=["Merge"])
     app.include_router(outputs.router, prefix="/api/v1/outputs", tags=["Outputs"])
+    app.include_router(civitai.router, prefix="/api/v1/civitai", tags=["Civitai"])
 
     # Management web UI (static, no build step)
     if WEBUI_DIR.is_dir():

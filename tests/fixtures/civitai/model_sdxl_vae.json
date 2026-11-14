@@ -1,0 +1,127 @@
+{
+ "id": 296576,
+ "name": "SDXL VAE",
+ "coverImageId": null,
+ "sfwCoverImageId": null,
+ "description": "<p>Office Stability SDXL-VAE<br /><br /><a rel=\"ugc\" href=\"https://huggingface.co/stabilityai/sdxl-vae\">Original file</a> on Huggingface.</p>",
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "type": "VAE",
+ "minor": false,
+ "sfwOnly": false,
+ "poi": false,
+ "nsfw": false,
+ "nsfwLevel": 1,
+ "availability": "Public",
+ "userId": -1,
+ "hasActivePaidAccess": false,
+ "hasSfwFace": false,
+ "baseModels": [
+  "SDXL 1.0"
+ ],
+ "cosmetic": null,
+ "eventDecoration": null,
+ "supportsGeneration": true,
+ "stats": {
+  "downloadCount": 156961,
+  "thumbsUpCount": 6878,
+  "thumbsDownCount": 7,
+  "commentCount": 18,
+  "tippedAmountCount": 0
+ },
+ "tags": [
+  "style",
+  "vae",
+  "sdxl",
+  "sdxl vae"
+ ],
+ "modelVersions": [
+  {
+   "id": 333245,
+   "index": 0,
+   "name": "SDXL-VAE",
+   "baseModel": "SDXL 1.0",
+   "baseModelType": "Standard",
+   "createdAt": "2024-02-07T16:31:02.045Z",
+   "publishedAt": "2024-02-07T16:42:40.673Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 1,
+   "covered": true,
+   "coveredNext": true,
+   "stats": {
+    "downloadCount": 156961,
+    "thumbsUpCount": 6878,
+    "thumbsDownCount": 7
+   },
+   "files": [
+    {
+     "id": 264202,
+     "sizeKB": 326798.01171875,
+     "name": "sdxl_vae.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-02-07T16:36:18.846Z",
+     "metadata": {
+      "format": "SafeTensor"
+     },
+     "hashes": {
+      "AutoV1": "D636E597",
+      "AutoV2": "63AEECB90F",
+      "SHA256": "63AEECB90FF7BC1C115395962D3E803571385B61938377BC7089B36E81E92E2E",
+      "CRC32": "9109193B",
+      "BLAKE3": "9EF46CD2F47F064860494C1D6E6BBB0D1A12052B641ED09C78DD265F767CD110",
+      "AutoV3": "F723FEC0B7D3",
+      "SHA256_12": "63AEECB90FF7"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/333245?fileId=264202",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/78a2f5a9-3e6f-4af5-819c-98fa1dc54049/original=true/6370787.jpeg",
+     "nsfwLevel": 1,
+     "width": 2048,
+     "height": 1563,
+     "hash": "UgLgU=S4j[WC_Ns:ayof?voLj@az?bofayj[",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    },
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/8490f5c8-7785-412d-8249-9ef711cd7c95/original=true/6370789.jpeg",
+     "nsfwLevel": 1,
+     "width": 2048,
+     "height": 1563,
+     "hash": "UrI#DSxtWW%0_NfQj@WC.9WCoKNI?uoLazs:",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": true,
+     "hasPositivePrompt": true,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/333245"
+  }
+ ]
+}

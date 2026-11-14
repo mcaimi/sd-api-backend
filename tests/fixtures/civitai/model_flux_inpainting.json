@@ -1,0 +1,119 @@
+{
+ "id": 969431,
+ "name": "Flux-Fill FP8",
+ "coverImageId": null,
+ "sfwCoverImageId": null,
+ "description": "<p>Converted Flux Fill to FP8 for all my low Vram Peeps.<br />Happy inpainting </p>",
+ "allowNoCredit": true,
+ "allowCommercialUse": [
+  "Image",
+  "RentCivit",
+  "Rent",
+  "Sell",
+  "SellMerge"
+ ],
+ "allowDerivatives": true,
+ "allowDifferentLicense": true,
+ "type": "Checkpoint",
+ "minor": false,
+ "sfwOnly": false,
+ "poi": false,
+ "nsfw": false,
+ "nsfwLevel": 1,
+ "availability": "Public",
+ "userId": 1736518,
+ "hasActivePaidAccess": false,
+ "hasSfwFace": false,
+ "baseModels": [
+  "Flux.1 D"
+ ],
+ "cosmetic": null,
+ "eventDecoration": null,
+ "supportsGeneration": false,
+ "stats": {
+  "downloadCount": 32603,
+  "thumbsUpCount": 400,
+  "thumbsDownCount": 2,
+  "commentCount": 35,
+  "tippedAmountCount": 60
+ },
+ "creator": {
+  "username": "yogotatara",
+  "image": null
+ },
+ "tags": [
+  "base model"
+ ],
+ "modelVersions": [
+  {
+   "id": 1085456,
+   "index": 0,
+   "name": "v1.0",
+   "baseModel": "Flux.1 D",
+   "baseModelType": "Inpainting",
+   "createdAt": "2024-11-21T17:03:53.428Z",
+   "publishedAt": "2024-11-21T17:20:04.760Z",
+   "status": "Published",
+   "flags": 0,
+   "availability": "Public",
+   "nsfwLevel": 1,
+   "trainedWords": [
+    "texts"
+   ],
+   "covered": false,
+   "coveredNext": false,
+   "stats": {
+    "downloadCount": 32603,
+    "thumbsUpCount": 400,
+    "thumbsDownCount": 2
+   },
+   "files": [
+    {
+     "id": 990604,
+     "sizeKB": 11623567.09375,
+     "name": "flux1-fill-devFP8.safetensors",
+     "overrideName": null,
+     "type": "Model",
+     "pickleScanResult": "Success",
+     "pickleScanMessage": "No Pickle imports",
+     "virusScanResult": "Success",
+     "virusScanMessage": null,
+     "scannedAt": "2024-11-21T17:27:23.165Z",
+     "metadata": {
+      "format": "SafeTensor",
+      "size": "full",
+      "fp": "fp8"
+     },
+     "hashes": {
+      "AutoV1": "4E3A43A0",
+      "AutoV2": "61ABE21288",
+      "SHA256": "61ABE2128889F7C5004C11CDA1AFED29E183BBB07BC2BFF243D270A2A819113B",
+      "CRC32": "E182D7B0",
+      "BLAKE3": "9E564DBCF693E48719954B68EF00E5B1CB59088C17E6404BCB9784BC498D80B3",
+      "AutoV3": "D7CBDB0D06CE",
+      "SHA256_12": "61ABE2128889"
+     },
+     "downloadUrl": "https://civitai.com/api/download/models/1085456?fileId=990604",
+     "primary": true
+    }
+   ],
+   "images": [
+    {
+     "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/d73b9cb5-c233-484b-9c06-34303ac9273a/original=true/41373210.jpeg",
+     "nsfwLevel": 1,
+     "width": 960,
+     "height": 1011,
+     "hash": "UBLh3v?w4.bbJAM{.8tR00jZ-;t8xvj[f6az",
+     "type": "image",
+     "minor": false,
+     "poi": false,
+     "hasMeta": false,
+     "hasPositivePrompt": false,
+     "onSite": false,
+     "remixOfId": null
+    }
+   ],
+   "downloadUrl": "https://civitai.com/api/download/models/1085456"
+  }
+ ]
+}

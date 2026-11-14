@@ -148,8 +148,11 @@ class JobStatusResponse(BaseModel):
     """Response containing job status and result."""
     job_id: str
     job_type: str
+    lane: str = "gpu"
+    cancellable: bool = False
     status: str
     progress: float
+    detail: Optional[dict] = None
     created_at: str
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
