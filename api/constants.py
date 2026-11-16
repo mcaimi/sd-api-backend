@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 MODEL_TYPES = ("sd15", "sdxl", "illustrious", "flux")
 RESOURCE_TYPES = ("checkpoints", "loras", "vaes")
+CIVITAI_DEFAULT_BASE_URL = "https://civitai.com/api/v1"
 
 
 def _quoted(values) -> str:

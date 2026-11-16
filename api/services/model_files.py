@@ -49,6 +49,25 @@ def is_within(path: Path, root: Path) -> bool:
     return path.resolve().is_relative_to(root.resolve())
 
 
+def resolve_checkpoint_from_registry(model_checkpoint: str, checkpoints_dir: str) -> Optional[Path]:
+    """
+    Full path of a model file stored anywhere under checkpoints_dir (also
+    used for LoRA and VAE directories).
+
+    A name that is a path relative to checkpoints_dir is used as is;
+    otherwise the directory is scanned recursively for a file with that
+    name. Never resolves to a file outside checkpoints_dir.
+
+    Returns:
+        The model path, or None if no such file exists
+    """
+    root = Path(checkpoints_dir)
+    direct = root / model_checkpoint
+    if direct.is_file() and is_within(direct, root):
+        return direct
+    return enumerate_models(root).get(Path(model_checkpoint).name)
+
+
 def sidecar_path(model_path: Path) -> Path:
     return model_path.with_suffix(SIDECAR_SUFFIX)
 

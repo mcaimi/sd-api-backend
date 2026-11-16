@@ -6,7 +6,6 @@ Endpoints for Flux image generation and inpainting.
 """
 
 from fastapi import APIRouter
-from pathlib import Path
 
 from api.models.generation import (
     FluxGenerationRequest,
@@ -17,7 +16,7 @@ from api.models.generation import (
 )
 from api.services.generation import generate_image_async, inpaint_image_async
 from api.services.job_queue import get_job_queue
-from api.config import get_app_config
+from api.routers.model_paths import resolve_generation_paths
 
 router = APIRouter()
 
@@ -25,19 +24,7 @@ router = APIRouter()
 @router.post("/generate", response_model=JobResponse)
 async def generate_flux(request: FluxGenerationRequest):
     """Generate a Flux image (async job)."""
-    config = get_app_config()
-    model_path = Path(config.checkpoints_flux_path) / request.model_checkpoint
-
-    # Convert LoraConfig to dict
-    loras_dict = None
-    if request.loras:
-        loras_dict = [
-            {
-                "name": Path(config.loras_flux_path) / lora.name,
-                "strength": lora.strength,
-            }
-            for lora in request.loras
-        ]
+    model_path, loras_dict, custom_vae = resolve_generation_paths("flux", request)
 
     # Submit to job queue
     job_queue = get_job_queue()
@@ -55,7 +42,7 @@ async def generate_flux(request: FluxGenerationRequest):
             "seed": request.seed,
             "scheduler": request.scheduler,
             "loras": loras_dict,
-            "custom_vae": request.custom_vae,
+            "custom_vae": custom_vae,
             "true_cfg_scale": request.true_cfg_scale,
         },
         callback=generate_image_async,
@@ -69,19 +56,7 @@ async def generate_flux(request: FluxGenerationRequest):
 @router.post("/inpaint", response_model=JobResponse)
 async def inpaint_flux(request: FluxInpaintRequest):
     """Flux inpainting (async job)."""
-    config = get_app_config()
-    model_path = Path(config.checkpoints_flux_path) / request.model_checkpoint
-
-    # Convert LoraConfig to dict
-    loras_dict = None
-    if request.loras:
-        loras_dict = [
-            {
-                "name": Path(config.loras_flux_path) / lora.name,
-                "strength": lora.strength,
-            }
-            for lora in request.loras
-        ]
+    model_path, loras_dict, custom_vae = resolve_generation_paths("flux", request)
 
     # Submit to job queue
     job_queue = get_job_queue()
@@ -99,7 +74,7 @@ async def inpaint_flux(request: FluxInpaintRequest):
             "seed": request.seed,
             "scheduler": request.scheduler,
             "loras": loras_dict,
-            "custom_vae": request.custom_vae,
+            "custom_vae": custom_vae,
             "strength": request.strength,
             "true_cfg_scale": request.true_cfg_scale,
         },
