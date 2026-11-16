@@ -15,11 +15,8 @@ from yaml import safe_load, YAMLError
 
 from metastable import ConfigurationError
 
-from api.constants import MODEL_TYPES
+from api.constants import MODEL_TYPES, CIVITAI_DEFAULT_BASE_URL
 from api.parameters import Parameters
-
-CIVITAI_DEFAULT_BASE_URL = "https://civitai.com/api/v1"
-
 
 @dataclass
 class AppConfig:
