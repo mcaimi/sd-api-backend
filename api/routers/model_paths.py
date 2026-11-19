@@ -4,7 +4,8 @@ Model Path Resolution
 
 Resolves the checkpoint, LoRA and custom VAE file names of a generation
 request to files under the configured model directories (subfolders
-included), for the generation routers.
+included), and the shared components directory of transformer-only
+architectures, for the generation routers.
 """
 
 from pathlib import Path
@@ -55,3 +56,13 @@ def resolve_generation_paths(model_type: str, request) -> Tuple[Path, Optional[L
         custom_vae = str(_resolve_or_404(request.custom_vae, paths["vaes"], "VAE"))
 
     return model_path, loras, custom_vae
+
+
+def resolve_components_dir(model_type: str) -> Optional[str]:
+    """
+    The shared components directory a generation request needs: None for
+    single-file architectures.
+    """
+    if model_type == "flux":
+        return get_app_config().flux_components_path
+    return None

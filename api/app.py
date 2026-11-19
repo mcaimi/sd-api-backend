@@ -14,7 +14,8 @@ from contextlib import asynccontextmanager
 
 import metastable
 
-from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs, civitai
+from api.routers import models, jobs, system, info, merge, outputs, civitai
+from api.routers.generation import ARCHITECTURES, create_generation_router
 from api.services.job_queue import get_job_queue
 from api.services.civitai_client import close_civitai_client
 from api.services.downloads import cleanup_partial_downloads
@@ -83,10 +84,12 @@ def create_app() -> FastAPI:
         )
 
     # Include routers
-    app.include_router(sd15.router, prefix="/api/v1/sd15", tags=["SD1.5"])
-    app.include_router(sdxl.router, prefix="/api/v1/sdxl", tags=["SDXL"])
-    app.include_router(illustrious.router, prefix="/api/v1/illustrious", tags=["Illustrious"])
-    app.include_router(flux.router, prefix="/api/v1/flux", tags=["Flux"])
+    for arch in ARCHITECTURES:
+        app.include_router(
+            create_generation_router(arch),
+            prefix=f"/api/v1/{arch.model_type}",
+            tags=[arch.display_name],
+        )
     app.include_router(models.router, prefix="/api/v1/models", tags=["Models"])
     app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
     app.include_router(system.router, prefix="/api/v1/system", tags=["System"])

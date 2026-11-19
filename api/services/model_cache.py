@@ -27,9 +27,10 @@ CLEAN_STATE = ((), None)
 # it never equals a requested state, so the next lease reloads it.
 DIRTY_STATE = object()
 
-# All Flux pipelines share one set of text encoders/VAE (metastable's
-# load_flux_shared_components), so they can't run concurrently either.
-FLUX_LOCK_GROUP = "flux"
+# Prefix of the lock group shared by all pipelines built from one components
+# directory: they share text encoders/VAE (and metastable serializes them on
+# one lock anyway), so they can't run concurrently either.
+COMPONENTS_LOCK_GROUP = "components"
 
 
 @dataclass
@@ -63,9 +64,15 @@ class ModelCacheManager:
         self._cond = asyncio.Condition()  # guards the fields above
         self._group_locks: Dict[str, asyncio.Lock] = {}
 
-    def _make_cache_key(self, model_type: str, model_path: str, pipeline_type: str) -> str:
-        """Generate cache key from model parameters."""
-        return f"{model_type}:{Path(model_path).name}:{pipeline_type}"
+    def _make_cache_key(
+        self, model_type: str, model_path: str, pipeline_type: str, components_dir: Optional[str]
+    ) -> str:
+        """Generate cache key from model parameters (resolved paths, so
+        same-named checkpoints in different subfolders don't collide)."""
+        key = f"{model_type}:{Path(model_path).resolve()}:{pipeline_type}"
+        if components_dir:
+            key += f":{Path(components_dir).resolve()}"
+        return key
 
     @asynccontextmanager
     async def acquire(
@@ -74,6 +81,7 @@ class ModelCacheManager:
         model_path: str,
         pipeline_type: str = "txt2img",
         state: Any = CLEAN_STATE,
+        components_dir: Optional[str] = None,
     ) -> AsyncIterator[CachedPipeline]:
         """
         Lease a pipeline from the cache, loading it if needed.
@@ -85,20 +93,27 @@ class ModelCacheManager:
         Holders must set entry.state to whatever they leave applied.
 
         Args:
-            model_type: "sd15", "sdxl", "illustrious", or "flux"
+            model_type: One of MODEL_TYPES
             model_path: Path to model checkpoint
             pipeline_type: "txt2img" or "inpaint"
             state: The LoRA/VAE state the holder is going to apply
+            components_dir: Shared components directory (transformer-only
+                architectures); pipelines sharing one are leased one at a time
 
         Yields:
             CachedPipeline entry
         """
-        cache_key = self._make_cache_key(model_type, model_path, pipeline_type)
-        group = FLUX_LOCK_GROUP if model_type == "flux" else cache_key
+        cache_key = self._make_cache_key(model_type, model_path, pipeline_type, components_dir)
+        if components_dir:
+            group = f"{COMPONENTS_LOCK_GROUP}:{Path(components_dir).resolve()}"
+        else:
+            group = cache_key
         lock = self._group_locks.setdefault(group, asyncio.Lock())
 
         async with lock:
-            entry = await self._checkout(cache_key, model_type, model_path, pipeline_type, state)
+            entry = await self._checkout(
+                cache_key, model_type, model_path, pipeline_type, state, components_dir
+            )
             try:
                 yield entry
             finally:
@@ -107,7 +122,13 @@ class ModelCacheManager:
                     self._cond.notify_all()
 
     async def _checkout(
-        self, cache_key: str, model_type: str, model_path: str, pipeline_type: str, state: Any
+        self,
+        cache_key: str,
+        model_type: str,
+        model_path: str,
+        pipeline_type: str,
+        state: Any,
+        components_dir: Optional[str],
     ) -> CachedPipeline:
         """Return a cached entry for cache_key marked in use, loading it if needed."""
         async with self._cond:
@@ -129,7 +150,7 @@ class ModelCacheManager:
 
         logger.info(f"Cache miss for {cache_key}, loading model...")
         try:
-            pipeline = await self._load_pipeline(model_type, model_path, pipeline_type)
+            pipeline = await self._load_pipeline(model_type, model_path, pipeline_type, components_dir)
         except BaseException:
             async with self._cond:
                 self._loading -= 1
@@ -157,14 +178,14 @@ class ModelCacheManager:
             del self._cache[victim]
             logger.info(f"Evicted {victim} from cache")
 
-    async def _load_pipeline(self, model_type: str, model_path: str, pipeline_type: str):
+    async def _load_pipeline(
+        self, model_type: str, model_path: str, pipeline_type: str, components_dir: Optional[str]
+    ):
         """Load a pipeline in a thread pool executor."""
         loop = asyncio.get_event_loop()
 
         def _load():
-            extra_kwargs = {}
-            if model_type == "flux":
-                extra_kwargs["components_dir"] = get_app_config().flux_components_path
+            extra_kwargs = {"components_dir": components_dir} if components_dir else {}
             pipeline_gen = create_generator(model_type, model_path, **extra_kwargs)
             if pipeline_type == "txt2img":
                 pipeline_gen.load_pipeline()

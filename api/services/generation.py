@@ -84,6 +84,7 @@ async def _leased_pipeline(
     pipeline_type: str,
     loras: Optional[list],
     custom_vae: Optional[str],
+    components_dir: Optional[str] = None,
 ):
     """
     Lease a cached pipeline with the requested LoRAs and custom VAE applied.
@@ -116,7 +117,9 @@ async def _leased_pipeline(
 
     loop = asyncio.get_event_loop()
     for attempt in (1, 2):
-        async with cache_manager.acquire(model_type, model_path, pipeline_type, state) as entry:
+        async with cache_manager.acquire(
+            model_type, model_path, pipeline_type, state, components_dir
+        ) as entry:
             if entry.state != state:
                 # Until _apply finishes the pipeline is in an unknown state
                 entry.state = DIRTY_STATE
@@ -147,13 +150,14 @@ async def generate_image_async(
     scheduler: str,
     loras: Optional[list] = None,
     custom_vae: Optional[str] = None,
-    true_cfg_scale: float = 1.0,
+    components_dir: Optional[str] = None,
+    pipeline_kwargs: Optional[dict] = None,
 ) -> dict:
     """
     Async wrapper for image generation.
 
     Args:
-        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        model_type: One of MODEL_TYPES
         model_path: Path to model checkpoint
         positive_prompt: Positive prompt text
         negative_prompt: Negative prompt text
@@ -165,8 +169,10 @@ async def generate_image_async(
         scheduler: Scheduler type
         loras: List of LoRA configs
         custom_vae: Optional custom VAE path
-        true_cfg_scale: Flux-only; >1.0 enables negative_prompt, ignored by
-            other architectures
+        components_dir: Shared components directory (transformer-only
+            architectures), None for single-file checkpoints
+        pipeline_kwargs: Architecture-specific forward() arguments (e.g.
+            Flux's true_cfg_scale)
 
     Returns:
         Dictionary with image_base64 and metadata
@@ -174,7 +180,6 @@ async def generate_image_async(
     loop = asyncio.get_event_loop()
 
     def _generate(pipeline_gen):
-        extra_kwargs = {"true_cfg_scale": true_cfg_scale} if model_type == "flux" else {}
         image_array, metadata = pipeline_gen.forward(
             positive_prompt=positive_prompt,
             negative_prompt=negative_prompt,
@@ -184,13 +189,13 @@ async def generate_image_async(
             height=height,
             cfg=cfg,
             seed=seed,
-            **extra_kwargs,
+            **(pipeline_kwargs or {}),
         )
         return image_array, metadata
 
     # Run generation in thread pool (blocking operation), holding the lease
     async with _leased_pipeline(
-        model_type, model_path, "txt2img", loras, custom_vae
+        model_type, model_path, "txt2img", loras, custom_vae, components_dir
     ) as (pipeline_gen, lora_metadata):
         image_array, metadata = await loop.run_in_executor(None, _generate, pipeline_gen)
 
@@ -228,14 +233,14 @@ async def inpaint_image_async(
     scheduler: str,
     loras: Optional[list] = None,
     custom_vae: Optional[str] = None,
-    strength: Optional[float] = None,
-    true_cfg_scale: float = 1.0,
+    components_dir: Optional[str] = None,
+    pipeline_kwargs: Optional[dict] = None,
 ) -> dict:
     """
     Async wrapper for inpainting.
 
     Args:
-        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        model_type: One of MODEL_TYPES
         model_path: Path to model checkpoint
         positive_prompt: Positive prompt text
         negative_prompt: Negative prompt text
@@ -247,10 +252,10 @@ async def inpaint_image_async(
         scheduler: Scheduler type
         loras: List of LoRA configs
         custom_vae: Optional custom VAE path
-        strength: Flux-only inpaint re-noising strength, ignored by other
-            architectures
-        true_cfg_scale: Flux-only; >1.0 enables negative_prompt, ignored by
-            other architectures
+        components_dir: Shared components directory (transformer-only
+            architectures), None for single-file checkpoints
+        pipeline_kwargs: Architecture-specific forward_inpaint() arguments
+            (e.g. Flux/Z-Image's strength)
 
     Returns:
         Dictionary with image_base64 and metadata
@@ -262,9 +267,6 @@ async def inpaint_image_async(
     loop = asyncio.get_event_loop()
 
     def _inpaint(pipeline_gen):
-        extra_kwargs = {"true_cfg_scale": true_cfg_scale}
-        if strength is not None:
-            extra_kwargs["strength"] = strength
         image_array, metadata = pipeline_gen.forward_inpaint(
             positive_prompt=positive_prompt,
             negative_prompt=negative_prompt,
@@ -274,13 +276,13 @@ async def inpaint_image_async(
             steps=steps,
             cfg=cfg,
             seed=seed,
-            **extra_kwargs,
+            **(pipeline_kwargs or {}),
         )
         return image_array, metadata
 
     # Run inpainting in thread pool (blocking operation), holding the lease
     async with _leased_pipeline(
-        model_type, model_path, "inpaint", loras, custom_vae
+        model_type, model_path, "inpaint", loras, custom_vae, components_dir
     ) as (pipeline_gen, lora_metadata):
         image_array, metadata = await loop.run_in_executor(None, _inpaint, pipeline_gen)
 
