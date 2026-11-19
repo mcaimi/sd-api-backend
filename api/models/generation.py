@@ -8,7 +8,7 @@ Request and response models for text-to-image and inpainting endpoints.
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 
-from metastable.schedulers import SCHEDULERS, FLUX_SCHEDULERS
+from metastable.schedulers import SCHEDULERS, FLOW_MATCH_SCHEDULERS
 
 
 class LoraConfig(BaseModel):
@@ -99,8 +99,8 @@ class FluxGenerationRequest(GenerationRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
+        if v not in FLOW_MATCH_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLOW_MATCH_SCHEDULERS.keys())}")
         return v
 
 
@@ -116,8 +116,8 @@ class FluxInpaintRequest(InpaintRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
+        if v not in FLOW_MATCH_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLOW_MATCH_SCHEDULERS.keys())}")
         return v
 
 
@@ -132,8 +132,8 @@ class FluxCompareModelsRequest(CompareModelsRequest):
 
     @field_validator('scheduler')
     def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
+        if v not in FLOW_MATCH_SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLOW_MATCH_SCHEDULERS.keys())}")
         return v
 
 
