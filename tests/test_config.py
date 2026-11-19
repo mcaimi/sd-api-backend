@@ -87,3 +87,42 @@ def test_type_validators_reject_unknown_values(validator):
     with pytest.raises(HTTPException) as exc:
         validator("sd3")
     assert exc.value.status_code == 400
+
+
+def test_model_paths_for_every_type(app_config):
+    for model_type in MODEL_TYPES:
+        assert set(app_config.get_model_paths(model_type)) == set(RESOURCE_TYPES)
+    with pytest.raises(ConfigurationError):
+        app_config.get_model_paths("sd3")
+
+
+def test_unconfigured_model_type_is_reported_not_fatal(tmp_path):
+    # A parameters.yaml written before Z-Image support: no zimage sections
+    sections = {
+        resource: {"flux": {"path": str(tmp_path / resource)}} for resource in RESOURCE_TYPES
+    }
+    cfg = config({**sections, "storage": {"output_images": str(tmp_path / "img"),
+                                          "output_json": str(tmp_path / "json")}})
+    cfg.setup_paths()
+    assert cfg.is_configured("flux")
+    assert not cfg.is_configured("zimage")
+    with pytest.raises(ConfigurationError, match="zimage is not configured"):
+        cfg.get_model_paths("zimage")
+    with pytest.raises(ConfigurationError, match="flux.components_path"):
+        cfg.components_path("flux")
+
+
+def test_components_paths(app_config):
+    assert app_config.components_path("flux").endswith("flux_components")
+    assert app_config.components_path("zimage", "turbo").endswith("zimage_turbo_components")
+    assert app_config.components_path("zimage", "base").endswith("zimage_base_components")
+    for model_type, variant in (("zimage", None), ("zimage", "lightning"), ("sdxl", None)):
+        with pytest.raises(ConfigurationError):
+            app_config.components_path(model_type, variant)
+
+
+def test_missing_zimage_variant_is_reported():
+    cfg = config({"zimage": {"components": {"turbo": "turbo_dir"}}})
+    assert cfg.components_path("zimage", "turbo") == "turbo_dir"
+    with pytest.raises(ConfigurationError, match="zimage.components.base"):
+        cfg.components_path("zimage", "base")

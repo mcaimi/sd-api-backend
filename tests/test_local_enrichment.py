@@ -157,7 +157,7 @@ def test_remote_flux_layout(env):
     client, config, fake = env
     version = fake.flux
     file = version["files"][0]
-    components = Path(config.flux_components_path)
+    components = Path(config.components_path("flux"))
     for name in ("tokenizer", "tokenizer_2"):
         (components / name).mkdir()
         (components / name / "x.json").write_text("{}")

@@ -402,7 +402,7 @@ def get_job_queue() -> JobQueue:
             logger.warning(
                 f"api.job_queue.num_workers={num_workers}: GPU jobs on different checkpoints run "
                 "concurrently and peak VRAM/RAM grows with each running job "
-                "(Flux jobs still run one at a time)"
+                "(jobs sharing a Flux/Z-Image components directory still run one at a time)"
             )
         _job_queue = JobQueue(
             num_workers=num_workers,

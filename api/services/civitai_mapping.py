@@ -33,6 +33,7 @@ MODEL_BASE_MODELS = {
     ),
     "illustrious": ("Illustrious", "NoobAI"),
     "flux": ("Flux.1 D", "Flux.1 S", "Flux.1 Krea"),
+    "zimage": ("ZImageTurbo", "ZImageBase"),
 }
 
 SORT_OPTIONS = ("Highest Rated", "Most Downloaded", "Newest")

@@ -55,9 +55,10 @@ def request(**kwargs) -> GenerationRequest:
 
 
 def test_resolve_generation_paths(config):
-    model = touch(Path(config.checkpoints_sd15_path) / "civitai" / "model.safetensors")
-    lora = touch(Path(config.loras_sd15_path) / "styles" / "lora.safetensors")
-    vae = touch(Path(config.vae_sd15_path) / "vaes" / "vae.safetensors")
+    paths = config.get_model_paths("sd15")
+    model = touch(Path(paths["checkpoints"]) / "civitai" / "model.safetensors")
+    lora = touch(Path(paths["loras"]) / "styles" / "lora.safetensors")
+    vae = touch(Path(paths["vaes"]) / "vaes" / "vae.safetensors")
 
     model_path, loras, custom_vae = model_paths.resolve_generation_paths(
         "sd15",
@@ -72,7 +73,7 @@ def test_resolve_generation_paths(config):
 
 
 def test_resolve_generation_paths_without_extras(config):
-    touch(Path(config.checkpoints_sdxl_path) / "model.safetensors")
+    touch(Path(config.get_model_paths("sdxl")["checkpoints"]) / "model.safetensors")
     _, loras, custom_vae = model_paths.resolve_generation_paths("sdxl", request())
     assert loras is None
     assert custom_vae is None
@@ -88,7 +89,7 @@ def test_resolve_generation_paths_without_extras(config):
 )
 def test_resolve_generation_paths_not_found(config, extras, detail):
     if extras:
-        touch(Path(config.checkpoints_flux_path) / "model.safetensors")
+        touch(Path(config.get_model_paths("flux")["checkpoints"]) / "model.safetensors")
     with pytest.raises(HTTPException) as exc:
         model_paths.resolve_generation_paths("flux", request(**extras))
     assert exc.value.status_code == 404

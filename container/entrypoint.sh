@@ -33,6 +33,8 @@ checkpoints:
     path: '${SD_API_MODELS_DIR}/checkpoints/Illustrious'
   flux:
     path: '${SD_API_MODELS_DIR}/checkpoints/Flux'
+  zimage:
+    path: '${SD_API_MODELS_DIR}/checkpoints/ZImage'
 
 loras:
   sd15:
@@ -43,6 +45,8 @@ loras:
     path: '${SD_API_MODELS_DIR}/loras/Illustrious'
   flux:
     path: '${SD_API_MODELS_DIR}/loras/Flux'
+  zimage:
+    path: '${SD_API_MODELS_DIR}/loras/ZImage'
 
 vaes:
   sd15:
@@ -53,9 +57,16 @@ vaes:
     path: '${SD_API_MODELS_DIR}/vae/Illustrious'
   flux:
     path: '${SD_API_MODELS_DIR}/vae/Flux'
+  zimage:
+    path: '${SD_API_MODELS_DIR}/vae/ZImage'
 
 flux:
   components_path: '${SD_API_MODELS_DIR}/flux_components'
+
+zimage:
+  components:
+    turbo: '${SD_API_MODELS_DIR}/zimage_turbo_components'
+    base: '${SD_API_MODELS_DIR}/zimage_components'
 
 device:
   backend: ${SD_API_DEVICE_BACKEND}

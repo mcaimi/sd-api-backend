@@ -5,8 +5,8 @@ Pydantic Models for Image Generation
 Request and response models for text-to-image and inpainting endpoints.
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Any, ClassVar, Dict, Optional, List
+from pydantic import BaseModel, Field, field_validator, model_validator
+from typing import Any, ClassVar, Dict, Literal, Optional, List
 
 from metastable.schedulers import SCHEDULERS, FLOW_MATCH_SCHEDULERS
 
@@ -139,6 +139,74 @@ class FluxCompareModelsRequest(CompareModelsRequest):
     SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
 
     scheduler: str = Field("FlowMatch Euler")
+
+
+# Recommended settings per Z-Image variant, used when steps/cfg_scale are
+# omitted. Turbo is distilled: CFG off (negative prompt ignored).
+ZIMAGE_VARIANT_DEFAULTS = {
+    "turbo": {"steps": 8, "cfg_scale": 0.0},
+    "base": {"steps": 28, "cfg_scale": 4.0},
+}
+
+ZImageVariant = Literal["turbo", "base"]
+
+
+class ZImageSettings(SchedulerValidated):
+    """Z-Image variant selection and variant-dependent defaults.
+
+    Base and Turbo checkpoints can't be told apart from their files, so the
+    request names the variant: it selects the matching components directory
+    and the default steps/cfg_scale.
+    """
+    SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
+
+    variant: ZImageVariant = Field(
+        "turbo", description="Checkpoint variant: 'turbo' (distilled) or 'base'"
+    )
+    scheduler: str = Field("FlowMatch Euler", description="Noise scheduler")
+    steps: Optional[int] = Field(
+        None, ge=1, le=150, description="Inference steps; default 8 (turbo) or 28 (base)"
+    )
+    cfg_scale: Optional[float] = Field(
+        None, ge=0.0, le=30.0,
+        description="Guidance scale, CFG is enabled when > 0 (negative prompt used); "
+                    "default 0.0 (turbo) or 4.0 (base)",
+    )
+
+    @model_validator(mode="after")
+    def apply_variant_defaults(self):
+        for name, value in ZIMAGE_VARIANT_DEFAULTS[self.variant].items():
+            if getattr(self, name) is None:
+                setattr(self, name, value)
+        return self
+
+
+class ZImageGenerationRequest(ZImageSettings, GenerationRequest):
+    """Request for Z-Image (Base and Turbo) image generation."""
+    width: int = Field(1024, ge=256, le=2048, description="Image width")
+    height: int = Field(1024, ge=256, le=2048, description="Image height")
+
+
+class ZImageInpaintRequest(ZImageSettings, InpaintRequest):
+    """Request for Z-Image (Base and Turbo) inpainting."""
+    strength: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="Inpaint re-noising strength; None uses the pipeline default (1.0)",
+    )
+
+    def pipeline_kwargs(self) -> dict:
+        return {} if self.strength is None else {"strength": self.strength}
+
+
+class ZImageBatchGenerationRequest(BaseModel):
+    """Request for batch Z-Image generation."""
+    requests: List[ZImageGenerationRequest] = Field(..., max_length=10, description="List of generation requests")
+
+
+class ZImageCompareModelsRequest(ZImageSettings, CompareModelsRequest):
+    """Request for Z-Image model comparison (all models of one variant)."""
+    width: int = Field(1024, ge=256, le=2048)
+    height: int = Field(1024, ge=256, le=2048)
 
 
 class JobResponse(BaseModel):

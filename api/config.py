@@ -5,18 +5,28 @@ Centralized Application Configuration
 Provides a single point of configuration loading and caching for the API.
 """
 
+import logging
 import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 from yaml import safe_load, YAMLError
 
 from metastable import ConfigurationError
 
-from api.constants import MODEL_TYPES, CIVITAI_DEFAULT_BASE_URL
+from api.constants import (
+    CIVITAI_DEFAULT_BASE_URL,
+    MODEL_TYPES,
+    RESOURCE_TYPES,
+    TRANSFORMER_MODEL_TYPES,
+    ZIMAGE_VARIANTS,
+)
 from api.parameters import Parameters
+
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class AppConfig:
@@ -30,59 +40,87 @@ class AppConfig:
     config_file: str
     parameters: Parameters
 
-    @property
-    def checkpoints_sd15_path(self) -> str:
-        return self.parameters.checkpoints.sd15.path
+    def get_model_paths(self, model_type: str) -> Dict[str, str]:
+        """
+        Get all paths for a specific model type.
 
-    @property
-    def checkpoints_sdxl_path(self) -> str:
-        return self.parameters.checkpoints.sdxl.path
+        Args:
+            model_type: One of MODEL_TYPES
 
-    @property
-    def checkpoints_illustrious_path(self) -> str:
-        return self.parameters.checkpoints.illustrious.path
+        Returns:
+            Dictionary with 'checkpoints', 'loras', and 'vaes' paths
 
-    @property
-    def checkpoints_flux_path(self) -> str:
-        return self.parameters.checkpoints.flux.path
+        Raises:
+            ConfigurationError: If model_type is not a supported architecture
+                or its directories are not configured
+        """
+        if model_type not in MODEL_TYPES:
+            raise ConfigurationError(
+                f"Invalid model_type: {model_type}. Must be one of {', '.join(MODEL_TYPES)}"
+            )
 
-    @property
-    def loras_sd15_path(self) -> str:
-        return self.parameters.loras.sd15.path
+        paths = {}
+        for resource_type in RESOURCE_TYPES:
+            section = getattr(getattr(self.parameters, resource_type, None), model_type, None)
+            path = getattr(section, "path", None)
+            if not path:
+                raise ConfigurationError(
+                    f"{model_type} is not configured: set {resource_type}.{model_type}.path "
+                    f"in {self.config_file}"
+                )
+            paths[resource_type] = path
+        return paths
 
-    @property
-    def loras_sdxl_path(self) -> str:
-        return self.parameters.loras.sdxl.path
+    def is_configured(self, model_type: str) -> bool:
+        """True if every resource directory of model_type is configured."""
+        try:
+            self.get_model_paths(model_type)
+        except ConfigurationError:
+            return False
+        return True
 
-    @property
-    def loras_illustrious_path(self) -> str:
-        return self.parameters.loras.illustrious.path
+    def components_path(self, model_type: str, variant: Optional[str] = None) -> str:
+        """
+        Shared diffusers-format directory holding the text encoder(s),
+        tokenizer(s), VAE and scheduler of a transformer-only architecture
+        (not model-checkpoint-specific).
 
-    @property
-    def loras_flux_path(self) -> str:
-        return self.parameters.loras.flux.path
+        Args:
+            model_type: One of TRANSFORMER_MODEL_TYPES
+            variant: Z-Image only, one of ZIMAGE_VARIANTS
 
-    @property
-    def vae_sd15_path(self) -> str:
-        return self.parameters.vaes.sd15.path
+        Raises:
+            ConfigurationError: If model_type has no components directory, or
+                it is not configured
+        """
+        if model_type == "flux":
+            key = "flux.components_path"
+            path = getattr(getattr(self.parameters, "flux", None), "components_path", None)
+        elif model_type == "zimage":
+            if variant not in ZIMAGE_VARIANTS:
+                raise ConfigurationError(
+                    f"Invalid Z-Image variant: {variant}. Must be one of {', '.join(ZIMAGE_VARIANTS)}"
+                )
+            key = f"zimage.components.{variant}"
+            components = getattr(getattr(self.parameters, "zimage", None), "components", None)
+            path = getattr(components, variant, None)
+        else:
+            raise ConfigurationError(f"{model_type} has no shared components directory")
 
-    @property
-    def vae_sdxl_path(self) -> str:
-        return self.parameters.vaes.sdxl.path
+        if not path:
+            raise ConfigurationError(f"{key} is not set in {self.config_file}")
+        return path
 
-    @property
-    def vae_illustrious_path(self) -> str:
-        return self.parameters.vaes.illustrious.path
-
-    @property
-    def vae_flux_path(self) -> str:
-        return self.parameters.vaes.flux.path
-
-    @property
-    def flux_components_path(self) -> str:
-        """Shared diffusers-format directory holding Flux's text encoders,
-        tokenizers, VAE, and scheduler (not model-checkpoint-specific)."""
-        return self.parameters.flux.components_path
+    def _configured_components_paths(self) -> List[str]:
+        variants = {"flux": (None,), "zimage": ZIMAGE_VARIANTS}
+        paths = []
+        for model_type in TRANSFORMER_MODEL_TYPES:
+            for variant in variants[model_type]:
+                try:
+                    paths.append(self.components_path(model_type, variant))
+                except ConfigurationError:
+                    pass
+        return paths
 
     @property
     def output_images_path(self) -> str:
@@ -205,68 +243,15 @@ class AppConfig:
             "config_parameters": parameters,
         }
 
-    def get_model_paths(self, model_type: str) -> Dict[str, str]:
-        """
-        Get all paths for a specific model type.
-
-        Args:
-            model_type: One of 'sd15', 'sdxl', 'illustrious', or 'flux'
-
-        Returns:
-            Dictionary with 'checkpoints', 'loras', and 'vae' paths
-
-        Raises:
-            ConfigurationError: If model_type is not a supported architecture
-        """
-        if model_type not in MODEL_TYPES:
-            raise ConfigurationError(
-                f"Invalid model_type: {model_type}. Must be one of {', '.join(MODEL_TYPES)}"
-            )
-
-        if model_type == "sd15":
-            return {
-                "checkpoints": self.checkpoints_sd15_path,
-                "loras": self.loras_sd15_path,
-                "vaes": self.vae_sd15_path,
-            }
-        elif model_type == "sdxl":
-            return {
-                "checkpoints": self.checkpoints_sdxl_path,
-                "loras": self.loras_sdxl_path,
-                "vaes": self.vae_sdxl_path,
-            }
-        elif model_type == "illustrious":
-            return {
-                "checkpoints": self.checkpoints_illustrious_path,
-                "loras": self.loras_illustrious_path,
-                "vaes": self.vae_illustrious_path,
-            }
-        else:  # flux
-            return {
-                "checkpoints": self.checkpoints_flux_path,
-                "loras": self.loras_flux_path,
-                "vaes": self.vae_flux_path,
-            }
-
     def setup_paths(self) -> None:
-        """Create all required directories if they don't exist."""
-        paths = [
-            self.checkpoints_sd15_path,
-            self.checkpoints_sdxl_path,
-            self.checkpoints_illustrious_path,
-            self.checkpoints_flux_path,
-            self.loras_sd15_path,
-            self.loras_sdxl_path,
-            self.loras_illustrious_path,
-            self.loras_flux_path,
-            self.vae_sd15_path,
-            self.vae_sdxl_path,
-            self.vae_illustrious_path,
-            self.vae_flux_path,
-            self.flux_components_path,
-            self.output_images_path,
-            self.output_json_path,
-        ]
+        """Create all configured directories if they don't exist."""
+        paths = [self.output_images_path, self.output_json_path]
+        for model_type in MODEL_TYPES:
+            if self.is_configured(model_type):
+                paths.extend(self.get_model_paths(model_type).values())
+            else:
+                logger.warning(f"{model_type} models are not configured in {self.config_file}")
+        paths.extend(self._configured_components_paths())
         for path in paths:
             Path(path).mkdir(parents=True, exist_ok=True)
 

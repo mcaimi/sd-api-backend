@@ -13,7 +13,10 @@ from typing import List, Optional, Tuple
 
 from fastapi import HTTPException
 
+from metastable import ConfigurationError
+
 from api.config import get_app_config
+from api.constants import TRANSFORMER_MODEL_TYPES
 from api.services.model_files import resolve_checkpoint_from_registry
 
 
@@ -58,11 +61,17 @@ def resolve_generation_paths(model_type: str, request) -> Tuple[Path, Optional[L
     return model_path, loras, custom_vae
 
 
-def resolve_components_dir(model_type: str) -> Optional[str]:
+def resolve_components_dir(model_type: str, variant: Optional[str] = None) -> Optional[str]:
     """
     The shared components directory a generation request needs: None for
     single-file architectures.
+
+    Raises:
+        HTTPException 400 if the directory is not configured
     """
-    if model_type == "flux":
-        return get_app_config().flux_components_path
-    return None
+    if model_type not in TRANSFORMER_MODEL_TYPES:
+        return None
+    try:
+        return get_app_config().components_path(model_type, variant)
+    except ConfigurationError as e:
+        raise HTTPException(status_code=400, detail=str(e))

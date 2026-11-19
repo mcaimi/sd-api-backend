@@ -7,8 +7,9 @@ Creates and configures the FastAPI application with all routers and middleware.
 
 import logging
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
@@ -66,7 +67,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="Stable Diffusion API",
-        description="REST API for SD1.5, SDXL, Illustrious XL, and Flux image generation, inpainting, and model merging",
+        description="REST API for SD1.5, SDXL, Illustrious XL, Flux, and Z-Image image generation, inpainting, and model merging",
         version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -82,6 +83,12 @@ def create_app() -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    # A model type that parameters.yaml doesn't configure (e.g. zimage in a
+    # config written before it was supported) is a client-visible 400
+    @app.exception_handler(metastable.ConfigurationError)
+    async def configuration_error_handler(request: Request, exc: metastable.ConfigurationError):
+        return JSONResponse(status_code=400, content={"detail": str(exc)})
 
     # Include routers
     for arch in ARCHITECTURES:

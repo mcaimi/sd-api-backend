@@ -21,6 +21,10 @@ from api.models.generation import (
     FluxInpaintRequest,
     FluxBatchGenerationRequest,
     FluxCompareModelsRequest,
+    ZImageGenerationRequest,
+    ZImageInpaintRequest,
+    ZImageBatchGenerationRequest,
+    ZImageCompareModelsRequest,
     JobResponse,
 )
 from api.services.generation import generate_image_async, inpaint_image_async
@@ -49,6 +53,8 @@ ARCHITECTURES = (
                  BatchGenerationRequest, CompareModelsRequest),
     Architecture("flux", "Flux", FluxGenerationRequest, FluxInpaintRequest,
                  FluxBatchGenerationRequest, FluxCompareModelsRequest),
+    Architecture("zimage", "Z-Image", ZImageGenerationRequest, ZImageInpaintRequest,
+                 ZImageBatchGenerationRequest, ZImageCompareModelsRequest),
 )
 
 
@@ -66,7 +72,7 @@ def _common_params(model_type: str, request) -> dict:
         "scheduler": request.scheduler,
         "loras": loras_dict,
         "custom_vae": custom_vae,
-        "components_dir": resolve_components_dir(model_type),
+        "components_dir": resolve_components_dir(model_type, getattr(request, "variant", None)),
         "pipeline_kwargs": request.pipeline_kwargs(),
     }
 

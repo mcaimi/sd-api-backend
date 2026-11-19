@@ -8,7 +8,13 @@ for path parameters that name them.
 
 from fastapi import HTTPException
 
-MODEL_TYPES = ("sd15", "sdxl", "illustrious", "flux")
+MODEL_TYPES = ("sd15", "sdxl", "illustrious", "flux", "zimage")
+# Architectures whose checkpoints only ship the diffusion transformer; text
+# encoders, VAE and scheduler come from a shared components directory
+TRANSFORMER_MODEL_TYPES = ("flux", "zimage")
+# Z-Image checkpoints can't be told apart from their files, so requests name
+# the variant; each one has its own components directory (scheduler shift)
+ZIMAGE_VARIANTS = ("turbo", "base")
 RESOURCE_TYPES = ("checkpoints", "loras", "vaes")
 CIVITAI_DEFAULT_BASE_URL = "https://civitai.com/api/v1"
 

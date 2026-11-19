@@ -1,5 +1,5 @@
 document.addEventListener("alpine:init", () => {
-  const MODEL_TYPES = ["sd15", "sdxl", "illustrious", "flux"];
+  const MODEL_TYPES = ["sd15", "sdxl", "illustrious", "flux", "zimage"];
   const RESOURCE_TYPES = ["checkpoints", "loras", "vaes"];
   const LAYOUT_PARTS = { clip_l: "CLIP-L", t5xxl: "T5-XXL", vae: "VAE" };
 
