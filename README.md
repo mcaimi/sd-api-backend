@@ -1,6 +1,6 @@
 # SD API Backend
 
-A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5, SDXL, Illustrious XL, and Flux pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
+A FastAPI-based backend service for Stable Diffusion image generation, inpainting, multi-model merging, and model management. Supports SD 1.5, SDXL, Illustrious XL, Flux, and Z-Image (Base and Turbo) pipelines with asynchronous job processing, model caching, and optional LoRA adapter integration.
 
 This is a rewrite effort of the [SD-WebApp](https://github.com/mcaimi/sd-webapp) project, and has been brewing for a bit now.
 The idea is to decouple the UI from the actual inference backend. This repo will host the backend code.
@@ -9,18 +9,18 @@ The Stable Diffusion pipelines, device selection, checkpoint merging and telemet
 
 ## Implemented Features
 
-- **Text-to-Image Generation** - Submit async jobs for SD 1.5, SDXL, Illustrious XL, and Flux models, receive results via job status polling
-- **Inpainting** - Image inpainting using specialized pipelines with base image and mask (base64) inputs, including Flux's strength-based re-noising inpaint
+- **Text-to-Image Generation** - Submit async jobs for SD 1.5, SDXL, Illustrious XL, Flux, and Z-Image (Base and Turbo) models, receive results via job status polling
+- **Inpainting** - Image inpainting using specialized pipelines with base image and mask (base64) inputs, including Flux's and Z-Image's strength-based re-noising inpaint
 - **Batch Generation** - Submit multiple generation jobs in a single request
 - **Model Comparison** - Generate images from multiple checkpoints side-by-side for comparison
-- **Multi-Model Merging** - Merge two or more models using configurable methods (linear, slerp, additive, subtract), with weight coefficients and multi-step recipe execution (SD 1.5/SDXL/Illustrious XL only — see [TODO.md](TODO.md) for planned Flux merge support)
+- **Multi-Model Merging** - Merge two or more models using configurable methods (linear, slerp, additive, subtract), with weight coefficients and multi-step recipe execution for every architecture (Flux and Z-Image merge the transformer only). Merges are streamed with constant memory and checked from the file headers before they are queued
 - **Asynchronous Job Queue** - Non-blocking API with worker-based async pipeline execution via `asyncio.Queue`; worker count and result TTL are configurable, and finished jobs are cleaned up after the TTL
 - **Model Caching** - LRU cache (configurable, default 2 pipelines) for expensive diffusion model loading. Pipelines are leased to one job at a time and never evicted while in use, so concurrent workers can't clobber each other's LoRAs/VAE
 - **LoRA Support** - Load and fuse PEFT-based LoRA adapters into the base pipeline with configurable strength
 - **Custom VAE** - Replace the default VAE with custom models loaded from disk
-- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux, float32 for CPU)
+- **Multi-Device Auto-Detection** - Automatic fallback: MPS (Apple Silicon) > CUDA (NVIDIA) / ROCm (AMD) > CPU with dtype auto-selection (float16 for SD/SDXL/Illustrious XL, bfloat16 for Flux/Z-Image, float32 for CPU)
 - **AMD ROCm Support** - Config-driven backend selection (`device.back$end: rocm`) with `gfx_override` for cards missing from the ROCm support matrix (e.g. RX 6600 XT), plus `rocm-smi` telemetry
-- **Flux Memory Offload** - Flux pipelines use `enable_model_cpu_offload()` instead of a full device move to fit its larger (~12B parameter transformer + T5-XXL encoder) footprint on consumer hardware
+- **Flux/Z-Image Memory Offload** - Flux and Z-Image pipelines use `enable_model_cpu_offload()` instead of a full device move to fit their larger footprint (Flux: ~12B parameter transformer + T5-XXL encoder; Z-Image: 6B transformer + Qwen3 encoder) on consumer hardware
 - **Configurable Output** - Optional disk persistence of generated images and metadata to `outputs/images/` and `outputs/json/` as PNG and JSON
 - **System Endpoints** - Health checks, system info (GPU, cache stats, queue stats), and configuration exposure
 - **CORS Middleware** - Configurable CORS support, enabled by default with wildcard origins
@@ -49,12 +49,27 @@ All endpoints are prefixed with `/api/v1`.
 | POST | `/flux/inpaint` | Submit Flux inpainting job (strength-based re-noising) |
 | POST | `/flux/generate/batch` | Submit multiple Flux generation jobs |
 | POST | `/flux/generate/compare` | Generate from multiple Flux models for comparison |
+| POST | `/zimage/generate` | Submit Z-Image text-to-image generation job (`variant`: `turbo` or `base`) |
+| POST | `/zimage/inpaint` | Submit Z-Image inpainting job (strength-based re-noising) |
+| POST | `/zimage/generate/batch` | Submit multiple Z-Image generation jobs |
+| POST | `/zimage/generate/compare` | Generate from multiple Z-Image models (of one variant) for comparison |
+
+Flux and Z-Image use the flow-matching scheduler set (`FlowMatch Euler`); the SD schedulers are rejected for them and vice versa. `FlowMatch Heun` is no longer available.
+
+**Z-Image variants.** Base and Turbo checkpoints can't be told apart from their files, so Z-Image requests carry `variant` (default `turbo`). It selects the matching components directory and the defaults of omitted settings:
+
+| variant | `steps` | `cfg_scale` | negative prompt |
+|---------|---------|-------------|-----------------|
+| `turbo` | 8 | 0.0 | ignored (CFG off) |
+| `base`  | 28 | 4.0 | used |
+
+CFG is enabled whenever `cfg_scale > 0`. Downloaded Civitai checkpoints show their base model (`ZImageTurbo`/`ZImageBase`) in the models listing.
 
 ### Model Management
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/models/{model_type}/{resource_type}` | List available models (`model_type`: sd15/sdxl/illustrious/flux, `resource_type`: checkpoints/loras/vaes) |
+| GET | `/models/{model_type}/{resource_type}` | List available models (`model_type`: sd15/sdxl/illustrious/flux/zimage, `resource_type`: checkpoints/loras/vaes) |
 | GET | `/models/{model_type}/{resource_type}/{model_name}/metadata` | Get safetensors metadata for a specific model |
 
 ### Model Merging
@@ -67,7 +82,11 @@ All endpoints are prefixed with `/api/v1`.
 
 > `alpha` is the weight of the target model for every method (0.0 = base, 1.0 = target). **Breaking change:** before the move to metastable, `linear` used the opposite convention; requests and recipes written for it need `alpha → 1 - alpha`.
 
-> Merging currently supports `sd15`, `sdxl`, and `illustrious` only. Flux's transformer-based state dict isn't compatible with the current key-by-key UNet tensor merge — see [TODO.md](TODO.md).
+> Merging supports `sd15`, `sdxl`, `illustrious`, `flux`, and `zimage`. Every merge request takes an optional `output_dtype` (`auto`, `bfloat16`, `float16`, `float32`; `auto` keeps the base model's dtypes).
+>
+> Before a merge is queued, all checkpoints are checked from their safetensors headers (keys, shapes, key layout, no fp8 weights); incompatible checkpoints are rejected with HTTP 400. For batch merges a single incompatible target rejects the whole request.
+>
+> **Flux and Z-Image** merge only the diffusion transformer. Both inputs must use the same key layout (original/ComfyUI or diffusers). In all-in-one files the VAE and text encoders are copied unchanged from the base. fp8 checkpoints are rejected: use a bf16/fp16/fp32 version. Z-Image Base and Turbo files can't be told apart, so nothing stops merging them, but the result mixes a distilled and a non-distilled model and its right steps/CFG become unpredictable. Flux dev and schnell checkpoints have different keys and are rejected.
 
 ### Job Management
 
@@ -83,7 +102,7 @@ All endpoints are prefixed with `/api/v1`.
 | -------- | ------- | ------------- |
 | GET | `/system/health` | Health check endpoint |
 | GET | `/system/info` | System info (GPU, data type, cache stats, queue stats) |
-| GET | `/info/schedulers` | List available noise schedulers |
+| GET | `/info/schedulers` | List available noise schedulers (`?model_type=` for an architecture's set; default: the SD set) |
 | GET | `/info/app_settings` | Return current application configuration |
 
 Additional Swagger UI docs at `/docs` and ReDoc at `/redoc` (auto-generated by FastAPI).
@@ -116,16 +135,20 @@ Provided by `metastable.pipelines`; generators are created with `create_generato
     ┌───────┬───────┬───────┐
     │       │        │       │
 ┌────────┐┌────────┐┌─────────────┐┌────────┐
-│ SD15   ││ SDXL   ││ Illustrious ││ Flux   │
-│Pipeline││Pipeline││ Pipeline    ││Pipeline│
-│Generator││Generator││ Generator  ││Generator│
-└────────┘└────────┘└─────────────┘└────────┘
-                                      overrides:
-                                      _init_device (bf16),
-                                      to_device
-                                      (enable_model_cpu_offload),
-                                      forward/forward_inpaint
-                                      (true_cfg_scale, strength)
+│ SD15   ││ SDXL   ││ Illustrious ││ TransformerPipeline-   │
+│Pipeline││Pipeline││ Pipeline    ││ Generator              │
+│Generator││Generator││ Generator  ││ (shared components dir,│
+└────────┘└────────┘└─────────────┘│  bf16, cpu offload,    │
+                                   │  per-dir lock)         │
+                                   └──────────┬─────────────┘
+                                       ┌──────┴──────┐
+                                   ┌────────┐  ┌──────────┐
+                                   │ Flux   │  │ Z-Image  │
+                                   │Pipeline│  │ Pipeline │
+                                   │Generator│ │ Generator│
+                                   └────────┘  └──────────┘
+                                   forward/forward_inpaint
+                                   (true_cfg_scale, strength)
 ```
 
 ### Service Layer
@@ -210,8 +233,8 @@ Provided by `metastable.pipelines`; generators are created with `create_generato
 
 ### Image Generation (Primary Workflow)
 
-1. **Client** sends `POST /api/v1/{sd15,sdxl}/generate` with prompt, model, and generation parameters
-2. **Router** resolves model path from `AppConfig`, converts LoRA configs to dicts, validates request
+1. **Client** sends `POST /api/v1/{sd15,sdxl,illustrious,flux,zimage}/generate` with prompt, model, and generation parameters
+2. **Router** (one per architecture, built by `create_generation_router()`) resolves model path and, for Flux/Z-Image, the shared components directory from `AppConfig`, converts LoRA configs to dicts, validates request
 3. **JobQueue** generates a UUID4 `job_id`, creates a `Job` object, enqueues it, and returns immediately with `JobResponse(status="queued")`
 4. **Background workers** (`_worker` loop) dequeue jobs and set status to `RUNNING`
 5. **GenerationService** calls `ModelCacheManager.get_pipeline()` to get or load the diffusion pipeline
@@ -225,11 +248,11 @@ Provided by `metastable.pipelines`; generators are created with `create_generato
 ### Model Merging Call Flow
 
 1. **Client** sends `POST /api/v1/merge/merge` (or `/merge/batch`, `/merge/recipe`) with model specs, merge method, and weight parameters
-2. **Router** validates model paths from `AppConfig`
+2. **Router** validates model paths from `AppConfig` and checks from the safetensors headers that the checkpoints can be merged
 3. **JobQueue** generates a `job_id` and returns immediately with `JobResponse(status="queued")`
 4. **Background workers** dequeue jobs and invoke `MergeService.merge_models()`
-5. **MergeService** loads model weights using `diffusers` and safetensors, applies the specified merge algorithm (linear, slerp, additive, or subtract) via `metastable.merge`, and saves the merged checkpoint to the configured output directory
-6. **Recipe merges** loop through each step sequentially, feeding the result of the previous step as the base for the next
+5. **MergeService** runs `metastable.merge.MergePipeline` for the model type: tensors are streamed one at a time from memory-mapped inputs, merged (linear, slerp, additive, or subtract) and written to the output checkpoint, so memory use stays constant even for 12B-parameter Flux transformers. Provenance goes to a JSON sidecar next to the output
+6. **Recipe merges** apply every step to each tensor in turn, feeding the result of the previous step as the base for the next
 7. Job is marked `COMPLETED` with the path to the newly created merged model
 
 ### Job Status Polling
@@ -245,10 +268,11 @@ Client: GET /api/v1/jobs/{job_id}
 ### Model Cache Flow
 
 ```
-async with ModelCacheManager.acquire(model_type, model_path, pipeline_type, state)
-  1. Build cache key: "{model_type}:{model_name}:{pipeline_type}"
-  2. Take the pipeline's lock (all Flux pipelines share one lock, since they
-     share text encoders/VAE) → the lease is exclusive until the block exits
+async with ModelCacheManager.acquire(model_type, model_path, pipeline_type, state, components_dir)
+  1. Build cache key: "{model_type}:{resolved model path}:{pipeline_type}[:{components dir}]"
+  2. Take the pipeline's lock (pipelines built from the same components
+     directory share one lock, since they share text encoders/VAE)
+     → the lease is exclusive until the block exits
   3. Cache HIT with a different LoRA/VAE state applied → drop it and reload
   4. Cache HIT → update access order → yield cached pipeline
   5. Cache MISS → if at capacity (>= max_models) evict the least-recently-used
@@ -272,7 +296,7 @@ Lifespan startup:
   1. Load AppConfig from parameters.yaml
   2. metastable.configure_device(config.device) — before any torch.cuda usage
   3. Create FastAPI app with CORS middleware
-  4. Mount routers (sd15, sdxl, illustrious, flux, models, merge, jobs, system, info, outputs)
+  4. Mount routers (sd15, sdxl, illustrious, flux, zimage, models, merge, jobs, system, info, outputs)
   5. JobQueue singleton created → start_workers() spawns N async worker tasks
   6. Log "SD API Backend started"
 
@@ -377,26 +401,40 @@ curl -X DELETE http://localhost:8000/api/v1/jobs/{job_id}
 # List available checkpoints
 curl http://localhost:8000/api/v1/models/sd15/checkpoints
 
+# Submit a Z-Image Turbo generation job (8 steps, CFG off by default)
+curl -X POST http://localhost:8000/api/v1/zimage/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "positive_prompt": "a red fox in fresh snow, golden hour",
+    "model_checkpoint": "z_image_turbo_bf16.safetensors",
+    "variant": "turbo",
+    "seed": 42
+  }'
+
 # Merge two models
 curl -X POST http://localhost:8000/api/v1/merge/merge \
   -H "Content-Type: application/json" \
   -d '{
-    "model_a": "model_a.safetensors",
-    "model_b": "model_b.safetensors",
+    "model_type": "flux",
+    "base_model": "flux1-dev.safetensors",
+    "target_model": "flux1-dev-finetune.safetensors",
+    "method": "linear",
     "alpha": 0.5,
-    "merge_type": "average"
+    "output_name": "flux1-dev-merged",
+    "output_dtype": "bfloat16"
   }'
 
 # Multi-step recipe merge
 curl -X POST http://localhost:8000/api/v1/merge/recipe \
   -H "Content-Type: application/json" \
   -d '{
+    "model_type": "sdxl",
     "base_model": "base.safetensors",
     "steps": [
-      {"target": "style1.safetensors", "alpha": 0.4, "merge_type": "add"},
-      {"target": "style2.safetensors", "alpha": 0.3, "merge_type": "average"}
+      {"target_model": "style1.safetensors", "method": "additive", "alpha": 0.4},
+      {"target_model": "style2.safetensors", "method": "linear", "alpha": 0.3}
     ],
-    "output_path": "merged/"
+    "output_name": "recipe_merged"
   }'
 
 # Health check
@@ -437,6 +475,8 @@ checkpoints:
     path: 'models/checkpoints/Illustrious'
   flux:
     path: 'models/checkpoints/Flux'
+  zimage:
+    path: 'models/checkpoints/ZImage'
 loras:
   sd15:
     path: 'models/loras/SD15'
@@ -446,6 +486,8 @@ loras:
     path: 'models/loras/Illustrious'
   flux:
     path: 'models/loras/Flux'
+  zimage:
+    path: 'models/loras/ZImage'
 vaes:
   sd15:
     path: 'models/vae/SD15'
@@ -455,11 +497,19 @@ vaes:
     path: 'models/vae/Illustrious'
   flux:
     path: 'models/vae/Flux'
+  zimage:
+    path: 'models/vae/ZImage'
 # Flux checkpoints are transformer-only single-file checkpoints; the shared
 # text encoders (CLIP-L + T5-XXL), tokenizers, VAE, and scheduler are loaded
 # once from a local diffusers-format directory and reused across checkpoints.
 flux:
   components_path: 'models/flux_components'
+# Z-Image Turbo and Base each need the components directory of their own
+# repository (the scheduler shift differs); requests pick one with "variant".
+zimage:
+  components:
+    turbo: 'models/zimage_turbo_components'
+    base: 'models/zimage_components'
 storage:
   persist_to_backend: true
   output_images: 'outputs/images'
@@ -485,8 +535,10 @@ With more than one worker:
 
 - jobs on **different** checkpoints run concurrently; jobs on the same checkpoint
   (and pipeline type) still run one after another;
-- **Flux** jobs always run one at a time, because all Flux checkpoints share the
-  same text encoders and VAE;
+- jobs sharing a **components directory** run one at a time, because those
+  checkpoints share the same text encoders and VAE: all Flux jobs, all Z-Image
+  Turbo jobs, all Z-Image Base jobs. Flux and Z-Image jobs (or Turbo and Base)
+  can run concurrently;
 - peak VRAM/RAM grows with every job running at once, and on a single GPU total
   throughput rarely improves — the main win is overlapping model loading or merges
   with generation. Keep `model_cache.max_models` >= `num_workers`, otherwise
@@ -504,6 +556,25 @@ huggingface-cli download black-forest-labs/FLUX.1-dev \
 ```
 
 Then place a single-file Flux transformer checkpoint (e.g. `flux1-dev.safetensors`) under `checkpoints.flux.path`.
+
+If the components directory also contains `transformer/config.json`, it is used to load the checkpoint, so loading works offline (otherwise diffusers infers the config from the checkpoint and may fetch it from the Hugging Face Hub). Keep it by excluding only the weights: `--exclude "transformer/*.safetensors"`.
+
+### Z-Image Setup
+
+Z-Image works like Flux: checkpoints ship the transformer, and the Qwen3 text encoder, tokenizer, VAE, and scheduler come from a diffusers-format directory. Turbo and Base each need the directory from their own repository, configured under `zimage.components.turbo` and `zimage.components.base` (leave out a variant you don't use; requests for it are rejected with HTTP 400):
+
+```bash
+huggingface-cli download Tongyi-MAI/Z-Image-Turbo \
+  --exclude "transformer/*.safetensors" \
+  --local-dir models/zimage_turbo_components
+huggingface-cli download Tongyi-MAI/Z-Image \
+  --exclude "transformer/*.safetensors" \
+  --local-dir models/zimage_components
+```
+
+Then place single-file Z-Image transformer checkpoints (e.g. `z_image_turbo_bf16.safetensors`) under `checkpoints.zimage.path`, and send `"variant": "base"` with requests for Base checkpoints.
+
+A `parameters.yaml` written before Z-Image support keeps working: Z-Image endpoints answer HTTP 400 until the `zimage` sections are added.
 
 ### AMD ROCm Support (older cards, e.g. RX 6600)
 
