@@ -226,7 +226,7 @@ async def file_layout(version_id: int, file_id: int, client: CivitaiClient = Dep
 
     missing = []
     if layout["transformer"]:
-        missing = model_layout.missing_components(layout, get_app_config().flux_components_path)
+        missing = model_layout.missing_components(layout, get_app_config().components_path("flux"))
     return CivitaiLayoutResponse(layout=layout, missing_components=missing)
 
 

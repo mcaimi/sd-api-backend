@@ -35,7 +35,7 @@ class GeneratorCache(FakeCache):
         super().__init__(**kwargs)
         self.fail_first_lora = fail_first_lora
 
-    async def _load_pipeline(self, model_type, model_path, pipeline_type):
+    async def _load_pipeline(self, model_type, model_path, pipeline_type, components_dir):
         self.loads.append((model_type, model_path, pipeline_type))
         generator = FakeGenerator(fail_first_lora=self.fail_first_lora)
         self.fail_first_lora = False
@@ -105,7 +105,7 @@ def test_inference_failure_keeps_applied_state(cache):
         with pytest.raises(ValueError):
             async with generation._leased_pipeline("sdxl", "a.safetensors", "txt2img", LORA, None):
                 raise ValueError("inference blew up")
-        entry = manager._cache["sdxl:a.safetensors:txt2img"]
+        entry = manager._cache[manager._make_cache_key("sdxl", "a.safetensors", "txt2img", None)]
         assert entry.state is not DIRTY_STATE
         await lease(LORA)
 

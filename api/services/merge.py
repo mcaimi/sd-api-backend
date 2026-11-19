@@ -14,7 +14,6 @@ from metastable.merge import (
     MergeConfig,
     MergeMethod,
     MergePipeline,
-    batch_merge_checkpoints,
 )
 
 logger = logging.getLogger(__name__)
@@ -27,18 +26,20 @@ async def merge_models_async(
     method: str,
     alpha: float,
     output_path: str,
+    output_dtype: str = "auto",
     preserve_metadata: bool = True,
 ) -> dict:
     """
     Async wrapper for single model merging.
 
     Args:
-        model_type: "sd15", "sdxl", or "illustrious"
+        model_type: A model type metastable can merge (metastable.merge.ARCHITECTURES)
         base_model_path: Full path to base model
         target_model_path: Full path to target model
         method: Merge method (linear, slerp, additive, subtract)
         alpha: Weight of the target model (0.0-1.0)
         output_path: Full path for output model
+        output_dtype: dtype of the merged tensors ("auto" keeps the base's)
         preserve_metadata: Whether to preserve metadata
 
     Returns:
@@ -52,6 +53,7 @@ async def merge_models_async(
         method=merge_method,
         alpha=alpha,
         preserve_metadata=preserve_metadata,
+        output_dtype=output_dtype,
         progress_callback=lambda p: logger.info(f"Merge progress: {p*100:.1f}%"),
     )
 
@@ -77,6 +79,7 @@ async def merge_models_async(
             "target_model": target_model_path,
             "method": method,
             "alpha": alpha,
+            "output_dtype": output_dtype,
             "model_type": model_type,
         }
     finally:
@@ -91,29 +94,34 @@ async def batch_merge_models_async(
     method: str,
     alpha: float,
     output_dir: str,
+    output_dtype: str = "auto",
     preserve_metadata: bool = True,
 ) -> dict:
     """
     Async wrapper for batch merging.
 
     Args:
-        model_type: "sd15", "sdxl", or "illustrious"
+        model_type: A model type metastable can merge (metastable.merge.ARCHITECTURES)
         base_model_path: Full path to base model
         target_model_paths: List of full paths to target models
         method: Merge method (linear, slerp, additive, subtract)
         alpha: Weight of the target model (0.0-1.0)
         output_dir: Directory for output models
+        output_dtype: dtype of the merged tensors ("auto" keeps the base's)
         preserve_metadata: Whether to preserve metadata
 
     Returns:
         Dictionary with list of output_paths and metadata
     """
+    pipeline = MergePipeline.for_model_type(model_type, device="auto")
+
     # Create merge config
     merge_method = MergeMethod.from_string(method)
     config = MergeConfig(
         method=merge_method,
         alpha=alpha,
         preserve_metadata=preserve_metadata,
+        output_dtype=output_dtype,
         progress_callback=lambda p: logger.info(f"Batch merge progress: {p*100:.1f}%"),
     )
 
@@ -121,9 +129,11 @@ async def batch_merge_models_async(
     loop = asyncio.get_event_loop()
 
     def _batch_merge():
-        return batch_merge_checkpoints(
-            base_checkpoint=base_model_path,
-            checkpoint_list=target_model_paths,
+        # Through the pipeline, so the architecture's layout checks and
+        # all-in-one handling (Flux, Z-Image) apply
+        return pipeline.batch_merge(
+            base_model=base_model_path,
+            target_models=target_model_paths,
             output_dir=output_dir,
             config=config,
         )
@@ -139,6 +149,7 @@ async def batch_merge_models_async(
             "target_models": target_model_paths,
             "method": method,
             "alpha": alpha,
+            "output_dtype": output_dtype,
             "model_type": model_type,
             "count": len(output_paths),
         }
@@ -152,15 +163,17 @@ async def recipe_merge_models_async(
     base_model_path: str,
     recipe_steps: List[Dict[str, Any]],
     output_path: str,
+    output_dtype: str = "auto",
 ) -> dict:
     """
     Async wrapper for recipe-based merging.
 
     Args:
-        model_type: "sd15", "sdxl", or "illustrious"
+        model_type: A model type metastable can merge (metastable.merge.ARCHITECTURES)
         base_model_path: Full path to base model
         recipe_steps: List of dicts with keys: target_model_path, method, alpha
         output_path: Full path for final merged model
+        output_dtype: dtype of the merged tensors ("auto" keeps the base's)
 
     Returns:
         Dictionary with output_path and recipe execution metadata
@@ -191,6 +204,7 @@ async def recipe_merge_models_async(
         return pipeline.execute_merge_recipe(
             recipe=recipe,
             output_path=output_path,
+            output_dtype=output_dtype,
         )
 
     try:
@@ -202,6 +216,7 @@ async def recipe_merge_models_async(
             "output_path": output_path,
             "base_model": base_model_path,
             "steps": recipe_steps,
+            "output_dtype": output_dtype,
             "model_type": model_type,
             "step_count": len(recipe_steps),
         }

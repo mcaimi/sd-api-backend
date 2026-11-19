@@ -7,14 +7,16 @@ Creates and configures the FastAPI application with all routers and middleware.
 
 import logging
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
 import metastable
 
-from api.routers import sd15, sdxl, illustrious, flux, models, jobs, system, info, merge, outputs, civitai
+from api.routers import models, jobs, system, info, merge, outputs, civitai
+from api.routers.generation import ARCHITECTURES, create_generation_router
 from api.services.job_queue import get_job_queue
 from api.services.civitai_client import close_civitai_client
 from api.services.downloads import cleanup_partial_downloads
@@ -65,7 +67,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="Stable Diffusion API",
-        description="REST API for SD1.5, SDXL, Illustrious XL, and Flux image generation, inpainting, and model merging",
+        description="REST API for SD1.5, SDXL, Illustrious XL, Flux, and Z-Image image generation, inpainting, and model merging",
         version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -82,11 +84,19 @@ def create_app() -> FastAPI:
             allow_headers=["*"],
         )
 
+    # A model type that parameters.yaml doesn't configure (e.g. zimage in a
+    # config written before it was supported) is a client-visible 400
+    @app.exception_handler(metastable.ConfigurationError)
+    async def configuration_error_handler(request: Request, exc: metastable.ConfigurationError):
+        return JSONResponse(status_code=400, content={"detail": str(exc)})
+
     # Include routers
-    app.include_router(sd15.router, prefix="/api/v1/sd15", tags=["SD1.5"])
-    app.include_router(sdxl.router, prefix="/api/v1/sdxl", tags=["SDXL"])
-    app.include_router(illustrious.router, prefix="/api/v1/illustrious", tags=["Illustrious"])
-    app.include_router(flux.router, prefix="/api/v1/flux", tags=["Flux"])
+    for arch in ARCHITECTURES:
+        app.include_router(
+            create_generation_router(arch),
+            prefix=f"/api/v1/{arch.model_type}",
+            tags=[arch.display_name],
+        )
     app.include_router(models.router, prefix="/api/v1/models", tags=["Models"])
     app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
     app.include_router(system.router, prefix="/api/v1/system", tags=["System"])

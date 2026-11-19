@@ -30,7 +30,7 @@ async def list_models(model_type: str, resource_type: str):
     List available models.
 
     Args:
-        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        model_type: One of MODEL_TYPES
         resource_type: "checkpoints", "loras", or "vaes"
 
     Returns:
@@ -106,7 +106,7 @@ async def get_model_metadata(model_type: str, resource_type: str, model_name: st
     Get metadata for a specific model.
 
     Args:
-        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        model_type: One of MODEL_TYPES
         resource_type: "checkpoints", "loras", or "vaes"
         model_name: Model filename
 
@@ -141,7 +141,7 @@ async def download_model(model_type: str, resource_type: str, model_name: str):
     Download a model file (e.g. a merged checkpoint).
 
     Args:
-        model_type: "sd15", "sdxl", "illustrious", or "flux"
+        model_type: One of MODEL_TYPES
         resource_type: "checkpoints", "loras", or "vaes"
         model_name: Model filename
     """

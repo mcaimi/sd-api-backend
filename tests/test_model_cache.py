@@ -7,6 +7,10 @@ import pytest
 from api.services.model_cache import CLEAN_STATE, DIRTY_STATE, ModelCacheManager
 
 
+def key(model_type, model_path, pipeline_type="txt2img", components_dir=None):
+    return ModelCacheManager(max_models=1)._make_cache_key(model_type, model_path, pipeline_type, components_dir)
+
+
 class FakeCache(ModelCacheManager):
     """ModelCacheManager whose loads return a placeholder object."""
 
@@ -15,12 +19,12 @@ class FakeCache(ModelCacheManager):
         self.loads = []
         self.fail_loads = fail_loads
 
-    async def _load_pipeline(self, model_type, model_path, pipeline_type):
+    async def _load_pipeline(self, model_type, model_path, pipeline_type, components_dir):
         await asyncio.sleep(0.01)
         if self.fail_loads:
             self.fail_loads -= 1
             raise RuntimeError("load failed")
-        self.loads.append((model_type, model_path, pipeline_type))
+        self.loads.append((model_type, model_path, pipeline_type, components_dir))
         return object()
 
 
@@ -31,8 +35,8 @@ class ConcurrencyProbe:
         self.active = 0
         self.peak = 0
 
-    async def hold(self, cache, model_type, model_path, seconds=0.05):
-        async with cache.acquire(model_type, model_path):
+    async def hold(self, cache, model_type, model_path, seconds=0.05, components_dir=None):
+        async with cache.acquire(model_type, model_path, components_dir=components_dir):
             self.active += 1
             self.peak = max(self.peak, self.active)
             await asyncio.sleep(seconds)
@@ -62,16 +66,45 @@ def test_different_pipelines_run_concurrently():
     assert asyncio.run(main()).peak == 2
 
 
-def test_flux_pipelines_share_one_lock():
+def test_pipelines_sharing_components_share_one_lock():
     async def main():
         cache, probe = FakeCache(max_models=2), ConcurrencyProbe()
         await asyncio.gather(
-            probe.hold(cache, "flux", "a.safetensors"),
-            probe.hold(cache, "flux", "b.safetensors"),
+            probe.hold(cache, "flux", "a.safetensors", components_dir="flux_components"),
+            probe.hold(cache, "flux", "b.safetensors", components_dir="flux_components"),
         )
         return probe
 
     assert asyncio.run(main()).peak == 1
+
+
+def test_pipelines_with_different_components_run_concurrently():
+    async def main():
+        cache, probe = FakeCache(max_models=2), ConcurrencyProbe()
+        await asyncio.gather(
+            probe.hold(cache, "flux", "a.safetensors", components_dir="flux_components"),
+            probe.hold(cache, "zimage", "b.safetensors", components_dir="zimage_turbo_components"),
+        )
+        return probe
+
+    assert asyncio.run(main()).peak == 2
+
+
+def test_components_dir_reaches_the_loader():
+    async def main():
+        cache = FakeCache()
+        async with cache.acquire("zimage", "a.safetensors", components_dir="zimage_base_components"):
+            pass
+        return cache
+
+    assert asyncio.run(main()).loads == [("zimage", "a.safetensors", "txt2img", "zimage_base_components")]
+
+
+def test_cache_key_distinguishes_folders_and_components():
+    assert key("sdxl", "x/model.safetensors") != key("sdxl", "y/model.safetensors")
+    assert key("sdxl", "x/model.safetensors") == key("sdxl", "x/../x/model.safetensors")
+    # Same Z-Image checkpoint run as Turbo and as Base: two different pipelines
+    assert key("zimage", "m.safetensors", components_dir="turbo") != key("zimage", "m.safetensors", components_dir="base")
 
 
 def test_leased_pipeline_is_not_evicted():
@@ -83,7 +116,7 @@ def test_leased_pipeline_is_not_evicted():
             async with cache.acquire("sdxl", "a.safetensors"):
                 order.append("a-start")
                 await asyncio.sleep(0.05)
-                assert "sdxl:a.safetensors:txt2img" in cache.get_stats()["cache_keys"]
+                assert key("sdxl", "a.safetensors") in cache.get_stats()["cache_keys"]
                 order.append("a-end")
 
         async def second():
@@ -96,7 +129,7 @@ def test_leased_pipeline_is_not_evicted():
 
     cache, order = asyncio.run(main())
     assert order == ["a-start", "a-end", "b-start"]
-    assert cache.get_stats()["cache_keys"] == ["sd15:b.safetensors:txt2img"]
+    assert cache.get_stats()["cache_keys"] == [key("sd15", "b.safetensors")]
 
 
 def test_idle_lru_pipeline_is_evicted():
@@ -108,7 +141,7 @@ def test_idle_lru_pipeline_is_evicted():
         return cache
 
     cache = asyncio.run(main())
-    assert cache.get_stats()["cache_keys"] == ["sdxl:a.safetensors:txt2img", "sdxl:c.safetensors:txt2img"]
+    assert cache.get_stats()["cache_keys"] == [key("sdxl", "a.safetensors"), key("sdxl", "c.safetensors")]
 
 
 @pytest.mark.parametrize("left_state", [(((("x.safetensors", 1.0),), None)), DIRTY_STATE])
@@ -147,5 +180,5 @@ def test_failed_load_releases_its_slot():
         return cache
 
     stats = asyncio.run(main()).get_stats()
-    assert stats["cache_keys"] == ["sdxl:b.safetensors:txt2img"]
+    assert stats["cache_keys"] == [key("sdxl", "b.safetensors")]
     assert stats["in_use"] == 0

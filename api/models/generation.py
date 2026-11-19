@@ -5,10 +5,23 @@ Pydantic Models for Image Generation
 Request and response models for text-to-image and inpainting endpoints.
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator, model_validator
+from typing import Any, ClassVar, Dict, Literal, Optional, List
 
-from metastable.schedulers import SCHEDULERS, FLUX_SCHEDULERS
+from metastable.schedulers import SCHEDULERS, FLOW_MATCH_SCHEDULERS
+
+
+class SchedulerValidated(BaseModel):
+    """Validates `scheduler` against the architecture's scheduler set."""
+
+    SCHEDULERS: ClassVar[Dict[str, Any]] = SCHEDULERS
+
+    @field_validator('scheduler', check_fields=False)
+    @classmethod
+    def validate_scheduler(cls, v):
+        if v not in cls.SCHEDULERS:
+            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(cls.SCHEDULERS.keys())}")
+        return v
 
 
 class LoraConfig(BaseModel):
@@ -17,7 +30,7 @@ class LoraConfig(BaseModel):
     strength: float = Field(0.5, ge=0.0, le=1.0, description="LoRA merge strength")
 
 
-class GenerationRequest(BaseModel):
+class GenerationRequest(SchedulerValidated):
     """Request for SD1.5/SDXL image generation."""
     positive_prompt: str = Field(..., min_length=1, max_length=2000, description="Positive prompt")
     negative_prompt: str = Field(default="", max_length=2000, description="Negative prompt")
@@ -31,14 +44,12 @@ class GenerationRequest(BaseModel):
     loras: Optional[List[LoraConfig]] = Field(default=None, description="LoRA adapters")
     custom_vae: Optional[str] = Field(default=None, description="Custom VAE checkpoint")
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(SCHEDULERS.keys())}")
-        return v
+    def pipeline_kwargs(self) -> dict:
+        """Architecture-specific arguments for the generator's forward()."""
+        return {}
 
 
-class InpaintRequest(BaseModel):
+class InpaintRequest(SchedulerValidated):
     """Request for SD1.5/SDXL inpainting."""
     positive_prompt: str = Field(..., min_length=1, max_length=2000)
     negative_prompt: str = Field(default="", max_length=2000)
@@ -52,11 +63,9 @@ class InpaintRequest(BaseModel):
     loras: Optional[List[LoraConfig]] = None
     custom_vae: Optional[str] = None
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}")
-        return v
+    def pipeline_kwargs(self) -> dict:
+        """Architecture-specific arguments for the generator's forward_inpaint()."""
+        return {}
 
 
 class BatchGenerationRequest(BaseModel):
@@ -64,8 +73,12 @@ class BatchGenerationRequest(BaseModel):
     requests: List[GenerationRequest] = Field(..., max_length=10, description="List of generation requests")
 
 
-class CompareModelsRequest(BaseModel):
-    """Request for model comparison."""
+class CompareModelsRequest(SchedulerValidated):
+    """Request for model comparison.
+
+    Every field except `models` is forwarded to the architecture's
+    generation request, once per model.
+    """
     positive_prompt: str
     negative_prompt: str = ""
     models: List[str] = Field(..., min_length=2, max_length=6, description="Model checkpoints to compare")
@@ -76,12 +89,6 @@ class CompareModelsRequest(BaseModel):
     seed: int = Field(42, ge=-1, description="Fixed seed for fair comparison")
     scheduler: str = Field("DPM++ 2M")
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}")
-        return v
-
 
 class FluxGenerationRequest(GenerationRequest):
     """Request for Flux image generation.
@@ -90,6 +97,8 @@ class FluxGenerationRequest(GenerationRequest):
     scheduler set) and a distilled guidance scale, so scheduler validation
     and the cfg_scale default are overridden; everything else is shared.
     """
+    SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
+
     scheduler: str = Field("FlowMatch Euler", description="Noise scheduler")
     cfg_scale: float = Field(3.5, ge=1.0, le=30.0, description="Flux guidance scale (distilled)")
     true_cfg_scale: float = Field(
@@ -97,15 +106,14 @@ class FluxGenerationRequest(GenerationRequest):
         description="True CFG scale; >1.0 enables negative_prompt",
     )
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
-        return v
+    def pipeline_kwargs(self) -> dict:
+        return {"true_cfg_scale": self.true_cfg_scale}
 
 
 class FluxInpaintRequest(InpaintRequest):
     """Request for Flux inpainting."""
+    SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
+
     scheduler: str = Field("FlowMatch Euler")
     cfg_scale: float = Field(7.0, ge=1.0, le=30.0)
     strength: Optional[float] = Field(
@@ -114,11 +122,11 @@ class FluxInpaintRequest(InpaintRequest):
     )
     true_cfg_scale: float = Field(1.0, ge=1.0, le=10.0)
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
-        return v
+    def pipeline_kwargs(self) -> dict:
+        kwargs = {"true_cfg_scale": self.true_cfg_scale}
+        if self.strength is not None:
+            kwargs["strength"] = self.strength
+        return kwargs
 
 
 class FluxBatchGenerationRequest(BaseModel):
@@ -128,13 +136,77 @@ class FluxBatchGenerationRequest(BaseModel):
 
 class FluxCompareModelsRequest(CompareModelsRequest):
     """Request for Flux model comparison."""
+    SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
+
     scheduler: str = Field("FlowMatch Euler")
 
-    @field_validator('scheduler')
-    def validate_scheduler(cls, v):
-        if v not in FLUX_SCHEDULERS:
-            raise ValueError(f"Invalid scheduler: {v}. Must be one of: {list(FLUX_SCHEDULERS.keys())}")
-        return v
+
+# Recommended settings per Z-Image variant, used when steps/cfg_scale are
+# omitted. Turbo is distilled: CFG off (negative prompt ignored).
+ZIMAGE_VARIANT_DEFAULTS = {
+    "turbo": {"steps": 8, "cfg_scale": 0.0},
+    "base": {"steps": 28, "cfg_scale": 4.0},
+}
+
+ZImageVariant = Literal["turbo", "base"]
+
+
+class ZImageSettings(SchedulerValidated):
+    """Z-Image variant selection and variant-dependent defaults.
+
+    Base and Turbo checkpoints can't be told apart from their files, so the
+    request names the variant: it selects the matching components directory
+    and the default steps/cfg_scale.
+    """
+    SCHEDULERS: ClassVar[Dict[str, Any]] = FLOW_MATCH_SCHEDULERS
+
+    variant: ZImageVariant = Field(
+        "turbo", description="Checkpoint variant: 'turbo' (distilled) or 'base'"
+    )
+    scheduler: str = Field("FlowMatch Euler", description="Noise scheduler")
+    steps: Optional[int] = Field(
+        None, ge=1, le=150, description="Inference steps; default 8 (turbo) or 28 (base)"
+    )
+    cfg_scale: Optional[float] = Field(
+        None, ge=0.0, le=30.0,
+        description="Guidance scale, CFG is enabled when > 0 (negative prompt used); "
+                    "default 0.0 (turbo) or 4.0 (base)",
+    )
+
+    @model_validator(mode="after")
+    def apply_variant_defaults(self):
+        for name, value in ZIMAGE_VARIANT_DEFAULTS[self.variant].items():
+            if getattr(self, name) is None:
+                setattr(self, name, value)
+        return self
+
+
+class ZImageGenerationRequest(ZImageSettings, GenerationRequest):
+    """Request for Z-Image (Base and Turbo) image generation."""
+    width: int = Field(1024, ge=256, le=2048, description="Image width")
+    height: int = Field(1024, ge=256, le=2048, description="Image height")
+
+
+class ZImageInpaintRequest(ZImageSettings, InpaintRequest):
+    """Request for Z-Image (Base and Turbo) inpainting."""
+    strength: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="Inpaint re-noising strength; None uses the pipeline default (1.0)",
+    )
+
+    def pipeline_kwargs(self) -> dict:
+        return {} if self.strength is None else {"strength": self.strength}
+
+
+class ZImageBatchGenerationRequest(BaseModel):
+    """Request for batch Z-Image generation."""
+    requests: List[ZImageGenerationRequest] = Field(..., max_length=10, description="List of generation requests")
+
+
+class ZImageCompareModelsRequest(ZImageSettings, CompareModelsRequest):
+    """Request for Z-Image model comparison (all models of one variant)."""
+    width: int = Field(1024, ge=256, le=2048)
+    height: int = Field(1024, ge=256, le=2048)
 
 
 class JobResponse(BaseModel):
